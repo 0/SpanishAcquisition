@@ -10,6 +10,58 @@ REAL_DEVICE = {'ip_address': '192.168.0.10'}
 #REAL_DEVICE = {'board': 0, 'pad': 5}
 
 
+class BlockDataTest(unittest.TestCase):
+	def testToAndFromBlockData(self):
+		"""
+		Routine conversions.
+		"""
+
+		binary_data = ''.join([chr(x) for x in xrange(256)])
+
+		data = [
+			('', '#10'),
+			(' ', '#11 '),
+			('something longer', '#216something longer'),
+			('and binary data: ' + binary_data, '#3273and binary data: ' + binary_data)
+		]
+
+		for d, b in data:
+			eq_(abstract_device.BlockData.to_block_data(d), b)
+			eq_(abstract_device.BlockData.from_block_data(b), d)
+
+	def testFromIndefiniteBlockData(self):
+		"""
+		Indefinite inputs.
+		"""
+
+		binary_data = ''.join([chr(x) for x in xrange(256)])
+
+		data = [
+			('', '#0\n'),
+			(' ', '#0 \n'),
+			('something longer', '#0something longer\n'),
+			('and binary data: ' + binary_data, '#0and binary data: ' + binary_data + '\n')
+		]
+
+		for d, b in data:
+			eq_(abstract_device.BlockData.from_block_data(b), d)
+
+	def testFromBadBlockData(self):
+		"""
+		Invalid inputs.
+		"""
+
+		data = ['', '#', '#0', '#0non-terminated', '#X', '#1', '#24test', '#44444Too short.']
+
+		for b in data:
+			try:
+				abstract_device.BlockData.from_block_data(b)
+			except abstract_device.BlockDataError:
+				pass
+			else:
+				assert False, 'Expected BlockDataError.'
+
+
 class AbstractDeviceTest(unittest.TestCase):
 	def testInitNoAddress(self):
 		"""

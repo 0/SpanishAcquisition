@@ -2,9 +2,29 @@ import gpib
 import Gpib
 import visa
 
+"""
+Tools for working with hardware devices.
+"""
+
 
 # Implementation types: PyVISA, Linux GPIB.
 PYVISA, LGPIB = xrange(2)
+
+
+class BlockDataError(Exception):
+	"""
+	Problem reading block data.
+	"""
+
+	pass
+
+
+class DeviceNotFoundError(Exception):
+	"""
+	Failure to connect to a device.
+	"""
+
+	pass
 
 
 class IbstaBits(object):
@@ -30,12 +50,68 @@ class IbstaBits(object):
 	ERR = 0x8000
 
 
-class DeviceNotFoundError(Exception):
+class BlockData(object):
 	"""
-	Failure to connect to a device.
+	Utility methods for conversion between binary and 488.2 block data.
 	"""
 
-	pass
+	@staticmethod
+	def to_block_data(data):
+		"""
+		Packs binary data into 488.2 block data.
+
+		As per section 7.7.6 of IEEE Std 488.2-1992.
+
+		Note: Does not produce indefinitely-formatted block data.
+		"""
+
+		length = len(data)
+		length_length = len(str(length))
+
+		return '#%d%d%s' % (length_length, length, data)
+
+	@staticmethod
+	def from_block_data(block_data):
+		"""
+		Extracts binary data from 488.2 block data.
+
+		As per section 7.7.6 of IEEE Std 488.2-1992.
+
+		Note: Any extra data (according to the header) is silently ignored in definite format.
+		"""
+
+		# Must have at least "#0\n" or "#XX".
+		if len(block_data) < 3:
+			raise BlockDataError('Not enough data.')
+
+		if block_data[0] != '#':
+			raise BlockDataError('Leading character is "%s", not #.' % (block_data[0]))
+
+		if block_data[1] == '0':
+			# Indefinite format: #0<data>\n
+			if block_data[-1] != '\n':
+				raise BlockDataError('Final character is "%s", not NL.' % (block_data[-1]))
+
+			return block_data[2:-1]
+		else:
+			# Definite format: #X<length><data>
+			try:
+				length_length = int(block_data[1])
+			except ValueError:
+				raise BlockDataError('Length length incorrectly specified: %s.' % (block_data[1]))
+
+			if 2 + length_length > len(block_data):
+				raise BlockDataError('Not enough data.')
+
+			try:
+				length = int(block_data[2:2+length_length])
+			except ValueError:
+				raise BlockDataError('Length incorrectly specified: %s.' % (block_data[2:2+length_length]))
+
+			if 2 + length_length + length > len(block_data):
+				raise BlockDataError('Not enough data.')
+
+			return block_data[2+length_length:2+length_length+length]
 
 
 class AbstractDevice(object):
@@ -134,7 +210,6 @@ class AbstractDevice(object):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_abstract_device
+	from tests import test_abstract_device as my_tests
 
-
-	unittest.main(module=test_abstract_device)
+	unittest.main(module=my_tests)

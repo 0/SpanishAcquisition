@@ -1,9 +1,28 @@
+from nose.plugins.skip import SkipTest
+from nose.tools import eq_
 import unittest
 
-from .. import abstract_device
+from devices import abstract_device
+
+
+# TODO: Move this to a configuration file.
+REAL_DEVICE = {'ip_address': '192.168.0.10'}
+#REAL_DEVICE = {'board': 0, 'pad': 5}
 
 
 class AbstractDeviceTest(unittest.TestCase):
+	def testInitNoAddress(self):
+		"""
+		No address specified.
+		"""
+
+		try:
+			dev = abstract_device.AbstractDevice()
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
 	def testInitNotFoundIP(self):
 		"""
 		Invalid or non-existent IP address.
@@ -47,6 +66,19 @@ class AbstractDeviceTest(unittest.TestCase):
 			pass
 		else:
 			assert False, 'Expected DeviceNotFoundError.'
+
+	def testAskRaw(self):
+		"""
+		Converse briefly with a real device.
+		"""
+
+		try:
+			dev = abstract_device.AbstractDevice(**REAL_DEVICE)
+		except:
+			raise SkipTest('Could not connect to device.')
+
+		msg = dev.ask_raw('*idn?')
+		eq_(msg[-1], '\n')
 
 
 if __name__ == '__main__':

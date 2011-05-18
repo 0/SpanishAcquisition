@@ -75,6 +75,13 @@ class AbstractDevice(object):
 		else:
 			raise ValueError('Either an IP or a GPIB address must be specified.')
 
+	def write(self, message):
+		"""
+		Write to the device.
+		"""
+
+		self.device.write(message)
+
 	def read_raw(self, chunk_size=512):
 		"""
 		Read everything the device has to say and return it exactly.
@@ -99,13 +106,6 @@ class AbstractDevice(object):
 
 		return self.read_raw().rstrip()
 
-	def write(self, message):
-		"""
-		Write to the device.
-		"""
-
-		self.device.write(message)
-
 	def ask_raw(self, message):
 		"""
 		Write, then read_raw.
@@ -121,6 +121,14 @@ class AbstractDevice(object):
 
 		self.write(message)
 		return self.read()
+
+	@property
+	def idn(self):
+		"""
+		Ask the device for identification.
+		"""
+
+		return self.ask('*idn?')
 
 
 if __name__ == '__main__':

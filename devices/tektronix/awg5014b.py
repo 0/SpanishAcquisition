@@ -30,11 +30,11 @@ class Channel(object):
 		The name of the output waveform for the channel.
 		"""
 
-		return self.device.ask('source%d:waveform?' % (self.channel))
+		return self.device.ask('source{0}:waveform?'.format(self.channel))
 
 	@waveform_name.setter
 	def waveform_name(self, v):
-		self.device.write('source%d:waveform "%s"' % (self.channel, v))
+		self.device.write('source{0}:waveform "{1}"'.format(self.channel, v))
 
 	@waveform_name.deleter
 	def waveform_name(self):
@@ -46,11 +46,11 @@ class Channel(object):
 		The output state (on/off) of the channel.
 		"""
 
-		return self.device.ask('output%d:state?' % (self.channel))
+		return self.device.ask('output{0}:state?'.format(self.channel))
 
 	@enabled.setter
 	def enabled(self, v):
-		self.device.write('output%d:state %d' % (self.channel, v))
+		self.device.write('output{0}:state {1}'.format(self.channel, int(v)))
 
 
 class AWG5014B(AbstractDevice):
@@ -97,18 +97,18 @@ class AWG5014B(AbstractDevice):
 		Note: Markers are unsupported.
 		"""
 
-		log.debug('Creating waveform "%s" with data: %s' % (name, data))
+		log.debug('Creating waveform "{0}" with data: {1}'.format(name, data))
 
 		waveform_length = len(data)
-		self.write('wlist:waveform:new "%s", %d, integer' % (name, waveform_length))
+		self.write('wlist:waveform:new "{0}", {1}, integer'.format(name, waveform_length))
 
 		# Always 16-bit, unsigned, little-endian.
-		packed_data = struct.pack('<%dH' % (waveform_length), *data)
+		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
 
-		log.debug('Sending packed waveform data for "%s": %s' % (name, packed_data))
+		log.debug('Sending packed waveform data for "{0}": {1}'.format(name, packed_data))
 
 		block_data = BlockData.to_block_data(packed_data)
-		self.write('wlist:waveform:data "%s", %s' % (name, block_data))
+		self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
 
 	@property
 	def enabled(self):
@@ -123,7 +123,7 @@ class AWG5014B(AbstractDevice):
 		elif state == '2':
 			return True
 		else:
-			raise ValueError('State "%s" not implemented.' % (state))
+			raise ValueError('State "{0}" not implemented.'.format(state))
 
 	@enabled.setter
 	def enabled(self, v):

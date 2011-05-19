@@ -69,12 +69,12 @@ class BlockData(object):
 		Note: Does not produce indefinitely-formatted block data.
 		"""
 
-		log.debug('Converting to block data: %s' % (data))
+		log.debug('Converting to block data: {0}'.format(data))
 
 		length = len(data)
 		length_length = len(str(length))
 
-		return '#%d%d%s' % (length_length, length, data)
+		return '#{0}{1}{2}'.format(length_length, length, data)
 
 	@staticmethod
 	def from_block_data(block_data):
@@ -84,20 +84,20 @@ class BlockData(object):
 		As per section 7.7.6 of IEEE Std 488.2-1992.
 		"""
 
-		log.debug('Converting from block data: %s' % (block_data))
+		log.debug('Converting from block data: {0}'.format(block_data))
 
 		# Must have at least "#0\n" or "#XX".
 		if len(block_data) < 3:
 			raise BlockDataError('Not enough data.')
 
 		if block_data[0] != '#':
-			raise BlockDataError('Leading character is "%s", not #.' % (block_data[0]))
+			raise BlockDataError('Leading character is "{0}", not #.'.format(block_data[0]))
 
 		if block_data[1] == '0':
 			log.debug('Indefinite format.')
 
 			if block_data[-1] != '\n':
-				raise BlockDataError('Final character is "%s", not NL.' % (block_data[-1]))
+				raise BlockDataError('Final character is "{0}", not NL.'.format(block_data[-1]))
 
 			return block_data[2:-1]
 		else:
@@ -106,7 +106,7 @@ class BlockData(object):
 			try:
 				length_length = int(block_data[1])
 			except ValueError:
-				raise BlockDataError('Length length incorrectly specified: %s.' % (block_data[1]))
+				raise BlockDataError('Length length incorrectly specified: {0}'.format(block_data[1]))
 
 			data_start = 2 + length_length
 
@@ -116,14 +116,14 @@ class BlockData(object):
 			try:
 				length = int(block_data[2:data_start])
 			except ValueError:
-				raise BlockDataError('Length incorrectly specified: %s.' % (block_data[2:data_start]))
+				raise BlockDataError('Length incorrectly specified: {0}'.format(block_data[2:data_start]))
 
 			data_end = data_start + length
 
 			if data_end > len(block_data):
 				raise BlockDataError('Not enough data.')
 			elif data_end < len(block_data):
-				log.warning('Extra data ignored: %s' % (block_data[data_end:]))
+				log.warning('Extra data ignored: {0}'.format(block_data[data_end:]))
 
 			return block_data[data_start:data_end]
 
@@ -147,16 +147,16 @@ class AbstractDevice(object):
 		"""
 
 		if ip_address is not None:
-			log.info('Attempting to use PyVISA with ip_address=%s.' % (ip_address))
+			log.info('Attempting to use PyVISA with ip_address={0}.'.format(ip_address))
 
 			self.implementation = PYVISA
 
 			try:
-				self.device = visa.Instrument('tcpip::%s::instr' % (ip_address))
+				self.device = visa.Instrument('tcpip::{0}::instr'.format(ip_address))
 			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at ip_address=%s.' % (ip_address), e)
+				raise DeviceNotFoundError('Could not open device at ip_address={0}.'.format(ip_address), e)
 		elif board is not None and pad is not None:
-			log.info('Attempting to use Linux GPIB with board=%d, pad=%d.' % (board, pad))
+			log.info('Attempting to use Linux GPIB with board={0}, pad={1}.'.format(board, pad))
 
 			self.implementation = LGPIB
 
@@ -165,7 +165,7 @@ class AbstractDevice(object):
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
 				self.ask('*idn?')
 			except gpib.GpibError as e:
-				raise DeviceNotFoundError('Could not open device at board=%d, pad=%d.' % (board, pad), e)
+				raise DeviceNotFoundError('Could not open device at board={0}, pad={1}.'.format(board, pad), e)
 		else:
 			raise ValueError('Either an IP or a GPIB address must be specified.')
 
@@ -174,7 +174,7 @@ class AbstractDevice(object):
 		Write to the device.
 		"""
 
-		log.debug('Writing to device: %s' % (message))
+		log.debug('Writing to device: {0}'.format(message))
 
 		self.device.write(message)
 

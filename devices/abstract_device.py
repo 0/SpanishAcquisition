@@ -146,19 +146,23 @@ class AbstractDevice(object):
 			sad: The secondary address of the device. Defaults to 0.
 		"""
 
-		if ip_address is not None:
-			log.info('Attempting to use PyVISA with ip_address={0}.'.format(ip_address))
+		self.name = self.__class__.__name__
 
-			self.implementation = PYVISA
+		log.info('Creating device "{0}".'.format(self.name))
+
+		if ip_address is not None:
+			log.debug('Attempting to use PyVISA with ip_address={0}.'.format(ip_address))
+
+			self._implementation = PYVISA
 
 			try:
 				self.device = visa.Instrument('tcpip::{0}::instr'.format(ip_address))
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at ip_address={0}.'.format(ip_address), e)
 		elif board is not None and pad is not None:
-			log.info('Attempting to use Linux GPIB with board={0}, pad={1}.'.format(board, pad))
+			log.debug('Attempting to use Linux GPIB with board={0}, pad={1}.'.format(board, pad))
 
-			self.implementation = LGPIB
+			self._implementation = LGPIB
 
 			try:
 				self.device = Gpib.Gpib(board, pad, sad)
@@ -174,7 +178,7 @@ class AbstractDevice(object):
 		Write to the device.
 		"""
 
-		log.debug('Writing to device: {0}'.format(message))
+		log.debug('Writing to device "{0}": {1}'.format(self.name, message))
 
 		self.device.write(message)
 
@@ -183,19 +187,19 @@ class AbstractDevice(object):
 		Read everything the device has to say and return it exactly.
 		"""
 
-		log.debug('Reading from device.')
+		log.debug('Reading from device "{0}".'.format(self.name))
 
 		buf = ''
 
-		if self.implementation == PYVISA:
+		if self._implementation == PYVISA:
 			buf = self.device.read_raw()
-		elif self.implementation == LGPIB:
+		elif self._implementation == LGPIB:
 			status = 0
 			while not status:
 				buf += self.device.read(len=chunk_size)
 				status = self.device.ibsta() & IbstaBits.END
 
-		log.debug('Read from device: {0}'.format(buf))
+		log.debug('Read from device "{0}": {1}'.format(self.name, buf))
 
 		return buf
 

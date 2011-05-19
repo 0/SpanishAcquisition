@@ -1,3 +1,26 @@
+## Dependencies
+
+### Drivers
+
+* [NI-VISA](http://www.ni.com/visa/)
+** For Ethernet device support.
+* [Linux GPIB](http://linux-gpib.sourceforge.net/)
+** For GPIB device support.
+
+#### Python bindings
+
+* [PyVISA](http://pyvisa.sourceforge.net/)
+** `visa` for NI-VISA drivers.
+* [Linux GPIB](http://linux-gpib.sourceforge.net/) Python bindings
+** `Gpib`, `gpib` for Linux GPIB drivers.
+
+### Python modules
+
+#### Testing
+
+* [nose](http://somethingaboutorange.com/mrl/projects/nose/1.0.0/)
+* [nose-testconfig](http://pypi.python.org/pypi/nose-testconfig/)
+
 ## Tests
 
 ### Unit

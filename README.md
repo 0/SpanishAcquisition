@@ -1,15 +1,17 @@
 ## Tests
 
-### Automated
+### Unit
 
-Automated tests can all be run with `nosetests`.
+Simple unit tests can all be run with
 
-### Manual
+    ./runtests
 
-Manual tests can be found with:
+### Server
 
-    git grep -A1 '@nottest' | grep -v '@nottest'
+Tests which have external dependencies can be found with:
+
+    find . -path '*/server_tests/test_*.py'
 
 and run with, for example:
 
-    python -m devices.tektronix.tests.test_awg5014b
+    ./runtests ./devices/tektronix/server_tests/test_awg5014b.py

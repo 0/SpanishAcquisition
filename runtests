@@ -1,0 +1,8 @@
+#!/bin/bash
+
+EXCLUDE=""
+if (( $# == 0 )); then
+	EXCLUDE="--exclude=server_tests"
+fi
+
+nosetests --config=tests/resources/nose.cfg $EXCLUDE $@

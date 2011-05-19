@@ -2,12 +2,9 @@ from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
 
+from testconfig import config
+
 from devices import abstract_device
-
-
-# TODO: Move this to a configuration file.
-REAL_DEVICE = {'ip_address': '192.168.0.10'}
-#REAL_DEVICE = {'board': 0, 'pad': 5}
 
 
 class BlockDataTest(unittest.TestCase):
@@ -124,13 +121,19 @@ class AbstractDeviceTest(unittest.TestCase):
 		Converse briefly with a real device.
 		"""
 
-		try:
-			dev = abstract_device.AbstractDevice(**REAL_DEVICE)
-		except:
-			raise SkipTest('Could not connect to device.')
+		for device in config['devices'].values():
+			try:
+				dev = abstract_device.AbstractDevice(**device)
+			except:
+				continue
 
-		msg = dev.ask_raw('*idn?')
-		eq_(msg[-1], '\n')
+			msg = dev.ask_raw('*idn?')
+			eq_(msg[-1], '\n')
+
+			return
+
+		raise SkipTest('Could not connect to any device.')
+
 
 
 if __name__ == '__main__':

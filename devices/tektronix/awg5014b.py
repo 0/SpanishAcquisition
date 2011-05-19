@@ -104,10 +104,10 @@ class AWG5014B(AbstractDevice):
 
 		# Always 16-bit, unsigned, little-endian.
 		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
-
-		log.debug('Sending packed waveform data for "{0}": {1}'.format(name, packed_data))
-
 		block_data = BlockData.to_block_data(packed_data)
+
+		log.debug('Sending packed block waveform data for "{0}": {1}'.format(name, block_data))
+
 		self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
 
 	@property

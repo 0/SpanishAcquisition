@@ -1,4 +1,5 @@
 import functools
+import logging
 import struct
 
 from devices.abstract_device import AbstractDevice, BlockData
@@ -8,6 +9,9 @@ Tektronix AWG5014B Arbitrary Waveform Generator
 
 Control the AWG's settings and output waveforms.
 """
+
+
+log = logging.getLogger(__name__)
 
 
 class Channel(object):
@@ -66,6 +70,7 @@ class AWG5014B(AbstractDevice):
 		for chan in xrange(1, 5):
 			self.channels.append(Channel(self, chan))
 
+		log.info('Resetting AWG.')
 		self.write('*rst')
 		self.enabled = False
 
@@ -93,11 +98,15 @@ class AWG5014B(AbstractDevice):
 		Note: Markers are unsupported.
 		"""
 
+		log.debug('Creating waveform "%s" with data: %s' % (name, data))
+
 		waveform_length = len(data)
 		self.write('wlist:waveform:new "%s", %d, integer' % (name, waveform_length))
 
 		# Always 16-bit, unsigned, little-endian.
 		packed_data = struct.pack('<%dH' % (waveform_length), *data)
+
+		log.debug('Sending packed waveform data for "%s": %s' % (name, packed_data))
 
 		block_data = BlockData.to_block_data(packed_data)
 		self.write('wlist:waveform:data "%s", %s' % (name, block_data))
@@ -120,8 +129,12 @@ class AWG5014B(AbstractDevice):
 	@enabled.setter
 	def enabled(self, v):
 		if v:
+			log.debug('Enabling AWG.')
+
 			self.write('awgcontrol:run')
 		else:
+			log.debug('Disabling AWG.')
+
 			self.write('awgcontrol:stop')
 
 

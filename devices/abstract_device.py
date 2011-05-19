@@ -1,10 +1,14 @@
-import gpib
+import logging
 import Gpib
+import gpib
 import visa
 
 """
 Tools for working with hardware devices.
 """
+
+
+log = logging.getLogger(__name__)
 
 
 # Implementation types: PyVISA, Linux GPIB.
@@ -65,6 +69,8 @@ class BlockData(object):
 		Note: Does not produce indefinitely-formatted block data.
 		"""
 
+		log.debug('Converting to block data: %s' % (data))
+
 		length = len(data)
 		length_length = len(str(length))
 
@@ -76,9 +82,9 @@ class BlockData(object):
 		Extracts binary data from 488.2 block data.
 
 		As per section 7.7.6 of IEEE Std 488.2-1992.
-
-		Note: Any extra data (according to the header) is silently ignored in definite format.
 		"""
+
+		log.debug('Converting from block data: %s' % (block_data))
 
 		# Must have at least "#0\n" or "#XX".
 		if len(block_data) < 3:
@@ -88,13 +94,15 @@ class BlockData(object):
 			raise BlockDataError('Leading character is "%s", not #.' % (block_data[0]))
 
 		if block_data[1] == '0':
-			# Indefinite format: #0<data>\n
+			log.debug('Indefinite format.')
+
 			if block_data[-1] != '\n':
 				raise BlockDataError('Final character is "%s", not NL.' % (block_data[-1]))
 
 			return block_data[2:-1]
 		else:
-			# Definite format: #X<length><data>
+			log.debug('Definite format.')
+
 			try:
 				length_length = int(block_data[1])
 			except ValueError:
@@ -114,6 +122,8 @@ class BlockData(object):
 
 			if data_end > len(block_data):
 				raise BlockDataError('Not enough data.')
+			elif data_end < len(block_data):
+				log.warning('Extra data ignored: %s' % (block_data[data_end:]))
 
 			return block_data[data_start:data_end]
 
@@ -137,6 +147,8 @@ class AbstractDevice(object):
 		"""
 
 		if ip_address is not None:
+			log.info('Attempting to use PyVISA with ip_address=%s.' % (ip_address))
+
 			self.implementation = PYVISA
 
 			try:
@@ -144,6 +156,8 @@ class AbstractDevice(object):
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at ip_address=%s.' % (ip_address), e)
 		elif board is not None and pad is not None:
+			log.info('Attempting to use Linux GPIB with board=%d, pad=%d.' % (board, pad))
+
 			self.implementation = LGPIB
 
 			try:
@@ -160,12 +174,16 @@ class AbstractDevice(object):
 		Write to the device.
 		"""
 
+		log.debug('Writing to device: %s' % (message))
+
 		self.device.write(message)
 
 	def read_raw(self, chunk_size=512):
 		"""
 		Read everything the device has to say and return it exactly.
 		"""
+
+		log.debug('Reading from device.')
 
 		if self.implementation == PYVISA:
 			return self.device.read_raw()

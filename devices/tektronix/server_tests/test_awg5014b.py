@@ -20,9 +20,10 @@ class AWG5014BTest(unittest.TestCase):
 			raise SkipTest('Could not connect to AWG.', e)
 
 		min_val, max_val = awg.value_range
+		step = (max_val - min_val) / 20
 
-		awg.create_waveform('Test 1', xrange(min_val, max_val))
-		awg.create_waveform('Test 2', xrange(max_val - 1, min_val - 1, -1))
+		awg.create_waveform('Test 1', xrange(min_val, max_val, step))
+		awg.create_waveform('Test 2', xrange(max_val - 1, min_val - 1, -step))
 
 		awg.channels[1].waveform_name = 'Test 1'
 		awg.channels[1].enabled = True

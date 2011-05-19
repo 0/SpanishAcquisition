@@ -100,18 +100,22 @@ class BlockData(object):
 			except ValueError:
 				raise BlockDataError('Length length incorrectly specified: %s.' % (block_data[1]))
 
-			if 2 + length_length > len(block_data):
+			data_start = 2 + length_length
+
+			if data_start > len(block_data):
 				raise BlockDataError('Not enough data.')
 
 			try:
-				length = int(block_data[2:2+length_length])
+				length = int(block_data[2:data_start])
 			except ValueError:
-				raise BlockDataError('Length incorrectly specified: %s.' % (block_data[2:2+length_length]))
+				raise BlockDataError('Length incorrectly specified: %s.' % (block_data[2:data_start]))
 
-			if 2 + length_length + length > len(block_data):
+			data_end = data_start + length
+
+			if data_end > len(block_data):
 				raise BlockDataError('Not enough data.')
 
-			return block_data[2+length_length:2+length_length+length]
+			return block_data[data_start:data_end]
 
 
 class AbstractDevice(object):

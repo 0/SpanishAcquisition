@@ -15,3 +15,9 @@ Tests which have external dependencies can be found with:
 and run with, for example:
 
     ./runtests ./devices/tektronix/server_tests/test_awg5014b.py
+
+## Miscellaneous
+
+A formatted listing of all relevant files can be shown with:
+
+    tree -C -I '*.pyc|__init__.py' --noreport -F

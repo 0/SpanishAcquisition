@@ -43,6 +43,19 @@ class BlockDataTest(unittest.TestCase):
 		for d, b in data:
 			eq_(abstract_device.BlockData.from_block_data(b), d)
 
+	def testFromSlightlyBadData(self):
+		"""
+		Not valid, but parsable inputs.
+		"""
+
+		data = [
+			('Too ', '#14Too long.'),
+		]
+
+		for d, b in data:
+			# TODO: Ensure a warning is logged.
+			eq_(abstract_device.BlockData.from_block_data(b), d)
+
 	def testFromBadBlockData(self):
 		"""
 		Invalid inputs.

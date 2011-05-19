@@ -79,7 +79,7 @@ class AbstractDeviceTest(unittest.TestCase):
 		"""
 
 		try:
-			dev = abstract_device.AbstractDevice()
+			abstract_device.AbstractDevice()
 		except ValueError:
 			pass
 		else:
@@ -91,7 +91,7 @@ class AbstractDeviceTest(unittest.TestCase):
 		"""
 
 		try:
-			dev = abstract_device.AbstractDevice(ip_address='1234')
+			abstract_device.AbstractDevice(ip_address='1234')
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:
@@ -99,7 +99,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Address within TEST-NET-1 is not likely to exist.
-			dev = abstract_device.AbstractDevice(ip_address='192.0.2.123')
+			abstract_device.AbstractDevice(ip_address='192.0.2.123')
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:
@@ -115,7 +115,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Valid PADs are on [0, 30] (5 bits; 31 is reserved).
-			dev = abstract_device.AbstractDevice(board=0, pad=2000)
+			abstract_device.AbstractDevice(board=0, pad=2000)
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:
@@ -123,7 +123,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Assuming that board number 15 is not used.
-			dev = abstract_device.AbstractDevice(board=15, pad=0)
+			abstract_device.AbstractDevice(board=15, pad=0)
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:

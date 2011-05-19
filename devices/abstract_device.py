@@ -188,14 +188,14 @@ class AbstractDevice(object):
 		if self.implementation == PYVISA:
 			return self.device.read_raw()
 		elif self.implementation == LGPIB:
-			buffer = ''
+			buf = ''
 
 			status = 0
 			while not status:
-				buffer += self.device.read(len=chunk_size)
+				buf += self.device.read(len=chunk_size)
 				status = self.device.ibsta() & IbstaBits.END
 
-			return buffer
+			return buf
 
 	def read(self):
 		"""

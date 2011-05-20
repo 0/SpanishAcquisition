@@ -114,17 +114,40 @@ class AWG5014B(AbstractDevice):
 
 		return result
 
-	def create_waveform(self, name, data):
+	def get_waveform(self, name):
+		log.debug('Getting waveform "{0}" from device "{1}".'.format(name, self.name))
+
+		block_data = self.ask_raw('wlist:waveform:data? "{0}"'.format(name))
+		packed_data = BlockData.from_block_data(block_data)
+		waveform_length = len(packed_data) / 2
+		data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
+		data = [x & 2 ** 14 - 1 for x in data] # Filter out marker data.
+
+		log.debug('Got waveform "{0}" from device "{1}": {2}'.format(name, self.name, data))
+
+		return list(data)
+
+	def create_waveform(self, name, data, markers=None):
 		"""
 		Create a new waveform on the AWG.
-
-		Note: Markers are unsupported.
 		"""
 
 		log.debug('Creating waveform "{0}" on device "{1}" with data: {2}'.format(name, self.name, data))
 
+		data = list(data)
 		waveform_length = len(data)
 		self.write('wlist:waveform:new "{0}", {1}, integer'.format(name, waveform_length))
+
+		if markers:
+			# The markers are in the top 2 bits.
+			for marker_num, marker_bit in zip([1, 2], [1 << 14, 1 << 15]):
+				try:
+					for i, marker_datum in enumerate(markers[marker_num]):
+						if marker_datum:
+							data[i] += marker_bit
+					log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num, name, self.name, markers[marker_num]))
+				except KeyError:
+					pass
 
 		# Always 16-bit, unsigned, little-endian.
 		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)

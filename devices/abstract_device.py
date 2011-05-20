@@ -91,7 +91,7 @@ class BlockData(object):
 			raise BlockDataError('Not enough data.')
 
 		if block_data[0] != '#':
-			raise BlockDataError('Leading character is "{0}", not #.'.format(block_data[0]))
+			raise BlockDataError('Leading character is "{0}", not "#".'.format(block_data[0]))
 
 		if block_data[1] == '0':
 			log.debug('Indefinite format.')

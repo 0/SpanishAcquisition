@@ -1,6 +1,7 @@
 import logging
 import struct
 
+from devices.abstract_device import BlockData
 from devices.mock.mock_abstract_device import MockAbstractDevice
 from devices.tektronix.awg5014b import AWG5014B
 
@@ -112,11 +113,31 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 						self.mock_state['wlist'].append(Waveform(name, length))
 						done = True
 				elif submsg.startswith('waveform:data'):
-					name, data = submsg[14:].split(', ', 1)
+					if submsg[13] == '?':
+						name = submsg[15:]
 
-					self.find_wave(name).data = data
+						wave = self.find_wave(name)
 
-					done = True
+						data = wave.data
+						data = [datum + marker * 2 ** 14 for (datum, marker) in zip(data, wave.marker1)]
+						data = [datum + marker * 2 ** 15 for (datum, marker) in zip(data, wave.marker2)]
+
+						waveform_length = len(data)
+						packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
+						result = BlockData.to_block_data(packed_data)
+						done = True
+					else:
+						name, block_data = submsg[14:].split(', ', 1)
+						packed_data = BlockData.from_block_data(block_data)
+						waveform_length = len(packed_data) / 2
+						data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
+
+						wave = self.find_wave(name)
+						wave.data = [x & 2 ** 14 - 1 for x in data]
+						wave.marker1 = [1 if x & 2 ** 14 else 0 for x in data]
+						wave.marker2 = [1 if x & 2 ** 15 else 0 for x in data]
+
+						done = True
 			elif message.startswith('source'):
 				source = int(message[6])
 				channel = self.mock_state['channels'][source]
@@ -130,6 +151,8 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 					else:
 						name = submsg.split(None, 1)[1]
 						channel.waveform_name = name
+						if name == '""':
+							channel.enabled = False
 						done = True
 			elif message.startswith('output'):
 				output = int(message[6])

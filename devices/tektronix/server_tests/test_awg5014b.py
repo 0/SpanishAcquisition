@@ -26,35 +26,52 @@ class AWG5014BTest(unittest.TestCase):
 
 		existing_waveforms = awg.waveform_names
 
-		awg.create_waveform('Test 1', xrange(min_val, max_val, step))
-		awg.create_waveform('Test 2', xrange(max_val - 1, min_val - 1, -step))
+		data1 = list(xrange(min_val, max_val, step))
+		data2 = list(xrange(max_val - 1, min_val - 1, -step))
+
+		awg.create_waveform(
+			'Test 1',
+			data=data1,
+			markers={
+				1: ([1, 1, 1, 0, 0] * len(data1))[:len(data1)],
+				2: ([0, 0, 0, 1, 1] * len(data1))[:len(data1)],
+			}
+		)
+		awg.create_waveform(
+			'Test 2',
+			data=data2
+		)
 
 		awg.channels[1].waveform_name = 'Test 1'
 		awg.channels[1].enabled = True
 
 		awg.channels[2].waveform_name = 'Test 2'
+		awg.channels[2].enabled = True
 
 		awg.channels[3].waveform_name = 'Test 2'
 		awg.channels[3].enabled = True
 
 		awg.channels[4].waveform_name = 'Test 1'
 
-		del awg.channels[2].waveform_name
+		del awg.channels[3].waveform_name
 
 		awg.enabled = True
 
 		# Verify
 		eq_(awg.waveform_names, existing_waveforms + ['Test 1', 'Test 2'])
 
-		for ch in [1, 3]:
+		eq_(awg.get_waveform('Test 1'), data1)
+		eq_(awg.get_waveform('Test 2'), data2)
+
+		for ch in [1, 2]:
 			eq_(awg.channels[ch].enabled, True)
-		for ch in [2, 4]:
+		for ch in [3, 4]:
 			eq_(awg.channels[ch].enabled, False)
 
 		for ch in [1, 4]:
 			eq_(awg.channels[ch].waveform_name, 'Test 1')
-		eq_(awg.channels[2].waveform_name, '')
-		eq_(awg.channels[3].waveform_name, 'Test 2')
+		eq_(awg.channels[2].waveform_name, 'Test 2')
+		eq_(awg.channels[3].waveform_name, '')
 
 		eq_(awg.enabled, True)
 

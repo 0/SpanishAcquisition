@@ -43,11 +43,15 @@ class AWG5014BTest(unittest.TestCase):
 			data=data2
 		)
 
+		awg.sampling_rate = 2e8 # Hz
+
 		awg.channels[1].waveform_name = 'Test 1'
 		awg.channels[1].enabled = True
+		awg.channels[1].amplitude = 0.8
 
 		awg.channels[2].waveform_name = 'Test 2'
 		awg.channels[2].enabled = True
+		awg.channels[2].amplitude = 0.4
 
 		awg.channels[3].waveform_name = 'Test 2'
 		awg.channels[3].enabled = True
@@ -56,11 +60,12 @@ class AWG5014BTest(unittest.TestCase):
 
 		del awg.channels[3].waveform_name
 
-		eq_(awg.enabled, False)
-
+		awg.run_mode = 'triggered'
 		awg.enabled = True
 
 		# Verify
+		eq_(awg.sampling_rate, 2e8)
+
 		eq_(awg.waveform_names, existing_waveforms + ['Test 1', 'Test 2'])
 
 		eq_(awg.get_waveform('Test 1'), data1)
@@ -76,7 +81,11 @@ class AWG5014BTest(unittest.TestCase):
 		eq_(awg.channels[2].waveform_name, 'Test 2')
 		eq_(awg.channels[3].waveform_name, '')
 
+		eq_(awg.run_mode, 'triggered')
+		eq_(awg.waiting_for_trigger, True)
 		eq_(awg.enabled, True)
+
+		awg.trigger()
 
 
 if __name__ == '__main__':

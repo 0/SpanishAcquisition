@@ -1,4 +1,5 @@
 import logging
+import re
 import struct
 
 from devices.abstract_device import AbstractDevice, BlockData
@@ -56,6 +57,18 @@ class Channel(object):
 	def enabled(self, v):
 		self.device.write('output{0}:state {1}'.format(self.channel, int(v)))
 
+	@property
+	def amplitude(self):
+		"""
+		The amplitude of the channel in V.
+		"""
+
+		return float(self.device.ask('source{0}:voltage?'.format(self.channel)))
+
+	@enabled.setter
+	def amplitude(self, v):
+		self.device.write('source{0}:voltage {1:E}'.format(self.channel, v))
+
 
 class AWG5014B(AbstractDevice):
 	"""
@@ -102,6 +115,41 @@ class AWG5014B(AbstractDevice):
 
 		# The sent values are unsigned.
 		return (0, 2 ** self.data_bits - 1)
+
+	@property
+	def sampling_rate(self):
+		"""
+		The sampling rate of the AWG in Hz.
+		"""
+
+		return float(self.ask('source1:frequency?'))
+
+	@sampling_rate.setter
+	def sampling_rate(self, value):
+		self.write('source1:frequency {0:E}'.format(value))
+
+	@property
+	def run_mode(self):
+		"""
+		The run mode of the AWG. One of: continuous, triggered, gated, sequence.
+		"""
+
+		mode = self.ask('awgcontrol:rmode?')
+
+		if re.match('^cont', mode, re.IGNORECASE):
+			return 'continuous'
+		elif re.match('^trig', mode, re.IGNORECASE):
+			return 'triggered'
+		elif re.match('^gat', mode, re.IGNORECASE):
+			return 'gated'
+		elif re.match('^seq', mode, re.IGNORECASE):
+			return 'sequence'
+		else:
+			ValueError('Unknown mode: {0}'.format(mode))
+
+	@run_mode.setter
+	def run_mode(self, value):
+		self.write('awgcontrol:rmode {0}'.format(value))
 
 	@property
 	def waveform_names(self):
@@ -170,14 +218,15 @@ class AWG5014B(AbstractDevice):
 	@property
 	def enabled(self):
 		"""
-		The run state (on/off) of the AWG.
+		The continuous run state (on/off) of the AWG.
 		"""
 
 		state = self.ask('awgcontrol:rstate?')
 
 		if state == '0':
 			return False
-		elif state == '2':
+		elif state in ['1', '2']:
+			# Either on or waiting for trigger.
 			return True
 		else:
 			raise ValueError('State "{0}" not implemented.'.format(state))
@@ -192,6 +241,21 @@ class AWG5014B(AbstractDevice):
 			log.debug('Disabling "{0}".'.format(self.name))
 
 			self.write('awgcontrol:stop')
+
+	@property
+	def waiting_for_trigger(self):
+		"""
+		Whether the AWG is waiting for a trigger.
+		"""
+
+		return '1' == self.ask('awgcontrol:rstate?')
+
+	def trigger(self):
+		"""
+		Force a trigger event.
+		"""
+
+		self.write('*trg')
 
 
 if __name__ == '__main__':

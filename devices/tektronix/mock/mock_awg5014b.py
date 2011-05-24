@@ -44,6 +44,8 @@ class MockChannel(object):
 
 	def __init__(self):
 		self.enabled = False
+		self.waveform_name = ''
+		self.voltage = 1.0
 
 
 class MockAWG5014B(MockAbstractDevice, AWG5014B):
@@ -56,7 +58,9 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		Reset to a known blank state.
 		"""
 
-		self.mock_state['enabled'] = False
+		self.mock_state['run_mode'] = 'continuous'
+		self.mock_state['run_state'] = '0'
+		self.mock_state['frequency'] = 1.2e9 # Hz
 
 		self.mock_state['wlist'] = []
 		self.mock_state['wlist'].append(Waveform('"predefined waveform"', 5))
@@ -93,18 +97,37 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 			if message == '*rst':
 				self.__reset()
 				done = True
+			elif message == '*trg':
+				done = True
 			elif message.startswith('awgcontrol:'):
 				submsg = message[11:]
 
 				if submsg == 'run':
-					self.mock_state['enabled'] = True
+					if self.mock_state['run_mode'] in ['triggered', 'gated']:
+						self.mock_state['run_state'] = '1'
+					else:
+						self.mock_state['run_state'] = '2'
 					done = True
 				elif submsg == 'stop':
-					self.mock_state['enabled'] = False
+					self.mock_state['run_state'] = '0'
 					done = True
 				elif submsg == 'rstate?':
-					result = '2' if self.mock_state['enabled'] else '0'
+					result = self.mock_state['run_state']
 					done = True
+				elif submsg.startswith('rmode'):
+					if submsg[5] == '?':
+						result = self.mock_state['run_mode']
+						done = True
+					else:
+						mode = submsg.split(None, 1)[1]
+						self.mock_state['run_mode'] = mode
+
+						if self.mock_state['run_state'] != '0':
+							if mode in ['triggered', 'gated']:
+								self.mock_state['run_state'] = '1'
+							else:
+								self.mock_state['run_state'] = '2'
+						done = True
 			elif message.startswith('wlist:'):
 				submsg = message[6:]
 
@@ -164,6 +187,22 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 						channel.waveform_name = name
 						if name == '""':
 							channel.enabled = False
+						done = True
+				elif submsg.startswith('frequency'):
+					if submsg[9] == '?':
+						result = self.mock_state['frequency']
+						done = True
+					else:
+						frequency = submsg.split(None, 1)[1]
+						self.mock_state['frequency'] = float(frequency)
+						done = True
+				elif submsg.startswith('voltage'):
+					if submsg[7] == '?':
+						result = channel.voltage
+						done = True
+					else:
+						voltage = submsg.split(None, 1)[1]
+						channel.voltage = float(voltage)
 						done = True
 			elif message.startswith('output'):
 				output = int(message[6])

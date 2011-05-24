@@ -147,7 +147,7 @@ class AWG5014B(AbstractDevice):
 							data[i] += marker_bit
 					log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num, name, self.name, markers[marker_num]))
 				except KeyError:
-					pass
+					log.warning('Marker {0} ignored: {1}'.format(marker_num, markers[marker_num]))
 
 		# Always 16-bit, unsigned, little-endian.
 		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)

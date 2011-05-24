@@ -167,7 +167,7 @@ class AbstractDevice(object):
 			try:
 				self.device = Gpib.Gpib(board, pad, sad)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
-				self.ask('*idn?')
+				log.debug('GPIB device IDN: {0}'.format(self.idn))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at board={0}, pad={1}.'.format(board, pad), e)
 		else:

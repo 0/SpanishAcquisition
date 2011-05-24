@@ -35,6 +35,7 @@ class AWG5014BTest(unittest.TestCase):
 			markers={
 				1: ([1, 1, 1, 0, 0] * len(data1))[:len(data1)],
 				2: ([0, 0, 0, 1, 1] * len(data1))[:len(data1)],
+				3: [1, 2, 3, 4], # TODO: Ensure a warning is logged.
 			}
 		)
 		awg.create_waveform(
@@ -54,6 +55,8 @@ class AWG5014BTest(unittest.TestCase):
 		awg.channels[4].waveform_name = 'Test 1'
 
 		del awg.channels[3].waveform_name
+
+		eq_(awg.enabled, False)
 
 		awg.enabled = True
 

@@ -61,7 +61,8 @@ class BlockDataTest(unittest.TestCase):
 		Invalid inputs.
 		"""
 
-		data = ['', '#', '#0', '#0non-terminated', '#X', '#1', '#24test', '#44444Too short.']
+		data = ['', '123Off to a bad start!', '#', '#0', '#0non-terminated',
+				'#X123', '#1', '#29', '#24test', '#44444Too short.']
 
 		for b in data:
 			try:
@@ -134,6 +135,9 @@ class AbstractDeviceTest(unittest.TestCase):
 		Converse briefly with a real device.
 		"""
 
+		found_any = False
+
+		# Try all devices to which a connection can be established.
 		for device in config['devices'].values():
 			try:
 				dev = abstract_device.AbstractDevice(**device)
@@ -143,10 +147,10 @@ class AbstractDeviceTest(unittest.TestCase):
 			msg = dev.ask_raw('*idn?')
 			eq_(msg[-1], '\n')
 
-			return
+			found_any = True
 
-		raise SkipTest('Could not connect to any device.')
-
+		if not found_any:
+			raise SkipTest('Could not connect to any device.')
 
 
 if __name__ == '__main__':

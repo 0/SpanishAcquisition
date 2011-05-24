@@ -67,9 +67,7 @@ class AWG5014B(AbstractDevice):
 		for chan in xrange(1, 5):
 			self.channels.append(Channel(self, chan))
 
-		log.info('Resetting "{0}".'.format(self.name))
-		self.write('*rst')
-		self.enabled = False
+		self.reset()
 
 	def __init__(self, *args, **kwargs):
 		"""
@@ -79,6 +77,14 @@ class AWG5014B(AbstractDevice):
 		AbstractDevice.__init__(self, *args, **kwargs)
 
 		self.setup()
+
+	def reset(self):
+		"""
+		Reset the device to its default state.
+		"""
+
+		log.info('Resetting "{0}".'.format(self.name))
+		self.write('*rst')
 
 	@property
 	def data_bits(self):
@@ -147,7 +153,11 @@ class AWG5014B(AbstractDevice):
 							data[i] += marker_bit
 					log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num, name, self.name, markers[marker_num]))
 				except KeyError:
-					log.warning('Marker {0} ignored: {1}'.format(marker_num, markers[marker_num]))
+					pass
+
+			extra_markers = set(markers) - set([1, 2])
+			for extra in extra_markers:
+				log.warning('Marker {0} ignored: {1}'.format(extra, markers[extra]))
 
 		# Always 16-bit, unsigned, little-endian.
 		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)

@@ -51,16 +51,10 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 	Mock interface for Tektronix AWG5014B AWG.
 	"""
 
-	def __init__(self, *args, **kwargs):
+	def __reset(self):
 		"""
-		Pretend to connect to the AWG, but do initialize with some values.
+		Reset to a known blank state.
 		"""
-
-		MockAbstractDevice.__init__(self, *args, **kwargs)
-
-		self.name = 'AWG5014B'
-
-		AWG5014B.setup(self)
 
 		self.mock_state['enabled'] = False
 
@@ -72,7 +66,24 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		for ch in xrange(1, 5):
 			self.mock_state['channels'].append(MockChannel())
 
+	def __init__(self, *args, **kwargs):
+		"""
+		Pretend to connect to the AWG, but do initialize with some values.
+		"""
+
+		MockAbstractDevice.__init__(self, *args, **kwargs)
+
+		self.name = 'AWG5014B'
+
+		AWG5014B.setup(self)
+
+		self.__reset()
+
 	def find_wave(self, name):
+		"""
+		Find a Waveform object by name.
+		"""
+
 		for wave in self.mock_state['wlist']:
 			if wave.name == name:
 				return wave
@@ -80,7 +91,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 	def write(self, message, result=None, done=False):
 		if not done:
 			if message == '*rst':
-				# FIXME: Should reset everything.
+				self.__reset()
 				done = True
 			elif message.startswith('awgcontrol:'):
 				submsg = message[11:]

@@ -8,6 +8,43 @@ from devices.tektronix import awg5014b
 
 
 class AWG5014BTest(unittest.TestCase):
+	def __obtain_device(self):
+		"""
+		Try to get a handle for a physical device. 
+		"""
+
+		try:
+			return awg5014b.AWG5014B(**config['devices']['awg'])
+		except Exception as e:
+			raise SkipTest('Could not connect to device.', e)
+
+	def testMarkerValues(self):
+		"""
+		Set the various marker values.
+		"""
+
+		awg = self.__obtain_device()
+
+		awg.channels[1].markers[1].delay = 1e-9 # s
+		awg.channels[1].markers[1].high = 0.5 # V
+		awg.channels[1].markers[2].delay = 0.1e-9 # s
+		awg.channels[2].markers[1].low = -0.1 # V
+
+		eq_(awg.channels[1].markers[1].delay, 1e-9)
+		eq_(awg.channels[1].markers[2].delay, 0.1e-9)
+		eq_(awg.channels[2].markers[1].delay, 0)
+		eq_(awg.channels[2].markers[2].delay, 0)
+
+		eq_(awg.channels[1].markers[1].high, 0.5)
+		eq_(awg.channels[1].markers[2].high, 1)
+		eq_(awg.channels[2].markers[1].high, 1)
+		eq_(awg.channels[2].markers[2].high, 1)
+
+		eq_(awg.channels[1].markers[1].low, 0)
+		eq_(awg.channels[1].markers[2].low, 0)
+		eq_(awg.channels[2].markers[1].low, -0.1)
+		eq_(awg.channels[2].markers[2].low, 0)
+
 	def testScenario(self):
 		"""
 		Run through a simple scenario.
@@ -15,10 +52,7 @@ class AWG5014BTest(unittest.TestCase):
 		Note: Verification should also be done manually based on the AWG output.
 		"""
 
-		try:
-			awg = awg5014b.AWG5014B(**config['devices']['awg'])
-		except Exception as e:
-			raise SkipTest('Could not connect to AWG.', e)
+		awg = self.__obtain_device()
 
 		# Setup
 		min_val, max_val = awg.value_range

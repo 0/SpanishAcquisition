@@ -14,6 +14,55 @@ Control the AWG's settings and output waveforms.
 log = logging.getLogger(__name__)
 
 
+class Marker(object):
+	"""
+	Marker channel of an output channel.
+	"""
+
+	def __init__(self, device, channel, number, *args, **kwargs):
+		object.__init__(self, *args, **kwargs)
+
+		self.device = device
+		self.channel = channel
+		self.number = number
+
+	@property
+	def delay(self):
+		"""
+		The marker delay in s.
+		"""
+
+		return float(self.device.ask('source{0}:marker{1}:delay?'.format(self.channel, self.number)))
+
+	@delay.setter
+	def delay(self, v):
+		self.device.write('source{0}:marker{1}:delay {2}'.format(self.channel, self.number, v))
+
+	@property
+	def high(self):
+		"""
+		The marker high voltage in V.
+		"""
+
+		return float(self.device.ask('source{0}:marker{1}:voltage:high?'.format(self.channel, self.number)))
+
+	@high.setter
+	def high(self, v):
+		self.device.write('source{0}:marker{1}:voltage:high {2}'.format(self.channel, self.number, v))
+
+	@property
+	def low(self):
+		"""
+		The marker low voltage in V.
+		"""
+
+		return float(self.device.ask('source{0}:marker{1}:voltage:low?'.format(self.channel, self.number)))
+
+	@low.setter
+	def low(self, v):
+		self.device.write('source{0}:marker{1}:voltage:low {2}'.format(self.channel, self.number, v))
+
+
 class Channel(object):
 	"""
 	Output channel of the AWG.
@@ -24,6 +73,10 @@ class Channel(object):
 
 		self.device = device
 		self.channel = channel
+
+		self.markers = [None] # There is no marker 0.
+		for mark in xrange(1, 3):
+			self.markers.append(Marker(self.device, self.channel, mark))
 
 	@property
 	def waveform_name(self):

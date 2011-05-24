@@ -1,4 +1,5 @@
 import logging
+import re
 import struct
 
 from devices.abstract_device import BlockData
@@ -109,32 +110,32 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 
 	def write(self, message, result=None, done=False):
 		if not done:
-			if message == '*rst':
+			cmd, args, query = self._split_message(message)
+
+			if cmd[0] == '*rst':
 				self.__reset()
 				done = True
-			elif message == '*trg':
+			elif cmd[0] == '*trg':
 				done = True
-			elif message.startswith('awgcontrol:'):
-				submsg = message[11:]
-
-				if submsg == 'run':
+			elif cmd[0] == 'awgcontrol':
+				if cmd[1] == 'run':
 					if self.mock_state['run_mode'] in ['triggered', 'gated']:
 						self.mock_state['run_state'] = '1'
 					else:
 						self.mock_state['run_state'] = '2'
 					done = True
-				elif submsg == 'stop':
+				elif cmd[1] == 'stop':
 					self.mock_state['run_state'] = '0'
 					done = True
-				elif submsg == 'rstate?':
+				elif cmd[1] == 'rstate' and query:
 					result = self.mock_state['run_state']
 					done = True
-				elif submsg.startswith('rmode'):
-					if submsg[5] == '?':
+				elif cmd[1] == 'rmode':
+					if query:
 						result = self.mock_state['run_mode']
 						done = True
 					else:
-						mode = submsg.split(None, 1)[1]
+						mode = args
 						self.mock_state['run_mode'] = mode
 
 						if self.mock_state['run_state'] != '0':
@@ -143,27 +144,25 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 							else:
 								self.mock_state['run_state'] = '2'
 						done = True
-			elif message.startswith('wlist:'):
-				submsg = message[6:]
-
-				if submsg == 'size?':
+			elif cmd[0] == 'wlist':
+				if cmd[1] == 'size' and query:
 					result = str(len(self.mock_state['wlist']))
 					done = True
-				elif submsg.startswith('name?'):
-					num = int(submsg.split()[1])
-					name = self.mock_state['wlist'][num].name
+				elif cmd[1] == 'name' and query:
+					num = args
+					name = self.mock_state['wlist'][int(num)].name
 					result = '"{0}"'.format(name[1:-1])
 					done = True
-				elif submsg.startswith('waveform:new'):
-					name, length, type = submsg[13:].split(', ')
+				elif cmd[1] == 'waveform' and cmd[2] == 'new':
+					name, length, kind = [arg.strip() for arg in args.split(',')]
 					length = int(length)
 
-					if type == 'integer':
+					if kind == 'integer':
 						self.mock_state['wlist'].append(Waveform(name, length))
 						done = True
-				elif submsg.startswith('waveform:data'):
-					if submsg[13] == '?':
-						name = submsg[15:]
+				elif cmd[1] == 'waveform' and cmd[2] == 'data':
+					if query:
+						name = args
 
 						wave = self.find_wave(name)
 
@@ -175,7 +174,9 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 						packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
 						result = BlockData.to_block_data(packed_data)
 					else:
-						name, block_data = submsg[14:].split(', ', 1)
+						name, block_data = args.split(',', 1)
+						name = name.strip()
+						block_data = block_data.lstrip()
 						packed_data = BlockData.from_block_data(block_data)
 						waveform_length = len(packed_data) / 2
 						data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
@@ -186,68 +187,67 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 						wave.marker2 = [1 if x & 2 ** 15 else 0 for x in data]
 
 					done = True
-			elif message.startswith('source'):
-				source = int(message[6])
+			elif cmd[0].startswith('source'):
+				source = int(cmd[0][6])
 				channel = self.mock_state['channels'][source]
 
-				submsg = message[8:]
-
-				if submsg.startswith('waveform'):
-					if submsg[8] == '?':
+				if cmd[1] == 'waveform':
+					if query:
 						result = channel.waveform_name
 					else:
-						name = submsg.split(None, 1)[1]
+						name = args
 						channel.waveform_name = name
 						if name == '""':
 							channel.enabled = False
 					done = True
-				elif submsg.startswith('frequency'):
-					if submsg[9] == '?':
+				elif cmd[1] == 'frequency':
+					if query:
 						result = self.mock_state['frequency']
 					else:
-						frequency = submsg.split(None, 1)[1]
+						frequency = args
 						self.mock_state['frequency'] = float(frequency)
 					done = True
-				elif submsg.startswith('voltage'):
-					if submsg[7] == '?':
+				elif cmd[1] == 'voltage':
+					if query:
 						result = channel.voltage
 					else:
-						voltage = submsg.split(None, 1)[1]
+						voltage = args
 						channel.voltage = float(voltage)
 					done = True
-				elif submsg.startswith('marker'):
-					marker_num = int(submsg[6])
+				elif cmd[1].startswith('marker'):
+					marker_num = int(cmd[1][6])
 					marker = channel.markers[marker_num]
 
-					if submsg[8:].startswith('delay'):
-						if submsg[13] == '?':
+					if cmd[2] == 'delay':
+						if query:
 							result = marker.delay
 						else:
-							marker.delay = float(submsg[14:])
+							delay = args
+							marker.delay = float(delay)
 						done = True
-					elif submsg[8:].startswith('voltage:high'):
-						if submsg[20] == '?':
+					elif cmd[2] == 'voltage' and cmd[3] == 'high':
+						if query:
 							result = marker.high
 						else:
-							marker.high = float(submsg[21:])
+							voltage = args
+							marker.high = float(voltage)
 						done = True
-					elif submsg[8:].startswith('voltage:low'):
-						if submsg[19] == '?':
+					elif cmd[2] == 'voltage' and cmd[3] == 'low':
+						if query:
 							result = marker.low
 						else:
-							marker.low = float(submsg[20:])
+							voltage = args
+							marker.low = float(voltage)
 						done = True
-			elif message.startswith('output'):
-				output = int(message[6])
+			elif cmd[0].startswith('output'):
+				output = int(cmd[0][6])
 				channel = self.mock_state['channels'][output]
 
-				submsg = message[8:]
-
-				if submsg.startswith('state'):
-					if submsg[5] == '?':
+				if cmd[1] == 'state':
+					if query:
 						result = '1' if channel.enabled else '0'
 					else:
-						state = submsg.split(None, 1)[1]
+						state = args
 						channel.enabled = (state == '1')
 					done = True
 

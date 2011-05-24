@@ -27,6 +27,26 @@ class MockAbstractDevice(AbstractDevice):
 		self.name = 'AbstractDevice'
 		self.mock_state = {}
 
+	def _split_message(self, message):
+		"""
+		Split a message into usable components.
+		"""
+
+		message = message.split(None, 1)
+		try:
+			cmd, args = message[0], message[1].strip()
+		except IndexError:
+			cmd, args = message[0], ''
+
+		if cmd[-1] == '?':
+			query = True
+			cmd = cmd[:-1]
+		else:
+			query = False
+		cmd = cmd.split(':')
+
+		return cmd, args, query
+
 	def write(self, message, result=None, done=False):
 		"""
 		Act on what is being written.

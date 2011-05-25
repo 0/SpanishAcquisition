@@ -25,9 +25,15 @@ class Resource(object):
 	"""
 
 	def __init__(self, obj=None, getter=None, setter=None):
-		self.obj = obj
-		self.getter = getter
-		self.setter = setter
+		if getter is not None and not callable(getter) and obj is None:
+			raise ValueError('Cannot call getter with no object.')
+
+		if setter is not None and not callable(setter) and obj is None:
+			raise ValueError('Cannot call setter with no object.')
+
+		self._obj = obj
+		self._getter = getter
+		self._setter = setter
 
 	@property
 	def value(self):
@@ -35,25 +41,25 @@ class Resource(object):
 		The value of the resource.
 		"""
 
-		if self.getter is None:
+		if self._getter is None:
 			raise NotReadable()
 
-		if callable(self.getter):
-			return self.getter()
-		elif self.obj is not None:
-			return getattr(self.obj, self.getter)
+		if callable(self._getter):
+			return self._getter()
+		elif self._obj is not None:
+			return getattr(self._obj, self._getter)
 		else:
 			raise NotReadable()
 
 	@value.setter
 	def value(self, v):
-		if self.setter is None:
+		if self._setter is None:
 			raise NotWritable()
 
-		if callable(self.setter):
-			self.setter(v)
-		elif self.obj is not None:
-			setattr(self.obj, self.setter, v)
+		if callable(self._setter):
+			self._setter(v)
+		elif self._obj is not None:
+			setattr(self._obj, self._setter, v)
 		else:
 			raise NotWritable()
 

@@ -52,6 +52,46 @@ class ResourceTest(unittest.TestCase):
 		else:
 			assert False, 'Expected NotWritable.'
 
+	def testMoreThanUseless(self):
+		"""
+		A resource with a lookup getter or setter, but no object.
+		"""
+
+		# Broken from the start.
+		try:
+			res = resources.Resource(getter='x')
+		except:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		try:
+			res = resources.Resource(setter='x')
+		except:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# Broken later on.
+		res = resources.Resource()
+		res._getter = 'x'
+		res._setter = 'x'
+
+		try:
+			res.value
+		except resources.NotReadable:
+			pass
+		else:
+			assert False, 'Expected NotReadable.'
+
+		try:
+			res.value = 5
+		except resources.NotWritable:
+			pass
+		else:
+			assert False, 'Expected NotWritable.'
+
+
 	def testReadonly(self):
 		"""
 		A read-only resource using an attribute.

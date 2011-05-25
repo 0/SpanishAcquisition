@@ -3,6 +3,7 @@ import re
 import struct
 
 from devices.abstract_device import AbstractDevice, BlockData
+from interface.resources import Resource
 
 """
 Tektronix AWG5014B Arbitrary Waveform Generator
@@ -128,12 +129,28 @@ class AWG5014B(AbstractDevice):
 	Interface for Tektronix AWG5014B AWG.
 	"""
 
-	def setup(self):
+	def _setup(self):
+		"""
+		Setup shared with the mock object.
+		"""
+
 		self.channels = [None] # There is no channel 0.
 		for chan in xrange(1, 5):
 			self.channels.append(Channel(self, chan))
 
 		self.reset()
+
+		# Exported resources.
+		read_only = ['data_bits', 'value_range', 'waveform_names', 'waiting_for_trigger']
+		for name in read_only:
+			self.resources[name] = Resource(self, name)
+
+		read_write = ['sampling_rate', 'run_mode', 'enabled']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
+
+		# TODO: Channels, markers.
+		# Not currently exportable: reset, get_waveform, create_waveform, trigger
 
 	def __init__(self, *args, **kwargs):
 		"""
@@ -142,7 +159,7 @@ class AWG5014B(AbstractDevice):
 
 		AbstractDevice.__init__(self, *args, **kwargs)
 
-		self.setup()
+		self._setup()
 
 	def reset(self):
 		"""

@@ -3,6 +3,7 @@ from nose.tools import eq_
 import unittest
 
 from testconfig import config
+from tests.tools import AssertHandler
 
 from devices.tektronix import awg5014b
 
@@ -52,6 +53,8 @@ class AWG5014BTest(unittest.TestCase):
 		Note: Verification should also be done manually based on the AWG output.
 		"""
 
+		log = AssertHandler()
+
 		awg = self.__obtain_device()
 
 		# Setup
@@ -63,15 +66,18 @@ class AWG5014BTest(unittest.TestCase):
 		data1 = list(xrange(min_val, max_val, step))
 		data2 = list(xrange(max_val - 1, min_val - 1, -step))
 
+		log.flush()
 		awg.create_waveform(
 			'Test 1',
 			data=data1,
 			markers={
 				1: ([1, 1, 1, 0, 0] * len(data1))[:len(data1)],
 				2: ([0, 0, 0, 1, 1] * len(data1))[:len(data1)],
-				3: [1, 2, 3, 4], # TODO: Ensure a warning is logged.
+				3: [1, 2, 3, 4],
 			}
 		)
+		log.assert_logged('warning', 'marker 3 ignored: \[1, 2, 3, 4\]')
+
 		awg.create_waveform(
 			'Test 2',
 			data=data2

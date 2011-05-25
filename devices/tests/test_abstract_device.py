@@ -3,6 +3,7 @@ from nose.tools import eq_
 import unittest
 
 from testconfig import config
+from tests.tools import AssertHandler
 
 from devices import abstract_device
 
@@ -49,12 +50,15 @@ class BlockDataTest(unittest.TestCase):
 		"""
 
 		data = [
-			('Too ', '#14Too long.'),
+			('Too ', '#14Too long.', 'extra data ignored: long.'),
 		]
 
-		for d, b in data:
-			# TODO: Ensure a warning is logged.
+		log = AssertHandler()
+
+		for d, b, msg in data:
+			log.flush()
 			eq_(abstract_device.BlockData.from_block_data(b), d)
+			log.assert_logged('warning', msg)
 
 	def testFromBadBlockData(self):
 		"""

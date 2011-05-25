@@ -14,10 +14,16 @@ class AWG5014BTest(unittest.TestCase):
 		Try to get a handle for a physical device. 
 		"""
 
-		try:
-			return awg5014b.AWG5014B(**config['devices']['awg'])
-		except Exception as e:
-			raise SkipTest('Could not connect to device.', e)
+		all_devices = config['devices'].items()
+		potential_addresses = [a for (n, a) in all_devices if n.startswith('AWG5014B.')]
+
+		for address in potential_addresses:
+			try:
+				return awg5014b.AWG5014B(**address)
+			except Exception:
+				pass
+
+		raise SkipTest('Could not connect to device.')
 
 	def testMarkerValues(self):
 		"""

@@ -1,6 +1,16 @@
+import logging
 import string
 
 from devices.abstract_device import AbstractDevice
+
+"""
+Custom voltage source
+
+Control the output voltages on all the ports.
+"""
+
+
+log = logging.getLogger(__name__)
 
 
 class Encoder(object):
@@ -14,21 +24,27 @@ class Encoder(object):
 		Convert a string of hexadecimal digits to a byte string.
 		"""
 
+		log.debug('Encoding to byte string: {0}'.format(msg))
+
 		# Discard non-hexadecimal characters.
 		msg_filtered = [x for x in msg if x in string.hexdigits]
 		# Grab pairs.
 		idxs = xrange(0, len(msg_filtered), 2)
 		msg_paired = [''.join(msg_filtered[i:i+2]) for i in idxs]
 		# Convert to bytes.
-		msg_encoded = [chr(int(x, 16)) for x in msg_paired]
+		msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
 
-		return ''.join(msg_encoded)
+		log.debug('Encoded to: {0}'.format(msg_encoded))
+
+		return msg_encoded
 
 	@staticmethod
 	def decode(msg, pair_size=2, pair_up=True):
 		"""
 		Convert a byte string to a string of hexadecimal digits.
 		"""
+
+		log.debug('Decoding from byte string: {0}'.format(msg))
 
 		# Get the hex string for each byte.
 		msg_decoded = ['{0:02x}'.format(ord(x)) for x in msg]
@@ -37,9 +53,13 @@ class Encoder(object):
 			idxs = xrange(0, len(msg_decoded), pair_size)
 			msg_formatted = [''.join(msg_decoded[i:i+pair_size]) for i in idxs]
 
-			return ' '.join(msg_formatted)
+			result = ' '.join(msg_formatted)
 		else:
-			return ''.join(msg_decoded)
+			result = ''.join(msg_decoded)
+
+		log.debug('Decoded to: {0}'.format(result))
+
+		return result
 
 	@staticmethod
 	def length(msg):
@@ -47,7 +67,13 @@ class Encoder(object):
 		Calculate the number of bytes an unencoded message takes up when encoded.
 		"""
 
-		return len(Encoder.encode(msg))
+		log.debug('Finding encoded length: {0}'.format(msg))
+
+		result = len(Encoder.encode(msg))
+
+		log.debug('Found encoded length: {0}'.format(result))
+
+		return result
 
 
 class Port(object):
@@ -63,13 +89,19 @@ class Port(object):
 			pad messages until their length in bytes is a multiple of 4
 		"""
 
+		log.debug('Formatting for DAC: {0}'.format(msg))
+
 		msg_encoded = Encoder.encode(msg)
 		# Flip each byte separately.
 		msg_flipped = [chr(~ord(x) & 0xff) for x in msg_encoded]
 
 		missing_bytes = (4 - len(msg_encoded) % 4) % 4
 
-		return Encoder.decode(msg_flipped + ['\x00'] * missing_bytes)
+		result = Encoder.decode(msg_flipped + ['\x00'] * missing_bytes)
+
+		log.debug('Formatted for DAC (padded with {0} bytes): {1}'.format(missing_bytes, result))
+
+		return result
 
 	def __init__(self, device, num, resolution=20, adaptive_filtering=True,
 			calibrate_connected=False, fast_settling=True, freq=100,

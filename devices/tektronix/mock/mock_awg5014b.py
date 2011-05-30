@@ -1,4 +1,3 @@
-import logging
 import re
 import struct
 
@@ -11,9 +10,6 @@ Mock Tektronix AWG5014B Arbitrary Waveform Generator
 
 Control a fake AWG's settings and output waveforms.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class Waveform(object):

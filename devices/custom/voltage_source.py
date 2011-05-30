@@ -221,6 +221,9 @@ class VoltageSource(AbstractDevice):
 	It uses several TI DAC1220 chips and an NI USB-8451 to interface with them over SPI.
 	"""
 
+	def setup(self, port_settings):
+		self.ports = [Port(self, num, **port_settings) for num in xrange(16)]
+
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""
 		Initialize the voltage source and all its ports.
@@ -233,7 +236,7 @@ class VoltageSource(AbstractDevice):
 
 		AbstractDevice.__init__(self, *args, **kwargs)
 
-		self.ports = [Port(self, num, **port_settings) for num in xrange(16)]
+		self.setup(port_settings)
 
 	def ask_encoded(self, msg, assertion=None):
 		"""

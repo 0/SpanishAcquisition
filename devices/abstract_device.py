@@ -11,8 +11,8 @@ Tools for working with hardware devices.
 log = logging.getLogger(__name__)
 
 
-# Implementation types: PyVISA, Linux GPIB.
-PYVISA, LGPIB = xrange(2)
+# Implementation types: PyVISA, Linux GPIB, PyVISA USB.
+PYVISA, LGPIB, PYVISA_USB = xrange(3)
 
 
 class BlockDataError(Exception):
@@ -128,22 +128,35 @@ class BlockData(object):
 			return block_data[data_start:data_end]
 
 
+class USBDevice(visa.Instrument):
+	"""
+	Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
+	"""
+
+	def __init__(self, *args, **kwargs):
+		# Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
+		visa.ResourceTemplate.__init__(self, *args, **kwargs)
+
+
 class AbstractDevice(object):
 	"""
 	A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.
 	"""
 
-	def __init__(self, ip_address=None, board=0, pad=None, sad=0):
+	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
 		"""
-		Connect to a device either over Ethernet or GPIB.
+		Connect to a device either over Ethernet, GPIB, or USB.
 
 		Ethernet (tcpip::<ip_address>::instr):
-			ip_address: The IP address on which the device is listening on port 111.
+			ip_address: IP address on which the device is listening on port 111.
 
 		GPIB (gpib[board]::<pad>[::<sad>]::instr):
-			board: The GPIB board index. Defaults to 0.
-			pad: The primary address of the device.
-			sad: The secondary address of the device. Defaults to 0.
+			board: GPIB board index. Defaults to 0.
+			pad: Primary address of the device.
+			sad: Secondary address of the device. Defaults to 0.
+
+		USB (usb_address):
+			usb_address: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
 		"""
 
 		self.name = self.__class__.__name__
@@ -151,16 +164,16 @@ class AbstractDevice(object):
 		log.info('Creating device "{0}".'.format(self.name))
 
 		if ip_address is not None:
-			log.debug('Attempting to use PyVISA with ip_address={0}.'.format(ip_address))
+			log.debug('Attempting to use PyVISA with ip_address="{0}".'.format(ip_address))
 
 			self._implementation = PYVISA
 
 			try:
 				self.device = visa.Instrument('tcpip::{0}::instr'.format(ip_address))
 			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at ip_address={0}.'.format(ip_address), e)
+				raise DeviceNotFoundError('Could not open device at ip_address="{0}".'.format(ip_address), e)
 		elif board is not None and pad is not None:
-			log.debug('Attempting to use Linux GPIB with board={0}, pad={1}.'.format(board, pad))
+			log.debug('Attempting to use Linux GPIB with board="{0}", pad="{1}".'.format(board, pad))
 
 			self._implementation = LGPIB
 
@@ -170,8 +183,17 @@ class AbstractDevice(object):
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at board={0}, pad={1}.'.format(board, pad), e)
+		elif usb_address is not None:
+			log.debug('Attempting to use PyVISA with usb_address="{0}"'.format(usb_address))
+
+			self._implementation = PYVISA_USB
+
+			try:
+				self.device = USBDevice(usb_address)
+			except visa.VisaIOError as e:
+				raise DeviceNotFoundError('Could not open device at usb_address="{0}".'.format(usb_address), e)
 		else:
-			raise ValueError('Either an IP or a GPIB address must be specified.')
+			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
 
 	def write(self, message):
 		"""
@@ -180,7 +202,11 @@ class AbstractDevice(object):
 
 		log.debug('Writing to device "{0}": {1}'.format(self.name, message))
 
-		self.device.write(message)
+		if self._implementation == PYVISA or self._implementation == LGPIB:
+			self.device.write(message)
+		elif self._implementation == PYVISA_USB:
+			# Send the message raw.
+			visa.vpp43.write(self.device.vi, message)
 
 	def read_raw(self, chunk_size=512):
 		"""
@@ -191,7 +217,7 @@ class AbstractDevice(object):
 
 		buf = ''
 
-		if self._implementation == PYVISA:
+		if self._implementation == PYVISA or self._implementation == PYVISA_USB:
 			buf = self.device.read_raw()
 		elif self._implementation == LGPIB:
 			status = 0

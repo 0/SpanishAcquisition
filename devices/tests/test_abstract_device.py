@@ -134,15 +134,39 @@ class AbstractDeviceTest(unittest.TestCase):
 		else:
 			assert False, 'Expected DeviceNotFoundError.'
 
+	def testInitNotFoundUSB(self):
+		"""
+		Invalid or non-existent USB address.
+		"""
+
+		try:
+			abstract_device.AbstractDevice(usb_address='NOT::USB::RAW')
+		except abstract_device.DeviceNotFoundError:
+			pass
+		else:
+			assert False, 'Expected DeviceNotFoundError.'
+
+		try:
+			# Unlikely VID/PID/serial combination.
+			abstract_device.AbstractDevice(usb_address='USB::1234::5678::01234567::RAW')
+		except abstract_device.DeviceNotFoundError:
+			pass
+		else:
+			assert False, 'Expected DeviceNotFoundError.'
+
+
 	def testAskRaw(self):
 		"""
-		Converse briefly with a real device.
+		Converse briefly with real devices.
 		"""
 
 		found_any = False
 
 		# Try all devices to which a connection can be established.
-		for device in config['devices'].values():
+		for name, device in config['devices'].items():
+			if not (name.endswith('.eth') or name.endswith('.gpib')):
+				continue
+
 			try:
 				dev = abstract_device.AbstractDevice(**device)
 			except:

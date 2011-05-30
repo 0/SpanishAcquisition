@@ -11,7 +11,7 @@ from devices.tektronix import awg5014b
 class AWG5014BTest(unittest.TestCase):
 	def __obtain_device(self):
 		"""
-		Try to get a handle for a physical device. 
+		Try to get a handle for a physical device.
 		"""
 
 		all_devices = config['devices'].items()

@@ -198,7 +198,7 @@ class AbstractDevice(object):
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
 
-		self._setup()
+		AbstractDevice._setup(self)
 
 	def write(self, message):
 		"""

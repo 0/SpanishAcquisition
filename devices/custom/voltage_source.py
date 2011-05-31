@@ -205,7 +205,7 @@ class Port(object):
 			flags |= 0b01
 
 		# Write 16 bits to the top of the DIR: 0010 0100 xx10 0000 101x 00xx
-		self.write_to_dac('24 {0:04x}'.format(0x20a1 | flags))
+		self.write_to_dac('24 {0:04x}'.format(0x20a0 | flags))
 
 	def set_voltage(self, voltage):
 		"""

@@ -238,7 +238,7 @@ class Port(object):
 
 	voltage = property(fset=set_voltage)
 
-	def autotune(self, voltage_resource, min_value=None, max_value=None, final_value=0):
+	def autotune(self, voltage_resource, min_value=None, max_value=None, final_value=0, set_result=True):
 		"""
 		Take some measured data and solve for the gain and offset.
 
@@ -246,12 +246,17 @@ class Port(object):
 		min_value: Smallest value to take into account.
 		max_value: Largest value to take into account.
 		final_value: Value to set port to after all measurements are taken.
+		set_result: Whether to apply the resulting gain and offset.
 		"""
 
 		if min_value is None:
 			min_value = self.min_value
 		if max_value is None:
 			max_value = self.max_value
+
+		# Test with raw values.
+		old_gain, old_offset = self.gain, self.offset
+		self.gain, self.offset = 1, 0
 
 		if max_value < min_value:
 			raise ValueError('{0} > {1}'.format(min_value, max_value))
@@ -271,12 +276,17 @@ class Port(object):
 
 		# Solve.
 		A = numpy.vstack([real, numpy.ones(len(real))]).T
-		self.gain, self.offset = numpy.linalg.lstsq(A, measured)[0]
+		gain, offset = numpy.linalg.lstsq(A, measured)[0]
 
-		# Set it after the gain and offset, so that it is more correct.
+		if set_result:
+			self.gain, self.offset = gain, offset
+		else:
+			self.gain, self.offset = old_gain, old_offset
+
+		# Set the voltage after the gain and offset, so that it is potentially more correct.
 		self.voltage = final_value
 
-		return (self.gain, self.offset)
+		return (gain, offset)
 
 
 class VoltageSource(AbstractDevice):

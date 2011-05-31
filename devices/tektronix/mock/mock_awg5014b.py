@@ -92,7 +92,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		self.name = 'AWG5014B'
 		self.__reset()
 
-		AWG5014B.setup(self)
+		AWG5014B._setup(self)
 
 	def find_wave(self, name):
 		"""

@@ -1,5 +1,7 @@
 import logging
+import numpy
 import string
+import time
 
 from devices.abstract_device import AbstractDevice
 
@@ -133,22 +135,29 @@ class Port(object):
 		if apply_settings:
 			self.apply_settings(calibrate=False)
 
+		# These values are used to tune the input values according to empirical error.
+		self.gain = 1
+		self.offset = 0
+
 	def calculate_voltage(self, voltage):
 		"""
 		Determine the value corresponding to the given voltage.
 		"""
 
 		try:
-			if abs(voltage) > 10:
-				raise ValueError('Voltage magnitude must be no greater than 10. Given: {0}'.format(voltage))
+			voltage_adjusted = (voltage - self.offset) / self.gain
 		except TypeError:
 			raise ValueError('Voltage must be a number. Given: {0}'.format(voltage))
+
+		if abs(voltage_adjusted) > 10:
+			raise ValueError('Adjusted voltage magnitude must be no greater than 10.'
+					'Given: {0}; adjusted to: {1}.'.format(voltage, voltage_adjusted))
 
 		max_val = (1 << self.resolution) - 1
 
 		# Map [-10, 10] onto [0x0, 0xff...] depending on the resolution.
 		# First negate the voltage, so that flipping the bits later will make it correct.
-		return int(float(-voltage + 10) / 20 * max_val)
+		return int(float(-voltage_adjusted + 10) / 20 * max_val)
 
 	def write_to_dac(self, message):
 		"""
@@ -222,6 +231,41 @@ class Port(object):
 		self.write_to_dac('40 {0:06x}'.format(resulting_voltage))
 
 	voltage = property(fset=set_voltage)
+
+	def autotune(self, voltage_resource, min_value=-10, max_value=10, final_value=0):
+		"""
+		Take some measured data and solve for the gain and offset.
+
+		voltage_resource: A resource which provides the realtime measured data for this port.
+		min_value: Smallest value to take into account.
+		max_value: Largest value to take into account.
+		final_value: Value to set port to after all measurements are taken.
+		"""
+
+		if max_value < min_value:
+			raise ValueError('{0} > {1}'.format(min_value, max_value))
+		elif max_value == min_value:
+			num_points = 1
+		else:
+			num_points = 21
+
+		# Obtain data.
+		real = numpy.linspace(min_value, max_value, num_points)
+		measured = []
+
+		for x in real:
+			self.voltage = x
+			time.sleep(0.2)
+			measured.append(voltage_resource.value)
+
+		# Solve.
+		A = numpy.vstack([real, numpy.ones(len(real))]).T
+		self.gain, self.offset = numpy.linalg.lstsq(A, measured)[0]
+
+		# Set it after the gain and offset, so that it is more correct.
+		self.voltage = final_value
+
+		return (self.gain, self.offset)
 
 
 class VoltageSource(AbstractDevice):

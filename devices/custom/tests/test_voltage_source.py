@@ -116,5 +116,23 @@ class TestPort(unittest.TestCase):
 			eq_(voltage_source.Port.format_for_dac(m), f)
 
 
+	def testCustomBounds(self):
+		"""
+		Try conversions with custom minimum and maximum values.
+		"""
+
+		port = voltage_source.Port(None, None, apply_settings=False, min_value=-100, max_value=-30)
+
+		data = [
+			(-100, 0xfffff),
+			(-65, 0x7ffff),
+			(-30.00007, 0x00001),
+			(-30, 0x00000),
+		]
+
+		for v, r in data:
+			eq_(port.calculate_voltage(v), r)
+
+
 if __name__ == '__main__':
 	unittest.main()

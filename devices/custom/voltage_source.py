@@ -105,9 +105,9 @@ class Port(object):
 
 		return result
 
-	def __init__(self, device, num, resolution=20, apply_settings=True,
-			adaptive_filtering=True, calibrate_connected=False, fast_settling=True,
-			freq=100, *args, **kwargs):
+	def __init__(self, device, num, resolution=20, apply_settings=True, min_value=-10,
+			max_value=+10, adaptive_filtering=True, calibrate_connected=False,
+			fast_settling=True,	freq=100, *args, **kwargs):
 		"""
 		Initialize the output port.
 
@@ -115,6 +115,8 @@ class Port(object):
 		num: The index of this port.
 		resolution: How many bits the output value contains.
 		apply_settings: Whether to automatically apply all the settings.
+		min_value: Smallest value the port can produce.
+		max_value: Largest value the port can produce.
 		adaptive_filtering: Enable adaptive filtering.
 		calibrate_connected: Do not disconnect output while calibrating.
 		fast_settling: Enable fast settling.
@@ -127,6 +129,8 @@ class Port(object):
 		self.device = device
 		self.num = num
 		self.resolution = resolution
+		self.min_value = min_value
+		self.max_value = max_value
 		self.adaptive_filtering = adaptive_filtering
 		self.calibrate_connected = calibrate_connected
 		self.fast_settling = fast_settling
@@ -149,15 +153,17 @@ class Port(object):
 		except TypeError:
 			raise ValueError('Voltage must be a number. Given: {0}'.format(voltage))
 
-		if abs(voltage_adjusted) > 10:
-			raise ValueError('Adjusted voltage magnitude must be no greater than 10.'
-					'Given: {0}; adjusted to: {1}.'.format(voltage, voltage_adjusted))
+		if voltage_adjusted < self.min_value or voltage_adjusted > self.max_value:
+			raise ValueError('Adjusted voltage must be within [{0}, {1}]. '
+					'Given: {2}; adjusted to: {3}.'.format(self.min_value,
+					self.max_value, voltage, voltage_adjusted))
 
-		max_val = (1 << self.resolution) - 1
+		max_converted = (1 << self.resolution) - 1
+		value_span = self.max_value - self.min_value
 
-		# Map [-10, 10] onto [0x0, 0xff...] depending on the resolution.
+		# Map [-min_value, max_value] onto [0x0, 0xff...] depending on the resolution.
 		# First negate the voltage, so that flipping the bits later will make it correct.
-		return int(float(-voltage_adjusted + 10) / 20 * max_val)
+		return int(float(-voltage_adjusted + self.max_value) / value_span * max_converted)
 
 	def write_to_dac(self, message):
 		"""
@@ -232,7 +238,7 @@ class Port(object):
 
 	voltage = property(fset=set_voltage)
 
-	def autotune(self, voltage_resource, min_value=-10, max_value=10, final_value=0):
+	def autotune(self, voltage_resource, min_value=None, max_value=None, final_value=0):
 		"""
 		Take some measured data and solve for the gain and offset.
 
@@ -241,6 +247,11 @@ class Port(object):
 		max_value: Largest value to take into account.
 		final_value: Value to set port to after all measurements are taken.
 		"""
+
+		if min_value is None:
+			min_value = self.min_value
+		if max_value is None:
+			max_value = self.max_value
 
 		if max_value < min_value:
 			raise ValueError('{0} > {1}'.format(min_value, max_value))
@@ -307,7 +318,7 @@ class VoltageSource(AbstractDevice):
 			formatted_assertion = Encoder.decode(Encoder.encode(assertion))
 
 			assert result == formatted_assertion, (
-					'Device in unknown state; expect general failure.'
+					'Device in unknown state; expect general failure. '
 					'Asserted: {0}; observed: {1}.'.format(assertion, result))
 
 		return result

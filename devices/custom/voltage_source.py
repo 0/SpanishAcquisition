@@ -232,6 +232,8 @@ class VoltageSource(AbstractDevice):
 	"""
 
 	def _setup(self, port_settings):
+		AbstractDevice._setup(self)
+
 		self.ports = [Port(self, num, **port_settings) for num in xrange(16)]
 
 	def __init__(self, port_settings=None, *args, **kwargs):

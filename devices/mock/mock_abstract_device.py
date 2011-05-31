@@ -25,7 +25,6 @@ class MockAbstractDevice(AbstractDevice):
 		log.info('Creating mock device.')
 
 		self.name = 'AbstractDevice'
-		self.resources = {}
 		self.mock_state = {}
 
 	def _split_message(self, message):

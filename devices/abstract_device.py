@@ -143,6 +143,9 @@ class AbstractDevice(object):
 	A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.
 	"""
 
+	def _setup(self):
+		self.resources = {}
+
 	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
 		"""
 		Connect to a device either over Ethernet, GPIB, or USB.
@@ -194,6 +197,8 @@ class AbstractDevice(object):
 				raise DeviceNotFoundError('Could not open device at usb_address="{0}".'.format(usb_address), e)
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
+
+		self._setup()
 
 	def write(self, message):
 		"""

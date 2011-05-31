@@ -49,7 +49,7 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 		self.name = 'VoltageSource'
 		self.__reset()
 
-		VoltageSource.setup(self, {})
+		VoltageSource._setup(self, {})
 
 	def write(self, message, result=None, done=False):
 		if done:

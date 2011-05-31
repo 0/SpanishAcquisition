@@ -130,10 +130,6 @@ class AWG5014B(AbstractDevice):
 	"""
 
 	def _setup(self):
-		"""
-		Setup shared with the mock object.
-		"""
-
 		self.channels = [None] # There is no channel 0.
 		for chan in xrange(1, 5):
 			self.channels.append(Channel(self, chan))

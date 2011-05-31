@@ -13,7 +13,7 @@ def setup():
 	voltage_source.VoltageSource = mock_voltage_source.MockVoltageSource
 
 # Run this test class.
-from devices.custom.server_tests.test_voltage_source import VoltageSourceTest
+from devices.custom.tests.server.test_voltage_source import VoltageSourceTest
 
 def teardown():
 	# Restore the real device for any remaining tests.

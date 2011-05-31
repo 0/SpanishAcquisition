@@ -33,11 +33,11 @@ Simple unit tests can all be run with
 
 Tests which have external dependencies can be found with:
 
-    find . -path '*/server_tests/test_*.py'
+    find . -path '*/tests/server/test_*.py'
 
 and run with, for example:
 
-    ./runtests ./devices/tektronix/server_tests/test_awg5014b.py
+    ./runtests ./devices/tektronix/tests/server/test_awg5014b.py
 
 ## Miscellaneous
 

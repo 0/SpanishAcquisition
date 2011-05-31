@@ -13,7 +13,7 @@ def setup():
 	awg5014b.AWG5014B = mock_awg5014b.MockAWG5014B
 
 # Run this test class.
-from devices.tektronix.server_tests.test_awg5014b import AWG5014BTest
+from devices.tektronix.tests.server.test_awg5014b import AWG5014BTest
 
 def teardown():
 	# Restore the real device for any remaining tests.

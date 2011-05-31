@@ -18,11 +18,20 @@ class VoltageSourceTest(unittest.TestCase):
 		for address in potential_addresses:
 			try:
 				return voltage_source.VoltageSource(**address)
-			except Exception as e:
-				print e
+			except Exception:
 				pass
 
 		raise SkipTest('Could not connect to device.')
+
+	def testCalibrate(self):
+		"""
+		Self-calibrate all the ports.
+		"""
+
+		vsrc = self.__obtain_device()
+
+		for port in vsrc.ports:
+			port.apply_settings(calibrate=True)
 
 	def testSetVoltages(self):
 		"""

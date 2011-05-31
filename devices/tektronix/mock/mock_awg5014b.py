@@ -90,10 +90,9 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 		self.name = 'AWG5014B'
+		self.__reset()
 
 		AWG5014B.setup(self)
-
-		self.__reset()
 
 	def find_wave(self, name):
 		"""

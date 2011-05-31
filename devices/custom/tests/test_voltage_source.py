@@ -50,7 +50,7 @@ class TestPort(unittest.TestCase):
 		Trivial conversion.
 		"""
 
-		port = voltage_source.Port(None, None, calibrate=False, resolution=20)
+		port = voltage_source.Port(None, None, apply_settings=False, resolution=20)
 
 		data = [
 			(-10, 0xfffff),
@@ -68,7 +68,7 @@ class TestPort(unittest.TestCase):
 		Trivial conversion at another resolution.
 		"""
 
-		port = voltage_source.Port(None, None, calibrate=False, resolution=16)
+		port = voltage_source.Port(None, None, apply_settings=False, resolution=16)
 
 		data = [
 			(-10, 0xffff),
@@ -86,7 +86,7 @@ class TestPort(unittest.TestCase):
 		Trivial conversion gone wrong.
 		"""
 
-		port = voltage_source.Port(None, None, calibrate=False)
+		port = voltage_source.Port(None, None, apply_settings=False)
 
 		data = ['x', -10.1, 10.1, None, 42]
 

@@ -103,15 +103,16 @@ class Port(object):
 
 		return result
 
-	def __init__(self, device, num, resolution=20, adaptive_filtering=True,
-			calibrate_connected=False, fast_settling=True, freq=100,
-			*args, **kwargs):
+	def __init__(self, device, num, resolution=20, apply_settings=True,
+			adaptive_filtering=True, calibrate_connected=False, fast_settling=True,
+			freq=100, *args, **kwargs):
 		"""
 		Initialize the output port.
 
 		device: The VoltageSource to which this Port belongs.
 		num: The index of this port.
 		resolution: How many bits the output value contains.
+		apply_settings: Whether to automatically apply all the settings.
 		adaptive_filtering: Enable adaptive filtering.
 		calibrate_connected: Do not disconnect output while calibrating.
 		fast_settling: Enable fast settling.
@@ -128,6 +129,9 @@ class Port(object):
 		self.calibrate_connected = calibrate_connected
 		self.fast_settling = fast_settling
 		self.freq = freq
+
+		if apply_settings:
+			self.apply_settings(calibrate=False)
 
 	def calculate_voltage(self, voltage):
 		"""
@@ -184,9 +188,11 @@ class Port(object):
 				message_formatted),
 				'0000 0014 0010 0100 0000 0002 {0:02x} 00 0000 {1}'.format(message_length, expected_reply))
 
-	def calibrate(self):
+	def apply_settings(self, calibrate=False):
 		"""
-		Calibrate the DAC on this port.
+		Apply the settings for the DAC on this port.
+
+		calibrate: Run self-calibration on this port as well.
 
 		Note: It is essential to wait after this method returns until the calibration is done.
 		"""
@@ -194,7 +200,11 @@ class Port(object):
 		flags = ((not self.adaptive_filtering) << 15 |
 				self.calibrate_connected << 14 |
 				(not self.fast_settling) << 4)
-		# Write 16 bits to the top of the DIR: 0010 0100 xx10 0000 101x 0001
+
+		if calibrate:
+			flags |= 0b01
+
+		# Write 16 bits to the top of the DIR: 0010 0100 xx10 0000 101x 00xx
 		self.write_to_dac('24 {0:04x}'.format(0x20a1 | flags))
 
 	def set_voltage(self, voltage):

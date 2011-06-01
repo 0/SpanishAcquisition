@@ -1,3 +1,4 @@
+import functools
 import logging
 import string
 
@@ -15,6 +16,21 @@ class BlockDataError(Exception):
 	"""
 
 	pass
+
+
+class Synchronized(object):
+	"""
+	A decorator for methods which must be synchronized within an object instance.
+	"""
+
+	@staticmethod
+	def __call__(f):
+		@functools.wraps(f)
+		def decorated(self, *args, **kwargs):
+			with self.lock:
+				return f(self, *args, **kwargs)
+
+		return decorated
 
 
 class BlockData(object):

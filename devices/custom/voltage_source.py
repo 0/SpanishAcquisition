@@ -3,7 +3,7 @@ import numpy
 import time
 
 from devices.abstract_device import AbstractDevice
-from devices.tools import BinaryEncoder
+from devices.tools import BinaryEncoder, Synchronized
 
 """
 Custom voltage source
@@ -60,6 +60,9 @@ class Port(object):
 		freq: Clock rate in kHz.
 		"""
 
+		# Synchronized methods should use the device lock.
+		self.lock = device.lock if device else None
+
 		if resolution not in [16, 20]:
 			raise ValueError('Unsupported resolution: {0}'.format(resolution))
 
@@ -102,6 +105,7 @@ class Port(object):
 		# First negate the voltage, so that flipping the bits later will make it correct.
 		return int(float(-voltage_adjusted + self.max_value) / value_span * max_converted)
 
+	@Synchronized()
 	def write_to_dac(self, message):
 		"""
 		Write a message to the DAC of the port.
@@ -175,6 +179,7 @@ class Port(object):
 
 	voltage = property(fset=set_voltage)
 
+	@Synchronized()
 	def autotune(self, voltage_resource, min_value=None, max_value=None, final_value=0, set_result=True):
 		"""
 		Take some measured data and solve for the gain and offset.
@@ -250,6 +255,7 @@ class VoltageSource(AbstractDevice):
 
 		self._setup(port_settings)
 
+	@Synchronized()
 	def ask_encoded(self, msg, assertion=None):
 		"""
 		Encode and write the message; then read and decode the answer.

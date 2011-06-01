@@ -3,7 +3,7 @@ import re
 import struct
 
 from devices.abstract_device import AbstractDevice
-from devices.tools import BlockData
+from devices.tools import BlockData, Synchronized
 from interface.resources import Resource
 
 """
@@ -158,6 +158,7 @@ class AWG5014B(AbstractDevice):
 
 		self._setup()
 
+	@Synchronized()
 	def reset(self):
 		"""
 		Reset the device to its default state.
@@ -219,6 +220,7 @@ class AWG5014B(AbstractDevice):
 		self.write('awgcontrol:rmode {0}'.format(value))
 
 	@property
+	@Synchronized()
 	def waveform_names(self):
 		"""
 		A list of all waveforms in the AWG.
@@ -235,6 +237,7 @@ class AWG5014B(AbstractDevice):
 
 		return result
 
+	@Synchronized()
 	def get_waveform(self, name):
 		log.debug('Getting waveform "{0}" from device "{1}".'.format(name, self.name))
 
@@ -248,6 +251,7 @@ class AWG5014B(AbstractDevice):
 
 		return list(data)
 
+	@Synchronized()
 	def create_waveform(self, name, data, markers=None):
 		"""
 		Create a new waveform on the AWG.

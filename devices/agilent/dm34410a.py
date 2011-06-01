@@ -1,6 +1,7 @@
 import logging
 
 from devices.abstract_device import AbstractDevice
+from devices.tools import Synchronized
 from interface.resources import Resource
 
 """
@@ -35,6 +36,7 @@ class DM34410A(AbstractDevice):
 
 		self._setup()
 
+	@Synchronized()
 	def reset(self):
 		"""
 		Reset the device to its default state.
@@ -44,6 +46,7 @@ class DM34410A(AbstractDevice):
 		self.write('*rst')
 
 	@property
+	@Synchronized()
 	def dc_voltage(self):
 		"""
 		The DC voltage measured by the device.

@@ -1,7 +1,10 @@
 import logging
 import Gpib
 import gpib
+import threading
 import visa
+
+from devices.tools import Synchronized
 
 """
 Hardware device abstraction interface.
@@ -64,6 +67,8 @@ class AbstractDevice(object):
 	def _setup(self):
 		self.name = self.__class__.__name__
 
+		self.lock = threading.RLock()
+
 		self.resources = {}
 
 	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
@@ -118,6 +123,7 @@ class AbstractDevice(object):
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
 
+	@Synchronized()
 	def write(self, message):
 		"""
 		Write to the device.
@@ -131,6 +137,7 @@ class AbstractDevice(object):
 			# Send the message raw.
 			visa.vpp43.write(self.device.vi, message)
 
+	@Synchronized()
 	def read_raw(self, chunk_size=512):
 		"""
 		Read everything the device has to say and return it exactly.
@@ -159,6 +166,7 @@ class AbstractDevice(object):
 
 		return self.read_raw().rstrip()
 
+	@Synchronized()
 	def ask_raw(self, message):
 		"""
 		Write, then read_raw.
@@ -167,6 +175,7 @@ class AbstractDevice(object):
 		self.write(message)
 		return self.read_raw()
 
+	@Synchronized()
 	def ask(self, message):
 		"""
 		Write, then read.

@@ -1,9 +1,63 @@
 from nose.tools import eq_
+import threading
+import time
 import unittest
 
 from tests.tools import AssertHandler
 
 from devices import tools
+
+
+class SynchronizedTest(unittest.TestCase):
+	class SynchronizedObject(object):
+		def __init__(self):
+			self.buf = []
+
+			self.lock = threading.RLock()
+
+		@tools.Synchronized()
+		def do(self, values):
+			for i in xrange(values):
+				self.buf.append(i)
+				time.sleep(0.001)
+
+
+	class SynchronizedThread(threading.Thread):
+		def __init__(self, obj, times, values):
+			threading.Thread.__init__(self)
+
+			self.obj = obj
+			self.times = times
+			self.values = values
+
+		def run(self):
+			for i in xrange(self.times):
+				self.obj.do(self.values)
+
+
+	def testSynchronization(self):
+		"""
+		Ensure that synchronized methods are called in the correct order.
+		"""
+
+		num_threads = 4
+
+		times = 4
+		values = 5
+
+		obj = SynchronizedTest.SynchronizedObject()
+
+		thrs = []
+		for _ in xrange(num_threads):
+			thrs.append(SynchronizedTest.SynchronizedThread(obj, times, values))
+
+		for thr in thrs:
+			thr.start()
+
+		for thr in thrs:
+			thr.join()
+
+		eq_(obj.buf, range(values) * times * num_threads)
 
 
 class BlockDataTest(unittest.TestCase):
@@ -113,6 +167,3 @@ class TestBinaryBinaryEncoder(unittest.TestCase):
 
 		for d, l in data:
 			eq_(tools.BinaryEncoder.length(d), l)
-
-
-

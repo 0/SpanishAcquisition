@@ -1,78 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from tests.tools import AssertHandler
-
 from devices import abstract_device
-
-
-class BlockDataTest(unittest.TestCase):
-	def testToAndFromBlockData(self):
-		"""
-		Routine conversions.
-		"""
-
-		binary_data = ''.join([chr(x) for x in xrange(256)])
-
-		data = [
-			('', '#10'),
-			(' ', '#11 '),
-			('something longer', '#216something longer'),
-			('and binary data: ' + binary_data, '#3273and binary data: ' + binary_data)
-		]
-
-		for d, b in data:
-			eq_(abstract_device.BlockData.to_block_data(d), b)
-			eq_(abstract_device.BlockData.from_block_data(b), d)
-
-	def testFromIndefiniteBlockData(self):
-		"""
-		Indefinite inputs.
-		"""
-
-		binary_data = ''.join([chr(x) for x in xrange(256)])
-
-		data = [
-			('', '#0\n'),
-			(' ', '#0 \n'),
-			('something longer', '#0something longer\n'),
-			('and binary data: ' + binary_data, '#0and binary data: ' + binary_data + '\n')
-		]
-
-		for d, b in data:
-			eq_(abstract_device.BlockData.from_block_data(b), d)
-
-	def testFromSlightlyBadData(self):
-		"""
-		Not valid, but parsable inputs.
-		"""
-
-		data = [
-			('Too ', '#14Too long.', 'extra data ignored: long.'),
-		]
-
-		log = AssertHandler()
-
-		for d, b, msg in data:
-			log.flush()
-			eq_(abstract_device.BlockData.from_block_data(b), d)
-			log.assert_logged('warning', msg)
-
-	def testFromBadBlockData(self):
-		"""
-		Invalid inputs.
-		"""
-
-		data = ['', '123Off to a bad start!', '#', '#0', '#0non-terminated',
-				'#X123', '#1', '#29', '#24test', '#44444Too short.']
-
-		for b in data:
-			try:
-				abstract_device.BlockData.from_block_data(b)
-			except abstract_device.BlockDataError:
-				pass
-			else:
-				assert False, 'Expected BlockDataError.'
 
 
 class AbstractDeviceTest(unittest.TestCase):

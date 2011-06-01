@@ -4,7 +4,7 @@ import gpib
 import visa
 
 """
-Tools for working with hardware devices.
+Hardware device abstraction interface.
 """
 
 
@@ -13,14 +13,6 @@ log = logging.getLogger(__name__)
 
 # Implementation types: PyVISA, Linux GPIB, PyVISA USB.
 PYVISA, LGPIB, PYVISA_USB = xrange(3)
-
-
-class BlockDataError(Exception):
-	"""
-	Problem reading block data.
-	"""
-
-	pass
 
 
 class DeviceNotFoundError(Exception):
@@ -52,80 +44,6 @@ class IbstaBits(object):
 	END = 0x2000
 	TIMO = 0x4000
 	ERR = 0x8000
-
-
-class BlockData(object):
-	"""
-	Utility methods for conversion between binary and 488.2 block data.
-	"""
-
-	@staticmethod
-	def to_block_data(data):
-		"""
-		Packs binary data into 488.2 block data.
-
-		As per section 7.7.6 of IEEE Std 488.2-1992.
-
-		Note: Does not produce indefinitely-formatted block data.
-		"""
-
-		log.debug('Converting to block data: {0}'.format(data))
-
-		length = len(data)
-		length_length = len(str(length))
-
-		return '#{0}{1}{2}'.format(length_length, length, data)
-
-	@staticmethod
-	def from_block_data(block_data):
-		"""
-		Extracts binary data from 488.2 block data.
-
-		As per section 7.7.6 of IEEE Std 488.2-1992.
-		"""
-
-		log.debug('Converting from block data: {0}'.format(block_data))
-
-		# Must have at least "#0\n" or "#XX".
-		if len(block_data) < 3:
-			raise BlockDataError('Not enough data.')
-
-		if block_data[0] != '#':
-			raise BlockDataError('Leading character is "{0}", not "#".'.format(block_data[0]))
-
-		if block_data[1] == '0':
-			log.debug('Indefinite format.')
-
-			if block_data[-1] != '\n':
-				raise BlockDataError('Final character is "{0}", not NL.'.format(block_data[-1]))
-
-			return block_data[2:-1]
-		else:
-			log.debug('Definite format.')
-
-			try:
-				length_length = int(block_data[1])
-			except ValueError:
-				raise BlockDataError('Length length incorrectly specified: {0}'.format(block_data[1]))
-
-			data_start = 2 + length_length
-
-			if data_start > len(block_data):
-				raise BlockDataError('Not enough data.')
-
-			try:
-				length = int(block_data[2:data_start])
-			except ValueError:
-				raise BlockDataError('Length incorrectly specified: {0}'.format(block_data[2:data_start]))
-
-			data_end = data_start + length
-
-			if data_end > len(block_data):
-				raise BlockDataError('Not enough data.')
-			elif data_end < len(block_data):
-				log.warning('Extra data ignored: {0}'.format(block_data[data_end:]))
-
-			return block_data[data_start:data_end]
 
 
 class USBDevice(visa.Instrument):

@@ -1,7 +1,8 @@
 import re
 
-from devices.custom.voltage_source import Encoder, VoltageSource
+from devices.custom.voltage_source import VoltageSource
 from devices.mock.mock_abstract_device import MockAbstractDevice
+from devices.tools import BinaryEncoder
 
 """
 Mock Voltage Source
@@ -55,7 +56,7 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 		if done:
 			MockAbstractDevice.write(self, message, result, done)
 
-		message = Encoder.decode(message)
+		message = BinaryEncoder.decode(message)
 
 		# These all elicit the same response.
 		uninteresting_messages = [
@@ -76,7 +77,7 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 		elif message.startswith('0000 0014 0010 0111 0260 0000 0003 '):
 			m = re.match('0000 0014 0010 0111 0260 0000 0003 ([0-9a-f]{2})00 ([0-9a-f ]{9})', message)
 			len = int(m.group(1), 16)
-			cmd = ''.join(['{0:08b}'.format(~ord(x) & 0xff) for x in Encoder.encode(m.group(2))[:len]])
+			cmd = ''.join(['{0:08b}'.format(~ord(x) & 0xff) for x in BinaryEncoder.encode(m.group(2))[:len]])
 
 			# Destructure the command.
 			read = bool(int(cmd[0])) # Read on True, write on False.
@@ -111,7 +112,7 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 			self.output = None
 
 		if self.output is not None:
-			self.output = Encoder.encode(self.output)
+			self.output = BinaryEncoder.encode(self.output)
 
 
 if __name__ == '__main__':

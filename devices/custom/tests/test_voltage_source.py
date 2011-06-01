@@ -4,46 +4,6 @@ import unittest
 from devices.custom import voltage_source
 
 
-class TestEncoder(unittest.TestCase):
-	def testEncodeDecode(self):
-		"""
-		Routine conversions.
-		"""
-
-		data = [
-			('', '', {}, ''),
-			('hex', '\x0e', {}, '0e'),
-			('1234', '\x12\x34', {}, '1234'),
-			('1234 5678 9 0 a b', '\x12\x34\x56\x78\x90\xab', {}, '1234 5678 90ab'),
-			('  ABCDEF   FEDCBA   ', '\xab\xcd\xef\xfe\xdc\xba', {}, 'abcd effe dcba'),
-			('0001 0203', '\x00\x01\x02\x03', {}, '0001 0203'),
-			('00 010203', '\x00\x01\x02\x03', {'pair_size': 3}, '000102 03'),
-			('00 01 02 03', '\x00\x01\x02\x03', {'pair_up': False}, '00010203'),
-		]
-
-		for u, e, args, d in data:
-			eq_(voltage_source.Encoder.encode(u), e)
-			eq_(voltage_source.Encoder.decode(e, **args), d)
-
-	def testLength(self):
-		"""
-		Routine calculations.
-		"""
-
-		data = [
-			('', 0),
-			('nothing', 0),
-			('0000', 2),
-			('001', 2),
-			('data 0101 234', 5),
-			('data 0101 2345', 6),
-			('data 0101 2345 6', 6),
-		]
-
-		for d, l in data:
-			eq_(voltage_source.Encoder.length(d), l)
-
-
 class TestPort(unittest.TestCase):
 	def testCalculateVoltage(self):
 		"""

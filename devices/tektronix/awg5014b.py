@@ -2,7 +2,8 @@ import logging
 import re
 import struct
 
-from devices.abstract_device import AbstractDevice, BlockData
+from devices.abstract_device import AbstractDevice
+from devices.tools import BlockData
 from interface.resources import Resource
 
 """

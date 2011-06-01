@@ -1,9 +1,9 @@
 import logging
 import numpy
-import string
 import time
 
 from devices.abstract_device import AbstractDevice
+from devices.tools import BinaryEncoder
 
 """
 Custom voltage source
@@ -13,69 +13,6 @@ Control the output voltages on all the ports.
 
 
 log = logging.getLogger(__name__)
-
-
-class Encoder(object):
-	"""
-	Utility methods for dealing with binary data encoded for the NI USB-8451.
-	"""
-
-	@staticmethod
-	def encode(msg):
-		"""
-		Convert a string of hexadecimal digits to a byte string.
-		"""
-
-		log.debug('Encoding to byte string: {0}'.format(msg))
-
-		# Discard non-hexadecimal characters.
-		msg_filtered = [x for x in msg if x in string.hexdigits]
-		# Grab pairs.
-		idxs = xrange(0, len(msg_filtered), 2)
-		msg_paired = [''.join(msg_filtered[i:i+2]) for i in idxs]
-		# Convert to bytes.
-		msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
-
-		log.debug('Encoded to: {0}'.format(msg_encoded))
-
-		return msg_encoded
-
-	@staticmethod
-	def decode(msg, pair_size=2, pair_up=True):
-		"""
-		Convert a byte string to a string of hexadecimal digits.
-		"""
-
-		log.debug('Decoding from byte string: {0}'.format(msg))
-
-		# Get the hex string for each byte.
-		msg_decoded = ['{0:02x}'.format(ord(x)) for x in msg]
-
-		if pair_up:
-			idxs = xrange(0, len(msg_decoded), pair_size)
-			msg_formatted = [''.join(msg_decoded[i:i+pair_size]) for i in idxs]
-
-			result = ' '.join(msg_formatted)
-		else:
-			result = ''.join(msg_decoded)
-
-		log.debug('Decoded to: {0}'.format(result))
-
-		return result
-
-	@staticmethod
-	def length(msg):
-		"""
-		Calculate the number of bytes an unencoded message takes up when encoded.
-		"""
-
-		log.debug('Finding encoded length: {0}'.format(msg))
-
-		result = len(Encoder.encode(msg))
-
-		log.debug('Found encoded length: {0}'.format(result))
-
-		return result
 
 
 class Port(object):
@@ -93,13 +30,13 @@ class Port(object):
 
 		log.debug('Formatting for DAC: {0}'.format(msg))
 
-		msg_encoded = Encoder.encode(msg)
+		msg_encoded = BinaryEncoder.encode(msg)
 		# Flip each byte separately.
 		msg_flipped = [chr(~ord(x) & 0xff) for x in msg_encoded]
 
 		missing_bytes = (4 - len(msg_encoded) % 4) % 4
 
-		result = Encoder.decode(msg_flipped + ['\x00'] * missing_bytes)
+		result = BinaryEncoder.decode(msg_flipped + ['\x00'] * missing_bytes)
 
 		log.debug('Formatted for DAC (padded with {0} bytes): {1}'.format(missing_bytes, result))
 
@@ -176,7 +113,7 @@ class Port(object):
 		If the conversation does not go according to plan, bails out with an AssertionError!
 		"""
 
-		message_length = Encoder.length(message)
+		message_length = BinaryEncoder.length(message)
 
 		if message_length > 4:
 			raise ValueError('Message is longer than 4 bytes: {0}'.format(message))
@@ -318,12 +255,12 @@ class VoltageSource(AbstractDevice):
 		Encode and write the message; then read and decode the answer.
 		"""
 
-		self.write(Encoder.encode(msg))
-		result = Encoder.decode(self.read_raw())
+		self.write(BinaryEncoder.encode(msg))
+		result = BinaryEncoder.decode(self.read_raw())
 
 		if assertion is not None:
 			# Ensure that extra formatting doesn't trigger an assertion failure.
-			formatted_assertion = Encoder.decode(Encoder.encode(assertion))
+			formatted_assertion = BinaryEncoder.decode(BinaryEncoder.encode(assertion))
 
 			assert result == formatted_assertion, (
 					'Device in unknown state; expect general failure. '

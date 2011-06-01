@@ -36,7 +36,7 @@ class MockAbstractDeviceTest(unittest.TestCase):
 		dev = mock_abstract_device.MockAbstractDevice()
 
 		msg = dev.ask_raw('*idn?')
-		eq_(msg, 'AbstractDevice\n')
+		eq_(msg, 'MockAbstractDevice\n')
 
 
 if __name__ == '__main__':

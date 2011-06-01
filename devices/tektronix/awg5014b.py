@@ -130,8 +130,6 @@ class AWG5014B(AbstractDevice):
 	"""
 
 	def _setup(self):
-		AbstractDevice._setup(self)
-
 		self.channels = [None] # There is no channel 0.
 		for chan in xrange(1, 5):
 			self.channels.append(Channel(self, chan))

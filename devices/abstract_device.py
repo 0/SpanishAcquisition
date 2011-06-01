@@ -144,6 +144,8 @@ class AbstractDevice(object):
 	"""
 
 	def _setup(self):
+		self.name = self.__class__.__name__
+
 		self.resources = {}
 
 	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
@@ -162,7 +164,7 @@ class AbstractDevice(object):
 			usb_address: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
 		"""
 
-		self.name = self.__class__.__name__
+		AbstractDevice._setup(self)
 
 		log.info('Creating device "{0}".'.format(self.name))
 
@@ -197,8 +199,6 @@ class AbstractDevice(object):
 				raise DeviceNotFoundError('Could not open device at usb_address="{0}".'.format(usb_address), e)
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
-
-		AbstractDevice._setup(self)
 
 	def write(self, message):
 		"""

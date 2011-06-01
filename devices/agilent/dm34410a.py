@@ -19,8 +19,6 @@ class DM34410A(AbstractDevice):
 	"""
 
 	def _setup(self):
-		AbstractDevice._setup(self)
-
 		self.reset()
 
 		# Exported resources.

@@ -24,8 +24,11 @@ class MockAbstractDevice(AbstractDevice):
 
 		log.info('Creating mock device.')
 
-		self.name = 'AbstractDevice'
+		AbstractDevice._setup(self)
+
 		self.mock_state = {}
+
+		log.info('Created mock device "{0}".'.format(self.name))
 
 	def _split_message(self, message):
 		"""

@@ -89,7 +89,7 @@ class Port(object):
 		"""
 
 		try:
-			voltage_adjusted = (voltage - self.offset) / self.gain
+			voltage_adjusted = voltage * self.gain + self.offset
 		except TypeError:
 			raise ValueError('Voltage must be a number. Given: {0}'.format(voltage))
 
@@ -217,8 +217,8 @@ class Port(object):
 			measured.append(voltage_resource.value)
 
 		# Solve.
-		A = numpy.vstack([real, numpy.ones(len(real))]).T
-		gain, offset = numpy.linalg.lstsq(A, measured)[0]
+		A = numpy.vstack([measured, numpy.ones(len(measured))]).T
+		gain, offset = numpy.linalg.lstsq(A, real)[0]
 
 		if set_result:
 			self.gain, self.offset = gain, offset

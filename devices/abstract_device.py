@@ -64,12 +64,15 @@ class AbstractDevice(object):
 	A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.
 	"""
 
+	@staticmethod
 	def _setup(self):
 		self.name = self.__class__.__name__
 
-		self.lock = threading.RLock()
+		if not hasattr(self, 'lock'):
+			self.lock = threading.RLock()
 
 		self.resources = {}
+		self.subdevices = {}
 
 	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
 		"""
@@ -191,6 +194,16 @@ class AbstractDevice(object):
 		"""
 
 		return self.ask('*idn?')
+
+
+class AbstractSubdevice(object):
+	def __init__(self, device):
+		self.device = device
+
+		# Synchronized methods should use the device lock.
+		self.lock = self.device.lock if self.device else None
+
+		AbstractDevice._setup(self)
 
 
 if __name__ == '__main__':

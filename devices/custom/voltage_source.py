@@ -2,7 +2,7 @@ import logging
 import numpy
 import time
 
-from devices.abstract_device import AbstractDevice
+from devices.abstract_device import AbstractDevice, AbstractSubdevice
 from devices.tools import BinaryEncoder, Synchronized
 
 """
@@ -15,7 +15,7 @@ Control the output voltages on all the ports.
 log = logging.getLogger(__name__)
 
 
-class Port(object):
+class Port(AbstractSubdevice):
 	"""
 	An output port on the voltage source.
 	"""
@@ -60,13 +60,11 @@ class Port(object):
 		freq: Clock rate in kHz.
 		"""
 
-		# Synchronized methods should use the device lock.
-		self.lock = device.lock if device else None
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
 		if resolution not in [16, 20]:
 			raise ValueError('Unsupported resolution: {0}'.format(resolution))
 
-		self.device = device
 		self.num = num
 		self.resolution = resolution
 		self.min_value = min_value
@@ -239,7 +237,11 @@ class VoltageSource(AbstractDevice):
 	"""
 
 	def _setup(self, port_settings):
-		self.ports = [Port(self, num, **port_settings) for num in xrange(16)]
+		self.ports = []
+		for num in xrange(16):
+			port = Port(self, num, **port_settings)
+			self.ports.append(port)
+			self.subdevices['port{0}'.format(num)] = port
 
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""

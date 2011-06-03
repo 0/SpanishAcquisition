@@ -2,7 +2,7 @@ import logging
 import re
 import struct
 
-from devices.abstract_device import AbstractDevice
+from devices.abstract_device import AbstractDevice, AbstractSubdevice
 from devices.tools import BlockData, Synchronized
 from interface.resources import Resource
 
@@ -16,15 +16,14 @@ Control the AWG's settings and output waveforms.
 log = logging.getLogger(__name__)
 
 
-class Marker(object):
+class Marker(AbstractSubdevice):
 	"""
 	Marker channel of an output channel.
 	"""
 
 	def __init__(self, device, channel, number, *args, **kwargs):
-		object.__init__(self, *args, **kwargs)
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
-		self.device = device
 		self.channel = channel
 		self.number = number
 
@@ -65,20 +64,21 @@ class Marker(object):
 		self.device.write('source{0}:marker{1}:voltage:low {2}'.format(self.channel, self.number, v))
 
 
-class Channel(object):
+class Channel(AbstractSubdevice):
 	"""
 	Output channel of the AWG.
 	"""
 
 	def __init__(self, device, channel, *args, **kwargs):
-		object.__init__(self, *args, **kwargs)
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
-		self.device = device
 		self.channel = channel
 
 		self.markers = [None] # There is no marker 0.
 		for mark in xrange(1, 3):
-			self.markers.append(Marker(self.device, self.channel, mark))
+			marker = Marker(self.device, self.channel, mark)
+			self.markers.append(marker)
+			self.subdevices['marker{0}'.format(mark)] = marker
 
 	@property
 	def waveform_name(self):
@@ -133,7 +133,9 @@ class AWG5014B(AbstractDevice):
 	def _setup(self):
 		self.channels = [None] # There is no channel 0.
 		for chan in xrange(1, 5):
-			self.channels.append(Channel(self, chan))
+			channel = Channel(self, chan)
+			self.channels.append(channel)
+			self.subdevices['channel{0}'.format(chan)] = channel
 
 		self.reset()
 
@@ -145,9 +147,6 @@ class AWG5014B(AbstractDevice):
 		read_write = ['sampling_rate', 'run_mode', 'enabled']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
-
-		# TODO: Channels, markers.
-		# Not currently exportable: reset, get_waveform, create_waveform, trigger
 
 	def __init__(self, *args, **kwargs):
 		"""

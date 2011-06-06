@@ -328,6 +328,9 @@ class AWG5014B(AbstractDevice):
 		self.write('*trg')
 
 
+implementation = AWG5014B
+
+
 if __name__ == '__main__':
 	import unittest
 

@@ -104,6 +104,9 @@ class DM34410A(AbstractDevice):
 		return result
 
 
+implementation = DM34410A
+
+
 if __name__ == '__main__':
 	import unittest
 

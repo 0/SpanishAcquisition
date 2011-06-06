@@ -74,6 +74,9 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 		MockAbstractDevice.write(self, message, result, done)
 
 
+implementation = MockDM34410A
+
+
 if __name__ == '__main__':
 	import unittest
 

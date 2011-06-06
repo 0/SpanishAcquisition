@@ -277,6 +277,9 @@ class VoltageSource(AbstractDevice):
 		return result
 
 
+implementation = VoltageSource
+
+
 if __name__ == '__main__':
 	import unittest
 

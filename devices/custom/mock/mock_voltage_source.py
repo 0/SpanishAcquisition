@@ -115,6 +115,9 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 			self.output = BinaryEncoder.encode(self.output)
 
 
+implementation = MockVoltageSource
+
+
 if __name__ == '__main__':
 	import unittest
 

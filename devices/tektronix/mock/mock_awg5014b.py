@@ -249,6 +249,9 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		MockAbstractDevice.write(self, message, result, done)
 
 
+implementation = MockAWG5014B
+
+
 if __name__ == '__main__':
 	import unittest
 

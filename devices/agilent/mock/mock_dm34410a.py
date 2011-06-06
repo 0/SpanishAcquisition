@@ -1,3 +1,5 @@
+import random
+
 from devices.agilent.dm34410a import DM34410A
 from devices.mock.mock_abstract_device import MockAbstractDevice
 
@@ -68,7 +70,7 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 							self.mock_state['auto_zero'] = value
 						done = True
 			elif cmd[0] == 'read' and query:
-				result = '-1.26360000E-02'
+				result = '-1.{0:04d}0000E-02'.format(random.randint(0, 9999))
 				done = True
 
 		MockAbstractDevice.write(self, message, result, done)

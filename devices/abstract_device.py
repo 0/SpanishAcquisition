@@ -74,7 +74,7 @@ class AbstractDevice(object):
 		self.resources = {}
 		self.subdevices = {}
 
-	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_address=None):
+	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_resource=None):
 		"""
 		Connect to a device either over Ethernet, GPIB, or USB.
 
@@ -86,8 +86,8 @@ class AbstractDevice(object):
 			pad: Primary address of the device.
 			sad: Secondary address of the device. Defaults to 0.
 
-		USB (usb_address):
-			usb_address: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
+		USB (usb_resource):
+			usb_resource: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
 		"""
 
 		AbstractDevice._setup(self)
@@ -114,15 +114,15 @@ class AbstractDevice(object):
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at board={0}, pad={1}.'.format(board, pad), e)
-		elif usb_address is not None:
-			log.debug('Attempting to use PyVISA with usb_address="{0}"'.format(usb_address))
+		elif usb_resource is not None:
+			log.debug('Attempting to use PyVISA with usb_resource="{0}"'.format(usb_resource))
 
 			self._implementation = PYVISA_USB
 
 			try:
-				self.device = USBDevice(usb_address)
+				self.device = USBDevice(usb_resource)
 			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at usb_address="{0}".'.format(usb_address), e)
+				raise DeviceNotFoundError('Could not open device at usb_resource="{0}".'.format(usb_resource), e)
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
 

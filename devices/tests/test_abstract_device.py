@@ -67,7 +67,7 @@ class AbstractDeviceTest(unittest.TestCase):
 		"""
 
 		try:
-			abstract_device.AbstractDevice(usb_address='NOT::USB::RAW')
+			abstract_device.AbstractDevice(usb_resource='NOT::USB::RAW')
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:
@@ -75,7 +75,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Unlikely VID/PID/serial combination.
-			abstract_device.AbstractDevice(usb_address='USB::1234::5678::01234567::RAW')
+			abstract_device.AbstractDevice(usb_resource='USB::1234::5678::01234567::RAW')
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:

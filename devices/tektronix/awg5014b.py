@@ -21,6 +21,14 @@ class Marker(AbstractSubdevice):
 	Marker channel of an output channel.
 	"""
 
+	def _setup(self):
+		AbstractSubdevice._setup(self)
+
+		# Exported resources.
+		read_write = ['delay', 'high', 'low']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
+
 	def __init__(self, device, channel, number, *args, **kwargs):
 		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
@@ -77,6 +85,11 @@ class Channel(AbstractSubdevice):
 			marker = Marker(self.device, self.channel, mark)
 			self.markers.append(marker)
 			self.subdevices['marker{0}'.format(mark)] = marker
+
+		# Exported resources.
+		read_write = ['waveform_name', 'enabled', 'amplitude']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
 
 	def __init__(self, device, channel, *args, **kwargs):
 		self.channel = channel

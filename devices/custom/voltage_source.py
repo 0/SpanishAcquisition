@@ -4,6 +4,7 @@ import time
 
 from devices.abstract_device import AbstractDevice, AbstractSubdevice
 from devices.tools import BinaryEncoder, Synchronized
+from interface.resources import Resource
 
 """
 Custom voltage source
@@ -48,6 +49,11 @@ class Port(AbstractSubdevice):
 		# These values are used to tune the input values according to empirical error.
 		self.gain = 1
 		self.offset = 0
+
+		# Exported resources.
+		write_only = ['voltage']
+		for name in write_only:
+			self.resources[name] = Resource(self, None, name)
 
 	@Synchronized()
 	def _connected(self):
@@ -251,7 +257,7 @@ class VoltageSource(AbstractDevice):
 		for num in xrange(16):
 			port = Port(self, num, **self.port_settings)
 			self.ports.append(port)
-			self.subdevices['port{0}'.format(num)] = port
+			self.subdevices['port{0:02}'.format(num)] = port
 
 	def __init__(self, port_settings=None, *args, **kwargs):
 		"""

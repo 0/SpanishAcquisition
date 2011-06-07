@@ -1,3 +1,4 @@
+import logging
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import numbers
@@ -6,6 +7,9 @@ import unittest
 from testconfig import config
 
 from devices.agilent import dm34410a
+
+
+log = logging.getLogger(__name__)
 
 
 class DM34410ATest(unittest.TestCase):
@@ -21,7 +25,7 @@ class DM34410ATest(unittest.TestCase):
 			try:
 				return dm34410a.DM34410A(**address)
 			except Exception as e:
-				print e
+				log.info('Could not connect to device at "{0}": {1}'.format(address, e))
 
 		raise SkipTest('Could not connect to device.')
 

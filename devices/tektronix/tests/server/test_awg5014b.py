@@ -1,3 +1,4 @@
+import logging
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
@@ -6,6 +7,9 @@ from testconfig import config
 from tests.tools import AssertHandler
 
 from devices.tektronix import awg5014b
+
+
+log = logging.getLogger(__name__)
 
 
 class AWG5014BTest(unittest.TestCase):
@@ -20,8 +24,8 @@ class AWG5014BTest(unittest.TestCase):
 		for address in potential_addresses:
 			try:
 				return awg5014b.AWG5014B(**address)
-			except Exception:
-				pass
+			except Exception as e:
+				log.info('Could not connect to device at "{0}": {1}'.format(address, e))
 
 		raise SkipTest('Could not connect to device.')
 

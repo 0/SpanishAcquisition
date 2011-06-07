@@ -1,9 +1,13 @@
+import logging
 from nose.plugins.skip import SkipTest
 import unittest
 
 from testconfig import config
 
 from devices.custom import voltage_source
+
+
+log = logging.getLogger(__name__)
 
 
 class VoltageSourceTest(unittest.TestCase):
@@ -18,8 +22,8 @@ class VoltageSourceTest(unittest.TestCase):
 		for address in potential_addresses:
 			try:
 				return voltage_source.VoltageSource(**address)
-			except Exception:
-				pass
+			except Exception as e:
+				log.info('Could not connect to device at "{0}": {1}'.format(address, e))
 
 		raise SkipTest('Could not connect to device.')
 

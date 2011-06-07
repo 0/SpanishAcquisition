@@ -24,6 +24,8 @@ class DM34410A(AbstractDevice):
 	allowed_nplc = [0.006, 0.02, 0.06, 0.2, 1, 2, 10, 100]
 
 	def _setup(self):
+		AbstractDevice._setup(self)
+
 		# Exported resources.
 		read_only = ['reading']
 		for name in read_only:
@@ -33,18 +35,9 @@ class DM34410A(AbstractDevice):
 		for name in read_write:
 		    self.resources[name] = Resource(self, name, name)
 
-	def __init__(self, *args, **kwargs):
-		"""
-		Connect to the DM and initialize with some values.
-		"""
-
-		AbstractDevice.__init__(self, *args, **kwargs)
-
-		self._setup()
-
 	@Synchronized()
-	def connect(self):
-		AbstractDevice.connect(self)
+	def _connected(self):
+		AbstractDevice._connected(self)
 
 		self.reset()
 

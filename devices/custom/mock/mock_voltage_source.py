@@ -33,24 +33,23 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 	# Not sure what it means, but it comes up a lot.
 	standard_reply = '0000 000c 0008 0100 0000 0002'
 
-	def __reset(self):
-		"""
-		Reset to a known blank state.
-		"""
-
-		self.mock_state['ports'] = [MockPort() for _ in xrange(16)]
-
 	def __init__(self, *args, **kwargs):
 		"""
 		Pretend to connect to the voltage source.
 		"""
 
+		self.port_settings = {}
+
+		self.mocking = VoltageSource
+
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
-		self.name = 'VoltageSource'
-		self.__reset()
+	def _reset(self):
+		"""
+		Reset to a known blank state.
+		"""
 
-		VoltageSource._setup(self, {})
+		self.mock_state['ports'] = [MockPort() for _ in xrange(16)]
 
 	def write(self, message, result=None, done=False):
 		if done:

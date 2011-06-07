@@ -69,16 +69,19 @@ class Channel(AbstractSubdevice):
 	Output channel of the AWG.
 	"""
 
-	def __init__(self, device, channel, *args, **kwargs):
-		AbstractSubdevice.__init__(self, device, *args, **kwargs)
-
-		self.channel = channel
+	def _setup(self):
+		AbstractSubdevice._setup(self)
 
 		self.markers = [None] # There is no marker 0.
 		for mark in xrange(1, 3):
 			marker = Marker(self.device, self.channel, mark)
 			self.markers.append(marker)
 			self.subdevices['marker{0}'.format(mark)] = marker
+
+	def __init__(self, device, channel, *args, **kwargs):
+		self.channel = channel
+
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
 	@property
 	def waveform_name(self):
@@ -131,6 +134,8 @@ class AWG5014B(AbstractDevice):
 	"""
 
 	def _setup(self):
+		AbstractDevice._setup(self)
+
 		self.channels = [None] # There is no channel 0.
 		for chan in xrange(1, 5):
 			channel = Channel(self, chan)
@@ -146,18 +151,8 @@ class AWG5014B(AbstractDevice):
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
-	def __init__(self, *args, **kwargs):
-		"""
-		Connect to the AWG and initialize with some values.
-		"""
-
-		AbstractDevice.__init__(self, *args, **kwargs)
-
-		self._setup()
-
-	@Synchronized()
-	def connect(self):
-		AbstractDevice.connect(self)
+	def _connected(self):
+		AbstractDevice._connected(self)
 
 		self.reset()
 

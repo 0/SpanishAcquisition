@@ -17,20 +17,8 @@ class MockAbstractDevice(AbstractDevice):
 
 	output = None
 
-	def __init__(self, *args, **kwargs):
-		"""
-		Connect to a device, always successfully.
-		"""
-
-		log.info('Creating mock device.')
-
-		AbstractDevice._setup(self)
-
-		self.mock_state = {}
-
-		log.info('Created mock device "{0}".'.format(self.name))
-
-	def _split_message(self, message):
+	@staticmethod
+	def _split_message(message):
 		"""
 		Split a message into usable components.
 		"""
@@ -49,6 +37,34 @@ class MockAbstractDevice(AbstractDevice):
 		cmd = cmd.split(':')
 
 		return cmd, args, query
+
+	def __init__(self, autoconnect=True, *args, **kwargs):
+		"""
+		Create a device, always successfully.
+		"""
+
+		log.info('Creating mock device.')
+
+		self.mock_state = {}
+
+		try:
+			self._reset()
+			self.mocking._setup(self)
+		except AttributeError:
+			# An instance of MockAbstractDevice itself.
+			AbstractDevice._setup(self)
+
+		if autoconnect:
+			self.connect()
+
+		log.info('Created mock device "{0}".'.format(self.name))
+
+	def connect(self):
+		"""
+		Pretend to connect.
+		"""
+
+		self._connected()
 
 	def write(self, message, result=None, done=False):
 		"""

@@ -15,7 +15,16 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 	Mock interface for Agilent 34410A Digital Multimeter.
 	"""
 
-	def __reset(self):
+	def __init__(self, *args, **kwargs):
+		"""
+		Pretend to connect to the DM.
+		"""
+
+		self.mocking = DM34410A
+
+		MockAbstractDevice.__init__(self, *args, **kwargs)
+
+	def _reset(self):
 		"""
 		Reset to a known blank state.
 		"""
@@ -24,24 +33,12 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 		self.mock_state['nplc'] = '1'
 		self.mock_state['auto_zero'] = 1
 
-	def __init__(self, *args, **kwargs):
-		"""
-		Pretend to connect to the DM.
-		"""
-
-		MockAbstractDevice.__init__(self, *args, **kwargs)
-
-		self.name = 'DM34410A'
-		self.__reset()
-
-		DM34410A._setup(self)
-
 	def write(self, message, result=None, done=False):
 		if not done:
 			cmd, args, query = self._split_message(message)
 
 			if cmd[0] == '*rst':
-				self.__reset()
+				self._reset()
 				done = True
 			elif cmd[0] == 'configure':
 				if cmd[1] == 'voltage' and cmd[2] == 'dc':

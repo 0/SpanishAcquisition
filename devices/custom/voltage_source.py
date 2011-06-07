@@ -42,6 +42,20 @@ class Port(AbstractSubdevice):
 
 		return result
 
+	def _setup(self):
+		AbstractSubdevice._setup(self)
+
+		# These values are used to tune the input values according to empirical error.
+		self.gain = 1
+		self.offset = 0
+
+	@Synchronized()
+	def _connected(self):
+		AbstractSubdevice._connected(self)
+
+		if self.do_apply_settings:
+			self.apply_settings(calibrate=False)
+
 	def __init__(self, device, num, resolution=20, apply_settings=True, min_value=-10,
 			max_value=+10, adaptive_filtering=True, calibrate_connected=False,
 			fast_settling=True,	freq=100, *args, **kwargs):
@@ -74,15 +88,6 @@ class Port(AbstractSubdevice):
 		self.calibrate_connected = calibrate_connected
 		self.fast_settling = fast_settling
 		self.freq = freq
-
-		# These values are used to tune the input values according to empirical error.
-		self.gain = 1
-		self.offset = 0
-
-	@Synchronized()
-	def connect(self):
-		if self.do_apply_settings:
-			self.apply_settings(calibrate=False)
 
 	def calculate_voltage(self, voltage):
 		"""
@@ -239,10 +244,12 @@ class VoltageSource(AbstractDevice):
 	It uses several TI DAC1220 chips and an NI USB-8451 to interface with them over SPI.
 	"""
 
-	def _setup(self, port_settings):
+	def _setup(self):
+		AbstractDevice._setup(self)
+
 		self.ports = []
 		for num in xrange(16):
-			port = Port(self, num, **port_settings)
+			port = Port(self, num, **self.port_settings)
 			self.ports.append(port)
 			self.subdevices['port{0}'.format(num)] = port
 
@@ -254,11 +261,11 @@ class VoltageSource(AbstractDevice):
 		"""
 
 		if port_settings is None:
-			port_settings = {}
+			self.port_settings = {}
+		else:
+			self.port_settings = port_settings
 
 		AbstractDevice.__init__(self, *args, **kwargs)
-
-		self._setup(port_settings)
 
 	@Synchronized()
 	def ask_encoded(self, msg, assertion=None):

@@ -65,7 +65,16 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 	Mock interface for Tektronix AWG5014B AWG.
 	"""
 
-	def __reset(self):
+	def __init__(self, *args, **kwargs):
+		"""
+		Pretend to connect to the AWG, but do initialize with some values.
+		"""
+
+		self.mocking = AWG5014B
+
+		MockAbstractDevice.__init__(self, *args, **kwargs)
+
+	def _reset(self):
 		"""
 		Reset to a known blank state.
 		"""
@@ -82,18 +91,6 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		for _ in xrange(1, 5):
 			self.mock_state['channels'].append(MockChannel())
 
-	def __init__(self, *args, **kwargs):
-		"""
-		Pretend to connect to the AWG, but do initialize with some values.
-		"""
-
-		MockAbstractDevice.__init__(self, *args, **kwargs)
-
-		self.name = 'AWG5014B'
-		self.__reset()
-
-		AWG5014B._setup(self)
-
 	def find_wave(self, name):
 		"""
 		Find a Waveform object by name.
@@ -108,7 +105,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 			cmd, args, query = self._split_message(message)
 
 			if cmd[0] == '*rst':
-				self.__reset()
+				self._reset()
 				done = True
 			elif cmd[0] == '*trg':
 				done = True

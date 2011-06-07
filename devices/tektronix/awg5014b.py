@@ -137,8 +137,6 @@ class AWG5014B(AbstractDevice):
 			self.channels.append(channel)
 			self.subdevices['channel{0}'.format(chan)] = channel
 
-		self.reset()
-
 		# Exported resources.
 		read_only = ['data_bits', 'value_range', 'waveform_names', 'waiting_for_trigger']
 		for name in read_only:
@@ -156,6 +154,12 @@ class AWG5014B(AbstractDevice):
 		AbstractDevice.__init__(self, *args, **kwargs)
 
 		self._setup()
+
+	@Synchronized()
+	def connect():
+		AbstractDevice.connect(self)
+
+		self.reset()
 
 	@Synchronized()
 	def reset(self):

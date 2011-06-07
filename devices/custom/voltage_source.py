@@ -67,6 +67,7 @@ class Port(AbstractSubdevice):
 
 		self.num = num
 		self.resolution = resolution
+		self.do_apply_settings = apply_settings
 		self.min_value = min_value
 		self.max_value = max_value
 		self.adaptive_filtering = adaptive_filtering
@@ -74,12 +75,14 @@ class Port(AbstractSubdevice):
 		self.fast_settling = fast_settling
 		self.freq = freq
 
-		if apply_settings:
-			self.apply_settings(calibrate=False)
-
 		# These values are used to tune the input values according to empirical error.
 		self.gain = 1
 		self.offset = 0
+
+	@Synchronized()
+	def connect(self):
+		if self.do_apply_settings:
+			self.apply_settings(calibrate=False)
 
 	def calculate_voltage(self, voltage):
 		"""

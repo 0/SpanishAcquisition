@@ -145,6 +145,11 @@ class AbstractDevice(object):
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at usb_resource="{0}".'.format(self.usb_resource), e)
 
+		for name, subdev in self.subdevices.items():
+			log.debug('Connecting to subdevice "{0}".'.format(name))
+
+			subdev.connect()
+
 	@Synchronized()
 	def write(self, message):
 		"""

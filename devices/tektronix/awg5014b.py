@@ -156,7 +156,7 @@ class AWG5014B(AbstractDevice):
 		self._setup()
 
 	@Synchronized()
-	def connect():
+	def connect(self):
 		AbstractDevice.connect(self)
 
 		self.reset()

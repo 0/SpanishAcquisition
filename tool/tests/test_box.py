@@ -75,6 +75,15 @@ class IteratorTest(unittest.TestCase):
 		Iterate in parallel.
 		"""
 
+		# Empty.
+		try:
+			box.ParallelIterator([])
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# Non-empty.
 		p = box.ParallelIterator([xrange(5), self.fib, numpy.linspace(1, 9, 5)])
 
 		expected = [
@@ -94,6 +103,15 @@ class IteratorTest(unittest.TestCase):
 		Iterate serially.
 		"""
 
+		# Empty.
+		try:
+			box.SerialIterator([])
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# Non-empty.
 		s = box.SerialIterator([xrange(2), numpy.linspace(1, 5, 3)])
 
 		expected = [

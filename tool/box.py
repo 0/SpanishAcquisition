@@ -41,18 +41,17 @@ class GroupIterator(object):
 
 		for x in value:
 			if isinstance(x, tuple):
-				for y in x:
-					result.append(y)
+				result.extend(x)
 			else:
 				result.append(x)
 
 		return tuple(result)
 
 	def __init__(self, iterables, *args, **kwargs):
-		if iterables:
-			self._iterables = iterables
-		else:
+		if not iterables:
 			raise ValueError('No iterables provided.')
+
+		self.iterables = iterables
 
 	def _make_iterator(self, obj):
 		if callable(obj):
@@ -63,7 +62,14 @@ class GroupIterator(object):
 			return iter(obj)
 
 	def _make_iterators(self):
-		return [self._make_iterator(i) for i in self._iterables]
+		return [self._make_iterator(i) for i in self.iterables]
+
+	def iterate_with(self, f):
+		"""
+		Combine all the iterables into a single iterator using the function.
+		"""
+
+		return (self.flatten(x) for x in f(*self._make_iterators()))
 
 
 class ParallelIterator(GroupIterator):
@@ -73,11 +79,8 @@ class ParallelIterator(GroupIterator):
 	Iteration stops when any single one runs out.
 	"""
 
-	def __init__(self, iterables, *args, **kwargs):
-		GroupIterator.__init__(self, iterables, *args, **kwargs)
-
 	def __iter__(self):
-		return (self.flatten(x) for x in itertools.izip(*self._make_iterators()))
+		return self.iterate_with(itertools.izip)
 
 
 class SerialIterator(GroupIterator):
@@ -87,11 +90,8 @@ class SerialIterator(GroupIterator):
 	Iteration never stops if any single one is infinite.
 	"""
 
-	def __init__(self, iterables, *args, **kwargs):
-		GroupIterator.__init__(self, iterables, *args, **kwargs)
-
 	def __iter__(self):
-		return (self.flatten(x) for x in itertools.product(*self._make_iterators()))
+		return self.iterate_with(itertools.product)
 
 
 if __name__ == '__main__':

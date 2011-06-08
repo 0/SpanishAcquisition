@@ -18,6 +18,7 @@ class SIValuesTest(unittest.TestCase):
 
 class QuantityTest(unittest.TestCase):
 	data = [
+		(0, units.SIValues.dimensions.time),
 		(1, units.SIValues.dimensions.time),
 		(10, units.SIValues.dimensions.time),
 		(0.5, units.SIValues.dimensions.frequency),
@@ -41,6 +42,7 @@ class QuantityTest(unittest.TestCase):
 		"""
 
 		data = [
+			('0 s', 0, units.SIValues.dimensions.time),
 			('500 ms', 500 * 1e-3, units.SIValues.dimensions.time),
 			('10 Hz', 10 * 1e0, units.SIValues.dimensions.frequency),
 			('123456789 ns', 123456789 * 1e-9, units.SIValues.dimensions.time),
@@ -84,7 +86,7 @@ class QuantityTest(unittest.TestCase):
 		Ensure that repr() gives a useful value.
 		"""
 
-		# For eval()
+		# For eval().
 		Quantity = units.Quantity
 		SIValues = units.SIValues
 
@@ -102,3 +104,7 @@ class QuantityTest(unittest.TestCase):
 			q = units.Quantity(value, dimension)
 
 			eq_(units.Quantity.from_string(str(q)), q)
+
+		# Zero is a special case.
+		zero = units.Quantity(0, units.SIValues.dimensions.time)
+		eq_(str(zero), '0 s')

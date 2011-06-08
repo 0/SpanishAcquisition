@@ -143,25 +143,34 @@ class Quantity(object):
 		return not self <= other
 
 	def __repr__(self):
+		"""
+		eg. 'Quantity(0.005, SIValues.dimensions.time)'
+		"""
+
 		return '{0}({1}, SIValues.dimensions.{2})'.format(self.__class__.__name__, repr(self.value), self.dimension)
 
 	def __str__(self):
 		"""
-		Convert the value back into a readable magnitude.
+		eg. '5 ms'
 		"""
 
-		multipliers = SIValues.prefixes_.items()
-		# Make the results reproducible.
-		multipliers.sort()
+		if self.value == 0:
+			# Zero should get no prefix, because '0 s' makes more sense than '0 zs'.
+			value = self.value
+			min_prefix = ''
+		else:
+			multipliers = SIValues.prefixes_.items()
+			# Make the results reproducible.
+			multipliers.sort()
 
-		min_distance, min_multiplier, min_prefix = None, None, None
-		for multiplier, prefix in multipliers:
-			distance = abs(self.value - multiplier)
+			min_distance, min_multiplier, min_prefix = None, None, None
+			for multiplier, prefix in multipliers:
+				distance = abs(self.value - multiplier)
 
-			if min_distance is None or distance < min_distance:
-				min_distance, min_multiplier, min_prefix = distance, multiplier, prefix
+				if min_distance is None or distance < min_distance:
+					min_distance, min_multiplier, min_prefix = distance, multiplier, prefix
 
-		value = self.value / min_multiplier
+			value = self.value / min_multiplier
 
 		return '{0:.10g} {1}{2}'.format(value, min_prefix, SIValues.units_[self.dimension])
 

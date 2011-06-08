@@ -71,13 +71,14 @@ class Quantity(object):
 			idx = value.find(unit)
 
 			if idx >= 0 and value[:idx] in SIValues.prefixes:
+				prefix = value[:idx]
 				# Matches a prefix and the unit.
-				multiplier = SIValues.prefixes[value[:idx]]
+				multiplier = SIValues.prefixes[prefix]
 			else:
 				# Cannot make a match with this unit.
 				continue
 
-			return (multiplier, SIValues.units[unit])
+			return (prefix, multiplier, SIValues.units[unit])
 
 		raise ValueError(value)
 
@@ -99,23 +100,24 @@ class Quantity(object):
 				unit_str = value[idx+1:]
 
 				try:
-					multiplier, dimension = cls._parse_unit(unit_str)
-					return Quantity(float(value[:idx+1]) * multiplier, dimension)
+					prefix, multiplier, dimension = cls._parse_unit(unit_str)
+					return Quantity(float(value[:idx+1]) * multiplier, dimension, original_prefix=prefix)
 				except ValueError:
 					pass
 		elif len(spl) == 2:
 			# One section of whitespace, so maybe of the form "500 ns".
 			try:
-				multiplier, dimension = cls._parse_unit(spl[1])
-				return Quantity(float(spl[0]) * multiplier, dimension)
+				prefix, multiplier, dimension = cls._parse_unit(spl[1])
+				return Quantity(float(spl[0]) * multiplier, dimension, original_prefix=prefix)
 			except ValueError:
 				pass
 
 		raise ValueError(value)
 
-	def __init__(self, value, dimension):
+	def __init__(self, value, dimension, original_prefix=None):
 		self.value = value
 		self.dimension = dimension
+		self.original_prefix = original_prefix
 
 	# FIXME: Python 2.7 provides functools.total_ordering()
 	def __eq__(self, other):
@@ -154,7 +156,11 @@ class Quantity(object):
 		eg. '5 ms'
 		"""
 
-		if self.value == 0:
+		if self.original_prefix is not None:
+			multiplier = SIValues.prefixes[self.original_prefix]
+			value = self.value / multiplier
+			min_prefix = self.original_prefix
+		elif self.value == 0:
 			# Zero should get no prefix, because '0 s' makes more sense than '0 zs'.
 			value = self.value
 			min_prefix = ''

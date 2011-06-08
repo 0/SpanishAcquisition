@@ -108,3 +108,21 @@ class QuantityTest(unittest.TestCase):
 		# Zero is a special case.
 		zero = units.Quantity(0, units.SIValues.dimensions.time)
 		eq_(str(zero), '0 s')
+
+	def testStrKeepPrefix(self):
+		"""
+		Optionally keep the orignal prefix for str().
+		"""
+
+		# No prefix to keep.
+		q1 = units.Quantity(1234, units.SIValues.dimensions.time)
+		eq_(str(q1), '1.234 ks')
+
+		# Kept prefix.
+		q2 = units.Quantity.from_string('1234 ns')
+		eq_(str(q2), '1234 ns')
+
+		# Cleared prefix.
+		q3 = units.Quantity.from_string('1234 ns')
+		q3.original_prefix = None
+		eq_(str(q3), '1.234 us')

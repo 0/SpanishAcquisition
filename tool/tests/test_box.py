@@ -1,4 +1,5 @@
 from nose.tools import eq_
+import numpy
 import unittest
 
 from tool import box
@@ -53,3 +54,92 @@ class EnumTest(unittest.TestCase):
 		f = box.Enum(['b', 'a'])
 
 		eq_(e, f)
+
+
+class IteratorTest(unittest.TestCase):
+	@staticmethod
+	def fib():
+		"""
+		Infinite sequence generator.
+		"""
+
+		a, b = 0, 1
+
+		while True:
+			a, b = b, a + b
+
+			yield a
+
+	def testParallel(self):
+		"""
+		Iterate in parallel.
+		"""
+
+		p = box.ParallelIterator([xrange(5), self.fib, numpy.linspace(1, 9, 5)])
+
+		expected = [
+			(0, 1, 1),
+			(1, 1, 3),
+			(2, 2, 5),
+			(3, 3, 7),
+			(4, 5, 9),
+		]
+
+		eq_(list(p), expected)
+		# Make sure it resets correctly.
+		eq_(list(p), expected)
+
+	def testSerial(self):
+		"""
+		Iterate serially.
+		"""
+
+		s = box.SerialIterator([xrange(2), numpy.linspace(1, 5, 3)])
+
+		expected = [
+			(0, 1),
+			(0, 3),
+			(0, 5),
+			(1, 1),
+			(1, 3),
+			(1, 5),
+		]
+
+		eq_(list(s), expected)
+		# Make sure it resets correctly.
+		eq_(list(s), expected)
+
+	def testSingle(self):
+		"""
+		Wrapping one iterator for whatever reason.
+		"""
+
+		s = box.SerialIterator([xrange(5)])
+		p = box.ParallelIterator([xrange(5)])
+
+		expected = [(x,) for x in xrange(5)]
+
+		eq_(list(s), expected)
+		eq_(list(p), expected)
+
+	def testBoth(self):
+		"""
+		Iterate every way at the same time.
+		"""
+
+		s1 = box.SerialIterator([xrange(2), xrange(3)])
+		s2 = box.SerialIterator([xrange(1, -1, -1), xrange(3, -1, -1)])
+		p = box.ParallelIterator([s1, s2])
+
+		expected = [
+			(0, 0, 1, 3),
+			(0, 1, 1, 2),
+			(0, 2, 1, 1),
+			(1, 0, 1, 0),
+			(1, 1, 0, 3),
+			(1, 2, 0, 2),
+		]
+
+		eq_(list(p), expected)
+		# Make sure it resets correctly.
+		eq_(list(p), expected)

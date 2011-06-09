@@ -70,6 +70,15 @@ class IteratorTest(unittest.TestCase):
 
 			yield a
 
+	@staticmethod
+	def tuples():
+		"""
+		Yield 10 nested tuples.
+		"""
+
+		for i in xrange(3):
+			yield (i, ((i + 1, i + 2),), ((2 * i,),))
+
 	def testParallel(self):
 		"""
 		Iterate in parallel.
@@ -98,21 +107,21 @@ class IteratorTest(unittest.TestCase):
 		# Make sure it resets correctly.
 		eq_(list(p), expected)
 
-	def testSerial(self):
+	def testProduct(self):
 		"""
-		Iterate serially.
+		Iterate over the product.
 		"""
 
 		# Empty.
 		try:
-			box.SerialIterator([])
+			box.ProductIterator([])
 		except ValueError:
 			pass
 		else:
 			assert False, 'Expected ValueError.'
 
 		# Non-empty.
-		s = box.SerialIterator([xrange(2), numpy.linspace(1, 5, 3)])
+		p = box.ProductIterator([xrange(2), numpy.linspace(1, 5, 3)])
 
 		expected = [
 			(0, 1),
@@ -123,31 +132,71 @@ class IteratorTest(unittest.TestCase):
 			(1, 5),
 		]
 
-		eq_(list(s), expected)
+		eq_(list(p), expected)
 		# Make sure it resets correctly.
-		eq_(list(s), expected)
+		eq_(list(p), expected)
+
+	def testChain(self):
+		"""
+		Iterate in a chain.
+		"""
+
+		# Empty.
+		try:
+			box.ChainIterator([])
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# Non-empty.
+		c = box.ChainIterator([xrange(2), numpy.linspace(1, 5, 3)])
+
+		expected = [(0,), (1,), (1,), (3,), (5,),]
+
+		eq_(list(c), expected)
+		# Make sure it resets correctly.
+		eq_(list(c), expected)
 
 	def testSingle(self):
 		"""
 		Wrapping one iterator for whatever reason.
 		"""
 
-		s = box.SerialIterator([xrange(5)])
-		p = box.ParallelIterator([xrange(5)])
-
+		fs = [box.ParallelIterator, box.ProductIterator, box.ChainIterator]
+		results = [f([xrange(5)]) for f in fs]
 		expected = [(x,) for x in xrange(5)]
 
-		eq_(list(s), expected)
-		eq_(list(p), expected)
+		eq_(list(results[0]), expected)
+		eq_(list(results[1]), expected)
+		eq_(list(results[2]), expected)
 
-	def testBoth(self):
+	def testWithTuples(self):
+		"""
+		The iterables should be able to dole out tuples with no issue.
+		"""
+
+		p = box.ParallelIterator([self.tuples, self.tuples])
+		c = box.ChainIterator([p, p])
+
+		expected = [
+			(0, (1, 2), (0,), 0, (1, 2), (0,)),
+			(1, (2, 3), (2,), 1, (2, 3), (2,)),
+			(2, (3, 4), (4,), 2, (3, 4), (4,)),
+		]
+		expected += expected
+
+		eq_(list(c), expected)
+
+	def testAll(self):
 		"""
 		Iterate every way at the same time.
 		"""
 
-		s1 = box.SerialIterator([xrange(2), xrange(3)])
-		s2 = box.SerialIterator([xrange(1, -1, -1), xrange(3, -1, -1)])
-		p = box.ParallelIterator([s1, s2])
+		p1 = box.ProductIterator([xrange(2), xrange(3)])
+		p2 = box.ProductIterator([xrange(1, -1, -1), xrange(3, -1, -1)])
+		p3 = box.ParallelIterator([p1, p2])
+		c1 = box.ChainIterator([p3, p3])
 
 		expected = [
 			(0, 0, 1, 3),
@@ -157,7 +206,8 @@ class IteratorTest(unittest.TestCase):
 			(1, 1, 0, 3),
 			(1, 2, 0, 2),
 		]
+		expected += expected
 
-		eq_(list(p), expected)
+		eq_(list(c1), expected)
 		# Make sure it resets correctly.
-		eq_(list(p), expected)
+		eq_(list(c1), expected)

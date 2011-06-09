@@ -37,6 +37,9 @@ class GroupIterator(object):
 		This allows for auto-flattened nested GroupIterators.
 		"""
 
+		if not isinstance(value, tuple):
+			return (value,)
+
 		result = []
 
 		for x in value:
@@ -74,24 +77,44 @@ class GroupIterator(object):
 
 class ParallelIterator(GroupIterator):
 	"""
-	Step over the iterators at the same time.
+	Step over the iterables at the same time.
 
-	Iteration stops when any single one runs out.
+	>>> list(ParallelIterator([xrange(3), xrange(0, 6, 2)]))
+	[(0, 0), (1, 2), (2, 4)]
+
+	Iteration stops when any single iterable runs out.
 	"""
 
 	def __iter__(self):
 		return self.iterate_with(itertools.izip)
 
 
-class SerialIterator(GroupIterator):
+class ProductIterator(GroupIterator):
 	"""
-	Step over the iterators sequentially, a la Cartesian product.
+	Step over the Cartesian product of the iterables.
 
-	Iteration never stops if any single one is infinite.
+	>>> list(ProductIterator([xrange(2), xrange(0, 4, 2)]))
+	[(0, 0), (0, 2), (1, 0), (1, 2)]
+
+	Iteration never stops if any single iterable is infinite.
 	"""
 
 	def __iter__(self):
 		return self.iterate_with(itertools.product)
+
+
+class ChainIterator(GroupIterator):
+	"""
+	Step over the iterables sequentially.
+
+	>>> list(box.ChainIterator([xrange(3), xrange(3, 6)]))
+	[(0,), (1,), (2,), (3,), (4,), (5,)]
+
+	Iteration never stops if any single iterable is infinite.
+	"""
+
+	def __iter__(self):
+		return self.iterate_with(itertools.chain)
 
 
 if __name__ == '__main__':

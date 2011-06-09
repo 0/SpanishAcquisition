@@ -68,7 +68,10 @@ class Quantity(object):
 		"""
 
 		for unit in SIValues.units:
-			idx = value.find(unit)
+			if not value.endswith(unit):
+				continue
+
+			idx = len(value) - len(unit)
 
 			if idx >= 0 and value[:idx] in SIValues.prefixes:
 				prefix = value[:idx]
@@ -88,6 +91,10 @@ class Quantity(object):
 		Create an instance based on a string representation, such as "500 ms".
 		"""
 
+		# Expect at least a digit and a letter.
+		if len(value) < 2:
+			raise ValueError(value)
+
 		spl = value.split()
 
 		if len(spl) == 1:
@@ -96,7 +103,7 @@ class Quantity(object):
 			while value[idx+1].isdigit() or value[idx+1] == '.':
 				idx += 1
 
-			if idx > 0:
+			if idx >= 0:
 				unit_str = value[idx+1:]
 
 				try:

@@ -47,12 +47,32 @@ class QuantityTest(unittest.TestCase):
 			('10 Hz', 10 * 1e0, units.SIValues.dimensions.frequency),
 			('123456789 ns', 123456789 * 1e-9, units.SIValues.dimensions.time),
 			('987654321 GHz', 987654321 * 1e9, units.SIValues.dimensions.frequency),
+			# Various whitespace.
+			('5s', 5 * 1e0, units.SIValues.dimensions.time),
+			(' \t 123454321 \t   uHz  \t  ', 123454321 * 1e-6, units.SIValues.dimensions.frequency),
 		]
 
 		for string, value, dimension in data:
 			q = units.Quantity(value, dimension)
 
 			eq_(units.Quantity.from_string(string), q)
+
+	def testBadFromString(self):
+		"""
+		Invalid strings pretending to be quantities.
+		"""
+
+		data = [
+			'', '0', 's', '0seconds', '0 something', '1234 anything', 's 0',
+		]
+
+		for string in data:
+			try:
+				print units.Quantity.from_string(string)
+			except ValueError:
+				pass
+			else:
+				assert False, 'Expected ValueError for "{0}".'.format(string)
 
 	def testComparison(self):
 		"""

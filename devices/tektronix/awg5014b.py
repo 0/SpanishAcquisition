@@ -240,13 +240,14 @@ class AWG5014B(AbstractDevice):
 		num_waveforms = int(self.ask('wlist:size?'))
 		result = []
 
+		self.multi_command_start()
 		# Waveforms on the AWG are numbered from 0.
 		for i in xrange(num_waveforms):
-			name = self.ask('wlist:name? {0}'.format(i))
-			# Names are in quotes.
-			result.append(name[1:-1])
+			self.ask('wlist:name? {0}'.format(i))
+		names = self.multi_command_stop()
 
-		return result
+		# Names are in quotes.
+		return [name[1:-1] for name in names]
 
 	@Synchronized()
 	def get_waveform(self, name):

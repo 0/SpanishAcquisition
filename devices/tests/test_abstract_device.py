@@ -1,4 +1,3 @@
-from nose.tools import eq_
 import unittest
 
 from devices import abstract_device

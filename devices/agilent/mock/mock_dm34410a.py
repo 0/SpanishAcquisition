@@ -79,6 +79,6 @@ implementation = MockDM34410A
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_mock_awg5014b as my_tests
+	from tests import test_mock_dm34410a as my_tests
 
 	unittest.main(module=my_tests)

@@ -211,3 +211,7 @@ class IteratorTest(unittest.TestCase):
 		eq_(list(c1), expected)
 		# Make sure it resets correctly.
 		eq_(list(c1), expected)
+
+
+if __name__ == '__main__':
+	unittest.main()

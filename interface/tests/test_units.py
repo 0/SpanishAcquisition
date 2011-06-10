@@ -146,3 +146,7 @@ class QuantityTest(unittest.TestCase):
 		q3 = units.Quantity.from_string('1234 ns')
 		q3.original_prefix = None
 		eq_(str(q3), '1.234 us')
+
+
+if __name__ == '__main__':
+	unittest.main()

@@ -346,6 +346,6 @@ implementation = AWG5014B
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_awg5014b as my_tests
+	from tests.server import test_awg5014b as my_server_tests
 
-	unittest.main(module=my_tests)
+	unittest.main(module=my_server_tests)

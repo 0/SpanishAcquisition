@@ -16,6 +16,9 @@
 
 ### Python modules
 
+* [numpy](http://numpy.scipy.org/)
+* [scipy](http://www.scipy.org/)
+
 #### Testing
 
 * [nose](http://somethingaboutorange.com/mrl/projects/nose/1.0.0/)
@@ -43,4 +46,8 @@ and run with, for example:
 
 A formatted listing of all relevant files can be shown with:
 
-    tree -C -I '*.pyc|__init__.py' --noreport -F
+    tree -I '*.pyc|__init__.py' --noreport -F --dirsfirst -C
+
+And only the directories with:
+
+    tree --noreport -F --dirsfirst -C -d

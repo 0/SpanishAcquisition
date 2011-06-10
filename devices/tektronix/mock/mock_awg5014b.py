@@ -1,4 +1,3 @@
-import re
 import struct
 
 from devices.mock.mock_abstract_device import MockAbstractDevice

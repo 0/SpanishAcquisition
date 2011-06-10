@@ -25,10 +25,6 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 	def _reset(self):
-		"""
-		Reset to a known blank state.
-		"""
-
 		self.mock_state['mode'] = 'dc'
 		self.mock_state['nplc'] = '1'
 		self.mock_state['auto_zero'] = 1
@@ -37,10 +33,7 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 		if not done:
 			cmd, args, query = self._split_message(message)
 
-			if cmd[0] == '*rst':
-				self._reset()
-				done = True
-			elif cmd[0] == 'configure':
+			if cmd[0] == 'configure':
 				if cmd[1] == 'voltage' and cmd[2] == 'dc':
 					self.mock_state['mode'] = 'dc'
 					done = True

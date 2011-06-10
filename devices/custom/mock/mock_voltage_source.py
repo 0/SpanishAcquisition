@@ -45,10 +45,6 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 	def _reset(self):
-		"""
-		Reset to a known blank state.
-		"""
-
 		self.mock_state['ports'] = [MockPort() for _ in xrange(16)]
 
 	def write(self, message, result=None, done=False):

@@ -38,6 +38,25 @@ class MockAbstractDeviceTest(unittest.TestCase):
 		msg = dev.ask_raw('*idn?')
 		eq_(msg, 'MockAbstractDevice\n')
 
+	def testMulti(self):
+		"""
+		Ensure that requests for multi-command messages work.
+		"""
+
+		dev = mock_abstract_device.MockAbstractDevice()
+
+		expected = ['42', '42', 'MockAbstractDevice']
+
+		dev.multi_command_start()
+		dev.ask('system:version?')
+		dev.write('*rst')
+		dev.write('system:preset')
+		dev.ask('system:version?')
+		dev.ask('*idn?')
+		result = dev.multi_command_stop()
+
+		eq_(result, expected)
+
 
 if __name__ == '__main__':
 	unittest.main()

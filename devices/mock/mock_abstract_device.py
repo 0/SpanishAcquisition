@@ -45,6 +45,7 @@ class MockAbstractDevice(AbstractDevice):
 
 		log.info('Creating mock device.')
 
+		self.multi_command_responses = None
 		self.mock_state = {}
 
 		try:
@@ -59,12 +60,37 @@ class MockAbstractDevice(AbstractDevice):
 
 		log.info('Created mock device "{0}".'.format(self.name))
 
+	def _reset(self):
+		"""
+		Reset to a known blank state.
+		"""
+
+		# Each mock device has its own mock_state to worry about.
+		pass
+
 	def connect(self):
 		"""
 		Pretend to connect.
 		"""
 
 		self._connected()
+
+	def multi_command_start(self):
+		"""
+		Start buffering responses.
+		"""
+
+		self.multi_command_responses = []
+
+	def multi_command_stop(self):
+		"""
+		Return buffered responses.
+		"""
+
+		responses = self.multi_command_responses
+		self.multi_command_responses = None
+
+		return responses
 
 	def write(self, message, result=None, done=False):
 		"""
@@ -76,6 +102,12 @@ class MockAbstractDevice(AbstractDevice):
 		if not done:
 			if message == '*idn?':
 				result = self.name
+				done = True
+			elif message in ['*rst', 'system:preset']:
+				self._reset()
+				done = True
+			elif message == 'system:version?':
+				result = '42'
 				done = True
 
 		if not done:
@@ -94,6 +126,18 @@ class MockAbstractDevice(AbstractDevice):
 		log.debug('Read from device: {0}'.format(self.output))
 
 		return self.output
+
+	def ask(self, *args, **kwargs):
+		"""
+		Ask, but possibly buffer the answer.
+		"""
+
+		result = AbstractDevice.ask(self, *args, **kwargs)
+
+		if self.multi_command_responses is None:
+			return result
+		else:
+			self.multi_command_responses.append(result)
 
 
 if __name__ == '__main__':

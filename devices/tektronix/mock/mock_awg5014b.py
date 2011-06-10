@@ -74,10 +74,6 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 	def _reset(self):
-		"""
-		Reset to a known blank state.
-		"""
-
 		self.mock_state['run_mode'] = 'continuous'
 		self.mock_state['run_state'] = '0'
 		self.mock_state['frequency'] = 1.2e9 # Hz
@@ -103,10 +99,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		if not done:
 			cmd, args, query = self._split_message(message)
 
-			if cmd[0] == '*rst':
-				self._reset()
-				done = True
-			elif cmd[0] == '*trg':
+			if cmd[0] == '*trg':
 				done = True
 			elif cmd[0] == 'awgcontrol':
 				if cmd[1] == 'run':

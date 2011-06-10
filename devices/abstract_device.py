@@ -88,6 +88,9 @@ class AbstractDevice(SuperDevice):
 	"""
 
 	def _setup(self):
+		self.multi_command = None
+		self.responses_expected = 0
+
 		SuperDevice._setup(self)
 
 		self.lock = threading.RLock()
@@ -165,11 +168,64 @@ class AbstractDevice(SuperDevice):
 
 		self._connected()
 
+	def multi_command_start(self):
+		"""
+		Redirect further commands to a buffer.
+		"""
+
+		log.debug('Starting multi-command message for device "{0}"'.format(self.name))
+
+		if self._implementation not in [PYVISA, LGPIB]:
+			raise NotImplementedError('Unsupported implementation: "{0}".'.format(self._implementation))
+
+		self.multi_command = []
+		self.responses_expected = 0
+
+	@Synchronized()
+	def multi_command_stop(self):
+		"""
+		Stop redirecting to a buffer, and send the buffered commands.
+
+		Returns the results of queries if any were expected.
+		"""
+
+		log.debug('Stopping multi-command message for device "{0}"'.format(self.name))
+
+		if self.multi_command is None:
+			raise ValueError('Multi-command message not started.')
+		elif not self.multi_command:
+			# No commands.
+			return
+
+		commands = self.multi_command
+		# This ensures that write and ask will not buffer the real message.
+		self.multi_command = None
+
+		# Only commands not starting with "*" get a ":" prefix.
+		commands = [cmd if cmd[0] == '*' else ':' + cmd for cmd in commands]
+		message = ';'.join(commands)
+
+		if self.responses_expected:
+			result = self.ask(message)
+
+			# FIXME: What if the response contains a meaningful ";" somewhere?
+			return result.split(';', self.responses_expected - 1)
+		else:
+			self.write(message)
+
 	@Synchronized()
 	def write(self, message):
 		"""
 		Write to the device.
+
+		Supports multi-command.
 		"""
+
+		if self.multi_command is not None:
+			log.debug('Writing to multi-command buffer for device "{0}": {1}'.format(self.name, message))
+
+			self.multi_command.append(message)
+			return
 
 		log.debug('Writing to device "{0}": {1}'.format(self.name, message))
 
@@ -221,10 +277,16 @@ class AbstractDevice(SuperDevice):
 	def ask(self, message):
 		"""
 		Write, then read.
+
+		Supports multi-command.
 		"""
 
 		self.write(message)
-		return self.read()
+
+		if self.multi_command is None:
+			return self.read()
+		else:
+			self.responses_expected += 1
 
 	@property
 	def idn(self):

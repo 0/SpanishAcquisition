@@ -74,8 +74,8 @@ class ResourceTest(unittest.TestCase):
 
 		# Broken later on.
 		res = resources.Resource()
-		res._getter = 'x'
-		res._setter = 'x'
+		res.getter = 'x'
+		res.setter = 'x'
 
 		try:
 			res.value

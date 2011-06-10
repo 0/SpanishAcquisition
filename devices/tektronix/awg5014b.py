@@ -136,7 +136,7 @@ class Channel(AbstractSubdevice):
 
 		return float(self.device.ask('source{0}:voltage?'.format(self.channel)))
 
-	@enabled.setter
+	@amplitude.setter
 	def amplitude(self, v):
 		self.device.write('source{0}:voltage {1:E}'.format(self.channel, v))
 

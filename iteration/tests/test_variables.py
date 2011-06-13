@@ -10,8 +10,9 @@ class testGroup(unittest.TestCase):
 		Use no variables.
 		"""
 
-		iterator, num_items, sorted_variables = variables.combine_variables([])
+		iterator, last, num_items, sorted_variables = variables.combine_variables([])
 		eq_(list(iterator), [])
+		eq_(last, ())
 		eq_(num_items, 0)
 		eq_(sorted_variables, [])
 
@@ -22,11 +23,13 @@ class testGroup(unittest.TestCase):
 
 		var = variables.Variable('Name', 0, -5.0, 5.0, 11, const=6.0)
 
-		expected = [(x,) for x in range(-5, 7)]
+		expected = [(x,) for x in range(-5, 6)]
 
-		iterator, num_items, sorted_variables = variables.combine_variables([var])
+		iterator, last, num_items, sorted_variables = variables.combine_variables([var])
 		eq_(list(iterator), expected)
+		eq_(last, (6.0,))
 		eq_(num_items, len(expected))
+		eq_([x.name for x in sorted_variables], ['Name'])
 
 	def testMultiple(self):
 		"""
@@ -47,11 +50,11 @@ class testGroup(unittest.TestCase):
 			(3.0, 12.0, 25.0, 9.0),
 			(5.0, 11.0, 21.0, 9.0),
 			(5.0, 12.0, 25.0, 9.0),
-			(1.0, 10.0, 21.0, 9.0),
 		]
 
-		iterator, num_items, sorted_variables = variables.combine_variables(vars)
+		iterator, last, num_items, sorted_variables = variables.combine_variables(vars)
 		eq_(list(iterator), expected)
+		eq_(last, (1.0, 10.0, 21.0, 9.0))
 		eq_(num_items, len(expected))
 
 		for var, name in zip(sorted_variables, 'ABCD'):

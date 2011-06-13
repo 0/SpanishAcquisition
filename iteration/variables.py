@@ -9,10 +9,16 @@ from iteration.group_iterators import ChainIterator, ParallelIterator, ProductIt
 def combine_variables(variables):
 	"""
 	Create a GroupIterator out of some Variables.
+
+	The returned values are:
+		iterator
+		tuple of constant values
+		number of items in the iterator
+		variables sorted by their order in the tuples
 	"""
 
 	if not variables:
-		return ([], 0, [])
+		return ([], (), 0, [])
 
 	order_attr = operator.attrgetter('order')
 	ordered = sorted(variables, key=order_attr)
@@ -34,13 +40,10 @@ def combine_variables(variables):
 	if num_items <= 0:
 		return None
 
-	# Just the steps.
-	sweep_iterator = ProductIterator(iterators)
-	# Then include the final values.
-	iterator = ChainIterator([sweep_iterator, [tuple(x.const for x in sorted_variables)]])
-	num_items += 1
+	iterator = ProductIterator(iterators)
+	last_values = tuple(x.const for x in sorted_variables)
 
-	return (iterator, num_items, sorted_variables)
+	return (iterator, last_values, num_items, sorted_variables)
 
 
 class Variable(object):

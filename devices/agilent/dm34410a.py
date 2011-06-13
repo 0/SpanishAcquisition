@@ -21,7 +21,8 @@ class DM34410A(AbstractDevice):
 	Note: Currently supports only DC voltage readings.
 	"""
 
-	allowed_nplc = [0.006, 0.02, 0.06, 0.2, 1, 2, 10, 100]
+	allowed_nplc = set([0.006, 0.02, 0.06, 0.2, 1, 2, 10, 100])
+	allowed_auto_zero = set(['off', 'on', 'once'])
 
 	def _setup(self):
 		AbstractDevice._setup(self)
@@ -36,6 +37,8 @@ class DM34410A(AbstractDevice):
 		    self.resources[name] = Resource(self, name, name)
 
 		self.resources['integration_time'].converter = float
+		self.resources['integration_time'].allowed_values = self.allowed_nplc
+		self.resources['auto_zero'].allowed_values = self.allowed_auto_zero
 
 	@Synchronized()
 	def _connected(self):
@@ -84,7 +87,7 @@ class DM34410A(AbstractDevice):
 
 	@auto_zero.setter
 	def auto_zero(self, value):
-		if value not in ['off', 'on', 'once']:
+		if value not in self.allowed_auto_zero:
 			raise ValueError('Invalid setting: {0}'.format(value))
 
 		self.write('sense:voltage:dc:zero:auto {0}'.format(value))

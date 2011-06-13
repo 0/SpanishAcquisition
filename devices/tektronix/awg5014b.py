@@ -149,6 +149,8 @@ class AWG5014B(AbstractDevice):
 	Interface for Tektronix AWG5014B AWG.
 	"""
 
+	allowed_run_modes = set(['continuous', 'triggered', 'gated', 'sequence'])
+
 	def _setup(self):
 		AbstractDevice._setup(self)
 
@@ -168,6 +170,7 @@ class AWG5014B(AbstractDevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['sampling_rate'].converter = float
+		self.resources['run_mode'].allowed_values = self.allowed_run_modes
 		self.resources['enabled'].converter = str_to_bool
 
 	def _connected(self):
@@ -234,6 +237,9 @@ class AWG5014B(AbstractDevice):
 
 	@run_mode.setter
 	def run_mode(self, value):
+		if value not in self.allowed_run_modes:
+			raise ValueError('Invalid run mode: {0}'.format(value))
+
 		self.write('awgcontrol:rmode {0}'.format(value))
 
 	@property

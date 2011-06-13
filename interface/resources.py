@@ -24,7 +24,17 @@ class Resource(object):
 	A generic resource which can potentially be read from or written to.
 	"""
 
-	def __init__(self, obj=None, getter=None, setter=None, converter=None):
+	def __init__(self, obj=None, getter=None, setter=None, converter=None, allowed_values=None):
+		"""
+		obj: The device to which the resource belongs.
+		getter: The method used to get the value.
+		setter: The method used to set the value.
+		converter: A function which returns a valid value for the resource, given a string.
+		allowed_values: A set of all values which are valid for the resource.
+
+		The getter and setter can be actual methods, or just attribute/property name strings.
+		"""
+
 		if getter is not None and not callable(getter) and obj is None:
 			raise ValueError('Cannot call getter with no object.')
 
@@ -35,6 +45,10 @@ class Resource(object):
 		self.getter = getter
 		self.setter = setter
 		self.converter = converter
+		if allowed_values is not None:
+			self.allowed_values = set(allowed_values)
+		else:
+			self.allowed_values = None
 
 	@property
 	def value(self):

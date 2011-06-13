@@ -10,6 +10,14 @@ Tools for working with hardware devices.
 log = logging.getLogger(__name__)
 
 
+def str_to_bool(value):
+	"""
+	False and 'False' => False
+	otherwise => True
+	"""
+
+	return bool(value) and value.lower() != 'false'
+
 class BlockDataError(Exception):
 	"""
 	Problem reading block data.

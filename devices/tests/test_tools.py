@@ -8,6 +8,22 @@ from tests.tools import AssertHandler
 from devices import tools
 
 
+class StrToBoolTest(unittest.TestCase):
+	def testConversion(self):
+		"""
+		Try some simple cases.
+		"""
+
+		eq_(tools.str_to_bool(''), False)
+		eq_(tools.str_to_bool('False'), False)
+		eq_(tools.str_to_bool('false'), False)
+
+		eq_(tools.str_to_bool('True'), True)
+		eq_(tools.str_to_bool('123'), True)
+		eq_(tools.str_to_bool('Anything'), True)
+		eq_(tools.str_to_bool('else!'), True)
+
+
 class SynchronizedTest(unittest.TestCase):
 	class SynchronizedObject(object):
 		def __init__(self):

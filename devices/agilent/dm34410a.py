@@ -35,6 +35,8 @@ class DM34410A(AbstractDevice):
 		for name in read_write:
 		    self.resources[name] = Resource(self, name, name)
 
+		self.resources['integration_time'].converter = float
+
 	@Synchronized()
 	def _connected(self):
 		AbstractDevice._connected(self)

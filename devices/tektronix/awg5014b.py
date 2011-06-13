@@ -3,7 +3,7 @@ import re
 import struct
 
 from devices.abstract_device import AbstractDevice, AbstractSubdevice
-from devices.tools import BlockData, Synchronized
+from devices.tools import BlockData, str_to_bool, Synchronized
 from interface.resources import Resource
 
 """
@@ -25,9 +25,9 @@ class Marker(AbstractSubdevice):
 		AbstractSubdevice._setup(self)
 
 		# Exported resources.
-		read_write = ['delay', 'high', 'low']
-		for name in read_write:
-			self.resources[name] = Resource(self, name, name)
+		read_write_float = ['delay', 'high', 'low']
+		for name in read_write_float:
+			self.resources[name] = Resource(self, name, name, converter=float)
 
 	def __init__(self, device, channel, number, *args, **kwargs):
 		AbstractSubdevice.__init__(self, device, *args, **kwargs)
@@ -90,6 +90,9 @@ class Channel(AbstractSubdevice):
 		read_write = ['waveform_name', 'enabled', 'amplitude']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
+
+		self.resources['enabled'].converter = str_to_bool
+		self.resources['amplitude'].converter = float
 
 	def __init__(self, device, channel, *args, **kwargs):
 		self.channel = channel
@@ -163,6 +166,9 @@ class AWG5014B(AbstractDevice):
 		read_write = ['sampling_rate', 'run_mode', 'enabled']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
+
+		self.resources['sampling_rate'].converter = float
+		self.resources['enabled'].converter = str_to_bool
 
 	def _connected(self):
 		AbstractDevice._connected(self)

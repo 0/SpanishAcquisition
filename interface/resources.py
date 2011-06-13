@@ -24,7 +24,7 @@ class Resource(object):
 	A generic resource which can potentially be read from or written to.
 	"""
 
-	def __init__(self, obj=None, getter=None, setter=None):
+	def __init__(self, obj=None, getter=None, setter=None, converter=None):
 		if getter is not None and not callable(getter) and obj is None:
 			raise ValueError('Cannot call getter with no object.')
 
@@ -34,6 +34,7 @@ class Resource(object):
 		self.obj = obj
 		self.getter = getter
 		self.setter = setter
+		self.converter = converter
 
 	@property
 	def value(self):
@@ -62,6 +63,12 @@ class Resource(object):
 			setattr(self.obj, self.setter, v)
 		else:
 			raise NotWritable()
+
+	def convert(self, value):
+		if self.converter is not None:
+			return self.converter(value)
+		else:
+			return value
 
 
 if __name__ == '__main__':

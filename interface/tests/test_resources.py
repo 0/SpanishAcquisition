@@ -160,6 +160,20 @@ class ResourceTest(unittest.TestCase):
 
 		eq_(res.value, 5678)
 
+	def testConverter(self):
+		"""
+		Conversion with and without a converter.
+		"""
+
+		dev = WithAttribute()
+		res1 = resources.Resource(dev)
+		res2 = resources.Resource(dev, converter=int)
+		res3 = resources.Resource(dev, converter=float)
+
+		eq_(res1.convert('5'), '5')
+		eq_(res2.convert('5'), 5)
+		eq_(res2.convert('5'), 5.0)
+
 
 if __name__ == '__main__':
 	unittest.main()

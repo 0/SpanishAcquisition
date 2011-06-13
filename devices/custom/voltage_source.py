@@ -55,6 +55,8 @@ class Port(AbstractSubdevice):
 		for name in write_only:
 			self.resources[name] = Resource(self, None, name)
 
+		self.resources['voltage'].converter = float
+
 	@Synchronized()
 	def _connected(self):
 		AbstractSubdevice._connected(self)

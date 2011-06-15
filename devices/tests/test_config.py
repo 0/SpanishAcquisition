@@ -37,3 +37,7 @@ class DeviceConfigTest(unittest.TestCase):
 		cfg.connect()
 
 		assert isinstance(cfg.device, MockAbstractDevice)
+
+
+if __name__ == '__main__':
+	unittest.main()

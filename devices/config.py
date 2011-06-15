@@ -113,3 +113,12 @@ class DeviceConfig(object):
 			raise ConnectionError('Unable to make connection to device.', e)
 
 		self.device = device
+
+
+if __name__ == '__main__':
+	import unittest
+
+	# Does not run server tests.
+	from tests import test_config as my_tests
+
+	unittest.main(module=my_tests)

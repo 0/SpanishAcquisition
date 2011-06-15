@@ -92,3 +92,7 @@ class DeviceConfigTest(unittest.TestCase):
 			pass
 		else:
 			assert False, 'Expected ConnectionError.'
+
+
+if __name__ == '__main__':
+	unittest.main()

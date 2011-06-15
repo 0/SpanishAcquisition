@@ -183,3 +183,7 @@ class BinaryBinaryEncoderTest(unittest.TestCase):
 
 		for d, l in data:
 			eq_(tools.BinaryEncoder.length(d), l)
+
+
+if __name__ == '__main__':
+	unittest.main()

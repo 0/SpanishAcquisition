@@ -145,7 +145,7 @@ class BlockDataTest(unittest.TestCase):
 				assert False, 'Expected BlockDataError.'
 
 
-class TestBinaryBinaryEncoder(unittest.TestCase):
+class BinaryBinaryEncoderTest(unittest.TestCase):
 	def testEncodeDecode(self):
 		"""
 		Routine conversions.

@@ -4,7 +4,7 @@ import unittest
 from devices.custom import voltage_source
 
 
-class TestPort(unittest.TestCase):
+class PortTest(unittest.TestCase):
 	def testCalculateVoltage(self):
 		"""
 		Trivial conversion.

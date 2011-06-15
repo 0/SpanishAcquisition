@@ -4,7 +4,7 @@ import unittest
 from iteration import variables
 
 
-class testGroup(unittest.TestCase):
+class GroupTest(unittest.TestCase):
 	def testEmpty(self):
 		"""
 		Use no variables.
@@ -61,7 +61,7 @@ class testGroup(unittest.TestCase):
 			eq_(var.name, name)
 
 
-class testVariable(unittest.TestCase):
+class VariableTest(unittest.TestCase):
 	def testIterator(self):
 		"""
 		Create an iterator from a variable.

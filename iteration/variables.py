@@ -2,7 +2,7 @@ import itertools
 import numpy
 import operator
 
-from interface.units import IncompatibleDimensions, SIValues, Quantity
+from interface.units import SIValues, Quantity
 from iteration.group_iterators import ChainIterator, ParallelIterator, ProductIterator
 
 
@@ -95,8 +95,7 @@ class Variable(object):
 	def wait(self, value):
 		wait = Quantity.from_string(value)
 
-		if wait.dimension != SIValues.dimensions.time:
-			raise IncompatibleDimensions(wait.dimensions, SIValues.dimensions.time)
+		wait.assert_dimension(SIValues.dimensions.time)
 
 		self._wait = wait
 

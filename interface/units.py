@@ -126,16 +126,28 @@ class Quantity(object):
 		self.dimension = dimension
 		self.original_prefix = original_prefix
 
+	def assert_dimension(self, other_dimension, exception=True):
+		"""
+		Whether the dimension matches.
+
+		If exception is True and we would have returned False, raise an exception.
+		"""
+
+		if self.dimension == other_dimension:
+			return True
+		elif exception:
+			raise IncompatibleDimensions(self.dimension, other_dimension)
+		else:
+			return False
+
 	# FIXME: Python 2.7 provides functools.total_ordering()
 	def __eq__(self, other):
-		if self.dimension != other.dimension:
-			raise IncompatibleDimensions(self.dimension, other.dimension)
+		self.assert_dimension(other.dimension)
 
 		return self.value == other.value
 
 	def __lt__(self, other):
-		if self.dimension != other.dimension:
-			raise IncompatibleDimensions(self.dimension, other.dimension)
+		self.assert_dimension(other.dimension)
 
 		return self.value < other.value
 

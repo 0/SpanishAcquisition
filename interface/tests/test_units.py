@@ -74,6 +74,26 @@ class QuantityTest(unittest.TestCase):
 			else:
 				assert False, 'Expected ValueError for "{0}".'.format(string)
 
+	def testAssertDimension(self):
+		"""
+		Ensure that dimensions are asserted correctly.
+		"""
+
+		q = units.Quantity(5, units.SIValues.dimensions.time)
+
+		# No exception.
+		assert q.assert_dimension(units.SIValues.dimensions.time, exception=False)
+		assert not q.assert_dimension(units.SIValues.dimensions.frequency, exception=False)
+
+		# Exception.
+		assert q.assert_dimension(units.SIValues.dimensions.time)
+		try:
+			q.assert_dimension(units.SIValues.dimensions.frequency)
+		except units.IncompatibleDimensions:
+			pass
+		else:
+			assert False, 'Expected IncompatibleDimensions.'
+
 	def testComparison(self):
 		"""
 		Check that comparison works.
@@ -131,7 +151,7 @@ class QuantityTest(unittest.TestCase):
 
 	def testStrKeepPrefix(self):
 		"""
-		Optionally keep the orignal prefix for str().
+		Optionally keep the original prefix for str().
 		"""
 
 		# No prefix to keep.

@@ -1,6 +1,16 @@
+import logging
+from threading import Thread
+import time
+
+from interface.units import SIValues
+from tool.box import Without
+
 """
 Tools for working with generic resources.
 """
+
+
+log = logging.getLogger(__name__)
 
 
 class NotReadable(Exception):
@@ -83,6 +93,58 @@ class Resource(object):
 			return self.converter(value)
 		else:
 			return value
+
+
+class AcquisitionThread(Thread):
+	"""
+	Once every delay, call the callback with a fresh value from the resource.
+
+	An optional running lock can block execution until it is released elsewhere.
+	"""
+
+	def __init__(self, delay, callback, resource=None, running_lock=None):
+		Thread.__init__(self)
+
+		delay.assert_dimension(SIValues.dimensions.time)
+
+		self.resource = resource
+		self.delay = delay
+		self.callback = callback
+		if running_lock is None:
+			self.running_lock = Without()
+		else:
+			self.running_lock = running_lock
+
+		# Allow the thread to be stopped prematurely.
+		self.done = False
+
+	def run(self):
+		while not self.done:
+			# If something goes wrong, sleep the maximum.
+			delay = self.delay.value
+
+			with self.running_lock:
+				if time:
+					next_run = time.time() + self.delay.value
+				else:
+					# Weird things happen at shutdown.
+					return
+
+				if self.resource is not None:
+					try:
+						value = self.resource.value
+					except Exception as e:
+						log.error('Could not obtain resource value: {0}'.format(repr(e)))
+					else:
+						self.callback(value)
+
+				if time:
+					delay = next_run - time.time()
+				else:
+					return
+
+			if delay > 0:
+				time.sleep(delay)
 
 
 if __name__ == '__main__':

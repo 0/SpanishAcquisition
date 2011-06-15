@@ -1,5 +1,9 @@
 from nose.tools import eq_
+from threading import Lock
+import time
 import unittest
+
+from interface.units import Quantity, SIValues
 
 from interface import resources
 
@@ -173,6 +177,71 @@ class ResourceTest(unittest.TestCase):
 		eq_(res1.convert('5'), '5')
 		eq_(res2.convert('5'), 5)
 		eq_(res2.convert('5'), 5.0)
+
+
+class AcquisitionThreadTest(unittest.TestCase):
+	def testWithoutResource(self):
+		"""
+		Let the thread run without a resource.
+		"""
+
+		buf = []
+		delay = Quantity(0.1, SIValues.dimensions.time)
+		
+		thr = resources.AcquisitionThread(delay, buf.append)
+
+		thr.start()
+		time.sleep(delay.value * 10)
+		thr.done = True
+
+		eq_(buf, [])
+
+	def testWithResource(self):
+		"""
+		Let the thread run with a resource.
+		"""
+
+		dev = WithMethods()
+		res = resources.Resource(dev, dev.get_x)
+
+		expected = [res.value] * 10
+
+		buf = []
+		delay = Quantity(0.1, SIValues.dimensions.time)
+
+		thr = resources.AcquisitionThread(delay, buf.append, res)
+
+		thr.start()
+		time.sleep(delay.value * 10)
+		thr.done = True
+
+		eq_(buf, expected)
+
+	def testWithLock(self):
+		"""
+		Pause the thread with a lock.
+		"""
+
+		dev = WithMethods()
+		res = resources.Resource(dev, dev.get_x)
+		lock = Lock()
+
+		expected = [res.value] * 8
+
+		buf = []
+		delay = Quantity(0.1, SIValues.dimensions.time)
+
+		thr = resources.AcquisitionThread(delay, buf.append, res, running_lock=lock)
+
+		thr.start()
+		time.sleep(delay.value * 4)
+		lock.acquire()
+		time.sleep(delay.value * 4)
+		lock.release()
+		time.sleep(delay.value * 4)
+		thr.done = True
+
+		eq_(buf, expected)
 
 
 if __name__ == '__main__':

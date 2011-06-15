@@ -46,6 +46,18 @@ class Enum(set):
 			return set.__getattribute__(self, name)
 
 
+class Without(object):
+	"""
+	A no-op object for use with "with".
+	"""
+
+	def __enter__(self, *args, **kwargs):
+		return None
+
+	def __exit__(self, *args, **kwargs):
+		return False
+
+
 if __name__ == '__main__':
 	import unittest
 

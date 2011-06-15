@@ -91,5 +91,29 @@ class EnumTest(unittest.TestCase):
 		eq_(e, f)
 
 
+class WithoutTest(unittest.TestCase):
+	def testWith(self):
+		"""
+		Use Without in with.
+		"""
+
+		with box.Without():
+			with box.Without() as w:
+				assert w is None
+
+	def testException(self):
+		"""
+		Ensure that exceptions are passed through.
+		"""
+
+		try:
+			with box.Without():
+				raise IndexError
+		except IndexError:
+			pass
+		else:
+			assert False, 'Expected IndexError.'
+
+
 if __name__ == '__main__':
 	unittest.main()

@@ -50,7 +50,7 @@ class Port(AbstractSubdevice):
 		self.gain = 1
 		self.offset = 0
 
-		# Exported resources.
+		# Resources.
 		write_only = ['voltage']
 		for name in write_only:
 			self.resources[name] = Resource(self, None, name)

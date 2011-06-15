@@ -24,7 +24,7 @@ class Marker(AbstractSubdevice):
 	def _setup(self):
 		AbstractSubdevice._setup(self)
 
-		# Exported resources.
+		# Resources.
 		read_write_float = ['delay', 'high', 'low']
 		for name in read_write_float:
 			self.resources[name] = Resource(self, name, name, converter=float)
@@ -86,7 +86,7 @@ class Channel(AbstractSubdevice):
 			self.markers.append(marker)
 			self.subdevices['marker{0}'.format(mark)] = marker
 
-		# Exported resources.
+		# Resources.
 		read_write = ['waveform_name', 'enabled', 'amplitude']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
@@ -160,7 +160,7 @@ class AWG5014B(AbstractDevice):
 			self.channels.append(channel)
 			self.subdevices['channel{0}'.format(chan)] = channel
 
-		# Exported resources.
+		# Resources.
 		read_only = ['data_bits', 'value_range', 'waveform_names', 'waiting_for_trigger']
 		for name in read_only:
 			self.resources[name] = Resource(self, name)

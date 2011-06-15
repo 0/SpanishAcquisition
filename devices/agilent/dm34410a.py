@@ -27,14 +27,14 @@ class DM34410A(AbstractDevice):
 	def _setup(self):
 		AbstractDevice._setup(self)
 
-		# Exported resources.
+		# Resources.
 		read_only = ['reading']
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
 		read_write = ['integration_time', 'auto_zero']
 		for name in read_write:
-		    self.resources[name] = Resource(self, name, name)
+			self.resources[name] = Resource(self, name, name)
 
 		self.resources['integration_time'].converter = float
 		self.resources['integration_time'].allowed_values = self.allowed_nplc

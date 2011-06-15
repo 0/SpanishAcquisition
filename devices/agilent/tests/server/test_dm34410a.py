@@ -4,7 +4,7 @@ from nose.tools import eq_
 import numbers
 import unittest
 
-from testconfig import config
+from testconfig import config as tc
 
 from devices.agilent import dm34410a
 
@@ -18,14 +18,14 @@ class DM34410ATest(unittest.TestCase):
 		Try to get a handle for a physical device.
 		"""
 
-		all_devices = config['devices'].items()
-		potential_addresses = [a for (n, a) in all_devices if n.startswith('DM34410A.')]
+		all_devices = tc['devices'].items()
+		potential_devices = [a for (n, a) in all_devices if n.startswith('DM34410A.')]
 
-		for address in potential_addresses:
+		for device in potential_devices:
 			try:
-				return dm34410a.DM34410A(**address)
+				return dm34410a.DM34410A(**device['address'])
 			except Exception as e:
-				log.info('Could not connect to device at "{0}": {1}'.format(address, e))
+				log.info('Could not connect to device at "{0}": {1}'.format(device['address'], e))
 
 		raise SkipTest('Could not connect to device.')
 

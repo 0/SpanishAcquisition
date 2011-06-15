@@ -95,15 +95,16 @@ class AbstractDevice(SuperDevice):
 
 		self.lock = threading.RLock()
 
-	def __init__(self, ip_address=None, board=0, pad=None, sad=0, usb_resource=None, autoconnect=True):
+	def __init__(self, ip_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
+			usb_resource=None, autoconnect=True):
 		"""
 		Ethernet (tcpip::<ip_address>::instr):
-			ip_address: IP address on which the device is listening on port 111.
+			ip_address: Address on which the device is listening on port 111.
 
-		GPIB (gpib[board]::<pad>[::<sad>]::instr):
-			board: GPIB board index. Defaults to 0.
-			pad: Primary address of the device.
-			sad: Secondary address of the device. Defaults to 0.
+		GPIB (gpib[gpib_board]::<gpib_pad>[::<gpib_sad>]::instr):
+			gpib_board: GPIB board index. Defaults to 0.
+			gpib_pad: Primary address of the device.
+			gpib_sad: Secondary address of the device. Defaults to 0.
 
 		USB (usb_resource):
 			usb_resource: VISA resource of the form: USB[board]::<vendor>::<product>::<serial>[::<interface>]::RAW
@@ -121,14 +122,15 @@ class AbstractDevice(SuperDevice):
 			self._implementation = PYVISA
 
 			self.ip_address = ip_address
-		elif board is not None and pad is not None:
-			log.debug('Using Linux GPIB with board="{0}", pad="{1}".'.format(board, pad))
+		elif gpib_pad is not None:
+			log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
+					'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
 
 			self._implementation = LGPIB
 
-			self.board = board
-			self.pad = pad
-			self.sad = sad
+			self.gpib_board = gpib_board
+			self.gpib_pad = gpib_pad
+			self.gpib_sad = gpib_sad
 		elif usb_resource is not None:
 			log.debug('Using PyVISA with usb_resource="{0}"'.format(usb_resource))
 
@@ -152,14 +154,16 @@ class AbstractDevice(SuperDevice):
 			try:
 				self.device = visa.Instrument('tcpip::{0}::instr'.format(self.ip_address))
 			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at ip_address="{0}".'.format(self.ip_address), e)
+				raise DeviceNotFoundError('Could not open device at '
+						'ip_address="{0}".'.format(self.ip_address), e)
 		elif self._implementation == LGPIB:
 			try:
-				self.device = Gpib.Gpib(self.board, self.pad, self.sad)
+				self.device = Gpib.Gpib(self.gpib_board, self.gpib_pad, self.gpib_sad)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
 			except gpib.GpibError as e:
-				raise DeviceNotFoundError('Could not open device at board={0}, pad={1}, sad={2}.'.format(self.board, self.pad, self.sad), e)
+				raise DeviceNotFoundError('Could not open device at gpib_board={0}, '
+						'gpib_pad={1}, gpib_sad={2}.'.format(self.gpib_board, self.gpib_pad, self.gpib_sad), e)
 		elif self._implementation == PYVISA_USB:
 			try:
 				self.device = USBDevice(self.usb_resource)

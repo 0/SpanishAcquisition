@@ -46,7 +46,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Valid PADs are on [0, 30] (5 bits; 31 is reserved).
-			abstract_device.AbstractDevice(board=0, pad=2000)
+			abstract_device.AbstractDevice(gpib_board=0, gpib_pad=2000)
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:
@@ -54,7 +54,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 		try:
 			# Assuming that board number 15 is not used.
-			abstract_device.AbstractDevice(board=15, pad=0)
+			abstract_device.AbstractDevice(gpib_board=15, gpib_pad=0)
 		except abstract_device.DeviceNotFoundError:
 			pass
 		else:

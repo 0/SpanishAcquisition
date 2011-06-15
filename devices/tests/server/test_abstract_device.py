@@ -2,7 +2,7 @@ from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
 
-from testconfig import config
+from testconfig import config as tc
 
 from devices import abstract_device
 
@@ -16,12 +16,14 @@ class AbstractDeviceTest(unittest.TestCase):
 		found_any = False
 
 		# Try all devices to which a connection can be established.
-		for name, device in config['devices'].items():
+		for name, device in tc['devices'].items():
 			if not (name.endswith('.eth') or name.endswith('.gpib')):
+				continue
+			if not 'address' in device:
 				continue
 
 			try:
-				dev = abstract_device.AbstractDevice(**device)
+				dev = abstract_device.AbstractDevice(**device['address'])
 			except:
 				continue
 
@@ -39,12 +41,14 @@ class AbstractDeviceTest(unittest.TestCase):
 		"""
 
 		# Use any device.
-		for name, device in config['devices'].items():
+		for name, device in tc['devices'].items():
 			if not (name.endswith('.eth') or name.endswith('.gpib')):
+				continue
+			if not 'address' in device:
 				continue
 
 			try:
-				dev = abstract_device.AbstractDevice(**device)
+				dev = abstract_device.AbstractDevice(**device['address'])
 			except:
 				continue
 
@@ -56,8 +60,7 @@ class AbstractDeviceTest(unittest.TestCase):
 
 			dev.multi_command_start()
 			dev.ask('system:version?')
-			dev.write('*rst')
-			dev.write('system:preset')
+			dev.write('*opc')
 			dev.ask('system:version?')
 			dev.ask('*idn?')
 			responses = dev.multi_command_stop()

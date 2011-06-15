@@ -1,6 +1,30 @@
+import os
+import sys
+
 """
 Generic tools.
 """
+
+
+def import_path(path):
+	"""
+	Import a Python module given its file path.
+	"""
+
+	# Truncate the extension, if given.
+	if path[-3:] == '.py':
+		path = path[:-3]
+
+	# Prepend the given path to the import path.
+	sys.path.insert(0, os.path.dirname(path))
+
+	try:
+		return __import__(os.path.basename(path))
+	except Exception as e:
+		raise ImportError('Could not import "{0}".'.format(path), e)
+	finally:
+		# Clean up the import path.
+		del sys.path[0]
 
 
 class Enum(set):

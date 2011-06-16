@@ -104,7 +104,7 @@ class DeviceConfig(object):
 
 		try:
 			device = implementation(autoconnect=False, **address)
-		except ValueError as e:
+		except (ValueError, NotImplementedError) as e:
 			raise ConnectionError('Unable to create device.', e)
 
 		try:

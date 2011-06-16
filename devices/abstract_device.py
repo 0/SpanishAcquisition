@@ -1,8 +1,5 @@
 import logging
-import Gpib
-import gpib
 import threading
-import visa
 
 from devices.tools import Synchronized
 
@@ -16,6 +13,26 @@ log = logging.getLogger(__name__)
 
 # Implementation types: PyVISA, Linux GPIB, PyVISA USB.
 PYVISA, LGPIB, PYVISA_USB = xrange(3)
+
+
+# Try to import all available implementation types.
+available_implementations = []
+
+try:
+	import Gpib
+	import gpib
+except ImportError:
+	pass
+else:
+	available_implementations.append(LGPIB)
+
+try:
+	import visa
+except ImportError:
+	pass
+else:
+	available_implementations.append(PYVISA)
+	available_implementations.append(PYVISA_USB)
 
 
 class DeviceNotFoundError(Exception):
@@ -117,26 +134,42 @@ class AbstractDevice(SuperDevice):
 		log.info('Creating device "{0}".'.format(self.name))
 
 		if ip_address is not None:
-			log.debug('Using PyVISA with ip_address="{0}".'.format(ip_address))
-
-			self._implementation = PYVISA
-
-			self.ip_address = ip_address
+			if PYVISA in available_implementations:
+				log.debug('Using PyVISA with ip_address="{0}".'.format(ip_address))
+				self._implementation = PYVISA
+				self.connection_resource = {
+					'resource_name': 'tcpip::{0}::instr'.format(ip_address),
+				}
+			else:
+				raise NotImplementedError('PyVISA required, but not available.')
 		elif gpib_pad is not None:
-			log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
-					'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
-
-			self._implementation = LGPIB
-
-			self.gpib_board = gpib_board
-			self.gpib_pad = gpib_pad
-			self.gpib_sad = gpib_sad
+			if LGPIB in available_implementations:
+				log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
+						'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
+				self._implementation = LGPIB
+				self.connection_resource = {
+					'name': gpib_board,
+					'pad': gpib_pad,
+					'sad': gpib_sad,
+				}
+			elif PYVISA in available_implementations:
+				log.debug('Using PyVISA with gpib_board="{0}", gpib_pad="{1}", '
+						'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
+				self._implementation = PYVISA
+				self.connection_resource = {
+					'resource_name': 'gpib{0}::{1}::{2}::instr'.format(gpib_board, gpib_pad, gpib_sad),
+				}
+			else:
+				raise NotImplementedError('Linux GPIB or PyVISA required, but not available.')
 		elif usb_resource is not None:
-			log.debug('Using PyVISA with usb_resource="{0}"'.format(usb_resource))
-
-			self._implementation = PYVISA_USB
-
-			self.usb_resource = usb_resource
+			if PYVISA_USB in available_implementations:
+				log.debug('Using PyVISA with usb_resource="{0}"'.format(usb_resource))
+				self._implementation = PYVISA_USB
+				self.connection_resource = {
+					'resource_name': usb_resource,
+				}
+			else:
+				raise NotImplementedError('PyVISA required, but not available.')
 		else:
 			raise ValueError('Either an IP, GPIB, or USB address must be specified.')
 
@@ -148,27 +181,20 @@ class AbstractDevice(SuperDevice):
 		Make a connection to the device.
 		"""
 
-		log.info('Connecting to device "{0}".'.format(self.name))
+		log.info('Connecting to device "{0}" using {1} at "{2}".'.format(self.name, self._implementation, self.connection_resource))
 
-		if self._implementation == PYVISA:
-			try:
-				self.device = visa.Instrument('tcpip::{0}::instr'.format(self.ip_address))
-			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at '
-						'ip_address="{0}".'.format(self.ip_address), e)
-		elif self._implementation == LGPIB:
-			try:
-				self.device = Gpib.Gpib(self.gpib_board, self.gpib_pad, self.gpib_sad)
+		try:
+			if self._implementation == PYVISA:
+				self.device = visa.Instrument(**self.connection_resource)
+			elif self._implementation == LGPIB:
+				self.device = Gpib.Gpib(**self.connection_resource)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
-			except gpib.GpibError as e:
-				raise DeviceNotFoundError('Could not open device at gpib_board={0}, '
-						'gpib_pad={1}, gpib_sad={2}.'.format(self.gpib_board, self.gpib_pad, self.gpib_sad), e)
-		elif self._implementation == PYVISA_USB:
-			try:
-				self.device = USBDevice(self.usb_resource)
-			except visa.VisaIOError as e:
-				raise DeviceNotFoundError('Could not open device at usb_resource="{0}".'.format(self.usb_resource), e)
+			elif self._implementation == PYVISA_USB:
+				self.device = USBDevice(**self.connection_resource)
+		except (visa.VisaIOError, gpib.GpibError) as e:
+			raise DeviceNotFoundError('Could not open device at '
+					'"{0}".'.format(self.connection_resource), e)
 
 		self._connected()
 

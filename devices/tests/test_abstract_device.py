@@ -1,4 +1,7 @@
+from nose.tools import eq_
 import unittest
+
+from interface.resources import Resource
 
 from devices import abstract_device
 
@@ -79,6 +82,54 @@ class AbstractDeviceTest(unittest.TestCase):
 			pass
 		else:
 			assert False, 'Expected DeviceNotFoundError.'
+
+	def testFindResource(self):
+		"""
+		Attempt to find a resource.
+		"""
+
+		dev = abstract_device.AbstractDevice(ip_address='192.0.2.123', autoconnect=False)
+		subdev1 = abstract_device.AbstractSubdevice(dev)
+		subdev2 = abstract_device.AbstractSubdevice(dev)
+		subdev3 = abstract_device.AbstractSubdevice(subdev1)
+		res1 = Resource(object(), '__class__')
+		res2 = Resource(object(), '__str__')
+		res3 = Resource(object(), '__doc__')
+
+		dev.subdevices['subdev1'] = subdev1
+		dev.resources['res1'] = res1
+		dev.subdevices['subdev2'] = subdev2
+		subdev1.subdevices['subdev3'] = subdev3
+		subdev3.resources['res2'] = res2
+		subdev3.resources['res3'] = res3
+
+		# Success.
+		found = dev.find_resource(('subdev1', 'subdev3', 'res3'))
+		eq_(found.value, object.__doc__)
+
+		# No such resource.
+		try:
+			dev.find_resource(('subdev1', 'res3'))
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# No such subdevice.
+		try:
+			dev.find_resource(('subdev1', 'subdev2', 'res3'))
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		# Nothing to even try.
+		try:
+			dev.find_resource(())
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
 
 
 if __name__ == '__main__':

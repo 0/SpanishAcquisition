@@ -318,6 +318,37 @@ class AbstractDevice(SuperDevice):
 		else:
 			self.responses_expected += 1
 
+	def find_resource(self, path):
+		"""
+		Return a Resource given a resource path spec.
+
+		eg. ('subdevice A', 'subdevice B', 'resource C') -> Resource
+		"""
+
+		log.debug('Looking for resource {0}.'.format(path))
+
+		if len(path) < 1:
+			raise ValueError('No path provided.')
+
+		# Keep track of the last device in the tree so far.
+		dev = self
+		# Keep track of the path so far.
+		traversed = ()
+
+		while len(path) > 1:
+			try:
+				dev = dev.subdevices[path[0]]
+			except KeyError:
+				raise ValueError('No subdevice "{0}" in {1}.'.format(path[0], traversed))
+
+			traversed += path[:1]
+			path = path[1:]
+
+		try:
+			return dev.resources[path[0]]
+		except KeyError:
+			raise ValueError('No resource "{0}" in {1}.'.format(path[0], traversed))
+
 	@property
 	def idn(self):
 		"""

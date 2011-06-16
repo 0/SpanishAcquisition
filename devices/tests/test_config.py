@@ -1,4 +1,5 @@
 from nose.plugins.skip import SkipTest
+from nose.tools import eq_
 import unittest
 
 from devices.mock.mock_abstract_device import MockAbstractDevice
@@ -37,6 +38,24 @@ class DeviceConfigTest(unittest.TestCase):
 		cfg.connect()
 
 		assert isinstance(cfg.device, MockAbstractDevice)
+
+	def testDiffResources(self):
+		"""
+		Try changing up some resources.
+		"""
+
+		cfg1 = config.DeviceConfig()
+		cfg2 = config.DeviceConfig()
+		eq_(cfg1.diff_resources(cfg2), (set(), set(), set()))
+
+		cfg2.resources['something'] = 'new'
+		eq_(cfg1.diff_resources(cfg2), (set(['something']), set(), set()))
+
+		cfg1.resources['for'] = 'now'
+		eq_(cfg1.diff_resources(cfg2), (set(['something']), set(), set(['for'])))
+
+		cfg1.resources['something'] = 'now'
+		eq_(cfg1.diff_resources(cfg2), (set(), set(['something']), set(['for'])))
 
 
 if __name__ == '__main__':

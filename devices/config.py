@@ -37,8 +37,14 @@ class DeviceConfig(object):
 		# Path to module that implements this device.
 		self.implementation_path = None
 
+		# Resource path to label mappings.
+		self.resource_labels = {}
+
 		# The connected device object.
 		self.device = None
+
+		# Label to resource object mappings.
+		self.resources = {}
 
 	def __getstate__(self):
 		"""
@@ -47,8 +53,9 @@ class DeviceConfig(object):
 
 		result = self.__dict__.copy()
 
-		# Do not pickle the device object.
+		# Do not pickle references to mutable objects.
 		del result['device']
+		del result['resources']
 
 		return result
 
@@ -59,7 +66,33 @@ class DeviceConfig(object):
 
 		self.__dict__ = dict
 
+		# Set missing values to defaults.
 		self.device = None
+		self.resources = {}
+
+	def diff_resources(self, new):
+		"""
+		Compare the resources belonging to 2 DeviceConfig objects.
+
+		The result is a tuple of:
+			resources which appear
+			resources which change
+			resources which disappear
+		where all "resources" are label to resource object mappings.
+		"""
+
+		old_labels, new_labels = set(self.resources), set(new.resources)
+
+		appeared = new_labels - old_labels
+		disappeared = old_labels - new_labels
+
+		changed = set()
+		possibly_changed = old_labels.intersection(new_labels)
+		for p in possibly_changed:
+			if self.resources[p] is not new.resources[p]:
+				changed.add(p)
+
+		return (appeared, changed, disappeared)
 
 	def connect(self):
 		"""

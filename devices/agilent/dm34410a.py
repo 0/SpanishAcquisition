@@ -21,7 +21,7 @@ class DM34410A(AbstractDevice):
 	Note: Currently supports only DC voltage readings.
 	"""
 
-	allowed_nplc = set([0.006, 0.02, 0.06, 0.2, 1, 2, 10, 100])
+	allowed_nplc = set([0.006, 0.02, 0.06, 0.2, 1.0, 2.0, 10.0, 100.0])
 	allowed_auto_zero = set(['off', 'on', 'once'])
 
 	def _setup(self):

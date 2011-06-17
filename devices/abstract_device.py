@@ -183,18 +183,23 @@ class AbstractDevice(SuperDevice):
 
 		log.info('Connecting to device "{0}" using {1} at "{2}".'.format(self.name, self._implementation, self.connection_resource))
 
-		try:
-			if self._implementation == PYVISA:
+		if self._implementation == PYVISA:
+			try:
 				self.device = visa.Instrument(**self.connection_resource)
-			elif self._implementation == LGPIB:
+			except visa.VisaIOError as e:
+				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+		elif self._implementation == LGPIB:
+			try:
 				self.device = Gpib.Gpib(**self.connection_resource)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
-			elif self._implementation == PYVISA_USB:
+			except gpib.GpibError as e:
+				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+		elif self._implementation == PYVISA_USB:
+			try:
 				self.device = USBDevice(**self.connection_resource)
-		except (visa.VisaIOError, gpib.GpibError) as e:
-			raise DeviceNotFoundError('Could not open device at '
-					'"{0}".'.format(self.connection_resource), e)
+			except visa.VisaIOError as e:
+				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
 		self._connected()
 

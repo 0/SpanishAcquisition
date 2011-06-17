@@ -21,7 +21,7 @@ def combine_variables(variables):
 		return ([], (), 0, [])
 
 	order_attr = operator.attrgetter('order')
-	ordered = sorted(variables, key=order_attr)
+	ordered = sorted(variables, key=order_attr, reverse=True)
 	grouped = ((order, list(vars)) for order, vars in itertools.groupby(ordered, order_attr))
 
 	iterators = []

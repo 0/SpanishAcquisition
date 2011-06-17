@@ -37,9 +37,9 @@ class GroupTest(unittest.TestCase):
 		"""
 
 		vars = [
-			variables.Variable('A', 1, 1.0, 5.0, 3),
+			variables.Variable('A', 3, 1.0, 5.0, 3),
 			variables.Variable('B', 2, 11.0, 12.0, 2, const=10.0),
-			variables.Variable('D', 3, -99.0, 0.0, const=9.0, enabled=False),
+			variables.Variable('D', 1, -99.0, 0.0, const=9.0, enabled=False),
 			variables.Variable('C', 2, 21.0, 25.0, 2),
 		]
 

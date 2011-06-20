@@ -1,18 +1,51 @@
+import itertools
 from nose.tools import eq_
 import unittest
 
 from iteration import variables
 
 
-class GroupTest(unittest.TestCase):
+class ChangeIndicatorTest(unittest.TestCase):
+	def testSample(self):
+		"""
+		Ensure that the first few values differ from their neighbours.
+		"""
+
+		indicator = variables.change_indicator()
+		last = None
+
+		for i in itertools.izip(indicator, xrange(1000)):
+			if last is not None:
+				assert i != last, 'Values are equal: {0}, {1}'.format(i, last)
+
+			last = i
+
+
+class CombineVariablesTest(unittest.TestCase):
+	@classmethod
+	def extract(cls, values):
+		"""
+		Given a tuple of (value, change indicator, ...) pairs, extract the values.
+		"""
+
+		return tuple(values[::2])
+
+	@classmethod
+	def list_extract(cls, values):
+		"""
+		Run extract over the list.
+		"""
+
+		return [cls.extract(x) for x in values]
+
 	def testEmpty(self):
 		"""
 		Use no variables.
 		"""
 
 		iterator, last, num_items, sorted_variables = variables.combine_variables([])
-		eq_(list(iterator), [])
-		eq_(last, ())
+		eq_(self.list_extract(list(iterator)), [])
+		eq_(self.extract(last), ())
 		eq_(num_items, 0)
 		eq_(sorted_variables, [])
 
@@ -26,8 +59,8 @@ class GroupTest(unittest.TestCase):
 		expected = [(x,) for x in range(-5, 6)]
 
 		iterator, last, num_items, sorted_variables = variables.combine_variables([var])
-		eq_(list(iterator), expected)
-		eq_(last, (6.0,))
+		eq_(self.list_extract(list(iterator)), expected)
+		eq_(self.extract(last), (6.0,))
 		eq_(num_items, len(expected))
 		eq_([x.name for x in sorted_variables], ['Name'])
 
@@ -53,8 +86,8 @@ class GroupTest(unittest.TestCase):
 		]
 
 		iterator, last, num_items, sorted_variables = variables.combine_variables(vars)
-		eq_(list(iterator), expected)
-		eq_(last, (1.0, 10.0, 21.0, 9.0))
+		eq_(self.list_extract(list(iterator)), expected)
+		eq_(self.extract(last), (1.0, 10.0, 21.0, 9.0))
 		eq_(num_items, len(expected))
 
 		for var, name in zip(sorted_variables, 'ABCD'):

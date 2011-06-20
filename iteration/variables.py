@@ -6,6 +6,19 @@ from interface.units import SIValues, Quantity
 from iteration.group_iterators import ChainIterator, ParallelIterator, ProductIterator
 
 
+def change_indicator():
+	"""
+	A generator that flip-flops between 0 and 1.
+	"""
+
+	state = 0
+
+	while True:
+		state = 0 if state else 1
+
+		yield state
+
+
 def combine_variables(variables):
 	"""
 	Create a GroupIterator out of some Variables.
@@ -29,7 +42,10 @@ def combine_variables(variables):
 	sorted_variables = []
 	# Treat each order to its own parallel iterator.
 	for _, vars in grouped:
-		var_iter = ParallelIterator([x.to_iterator() for x in vars])
+		# Each variable also gets its own tupled parallel iterator with a change indicator.
+		with_indicators = [ParallelIterator([x.to_iterator(), change_indicator()]) for x in vars]
+
+		var_iter = ParallelIterator(with_indicators)
 		var_items = sum(1 for _ in var_iter)
 
 		iterators.append(var_iter)
@@ -41,9 +57,13 @@ def combine_variables(variables):
 		return None
 
 	iterator = ProductIterator(iterators)
-	last_values = tuple(x.const for x in sorted_variables)
 
-	return (iterator, last_values, num_items, sorted_variables)
+	last_values = []
+	for var in sorted_variables:
+		# Using 2 as a value different from change_indicator values.
+		last_values.extend([var.const, 2])
+
+	return (iterator, tuple(last_values), num_items, sorted_variables)
 
 
 class Variable(object):

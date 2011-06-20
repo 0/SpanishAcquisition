@@ -49,12 +49,16 @@ class ResourceTest(unittest.TestCase):
 		else:
 			assert False, 'Expected NotReadable.'
 
+		assert not res.readable
+
 		try:
 			res.value = 5
 		except resources.NotWritable:
 			pass
 		else:
 			assert False, 'Expected NotWritable.'
+
+		assert not res.writable
 
 	def testMoreThanUseless(self):
 		"""

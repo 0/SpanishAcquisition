@@ -67,32 +67,40 @@ class Resource(object):
 		"""
 
 		if self.getter is None:
-			raise NotReadable()
+			raise NotReadable('Resource not readable.')
 
 		if callable(self.getter):
 			return self.getter()
 		elif self.obj is not None:
 			return getattr(self.obj, self.getter)
 		else:
-			raise NotReadable()
+			raise NotReadable('Cannot read from resource.')
 
 	@value.setter
 	def value(self, v):
 		if self.setter is None:
-			raise NotWritable()
+			raise NotWritable('Resource not writable.')
 
 		if callable(self.setter):
 			self.setter(v)
 		elif self.obj is not None:
 			setattr(self.obj, self.setter, v)
 		else:
-			raise NotWritable()
+			raise NotWritable('Cannot write to resource.')
 
 	def convert(self, value):
 		if self.converter is not None:
 			return self.converter(value)
 		else:
 			return value
+
+	@property
+	def readable(self):
+		return self.getter is not None
+
+	@property
+	def writable(self):
+		return self.setter is not None
 
 
 class AcquisitionThread(Thread):

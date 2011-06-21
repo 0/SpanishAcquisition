@@ -30,6 +30,9 @@ def combine_variables(variables):
 		variables sorted by their order in the tuples
 	"""
 
+	# Ignore disabled variables entirely!
+	variables = [var for var in variables if var.enabled]
+
 	if not variables:
 		return ([], (), 0, [])
 
@@ -71,8 +74,8 @@ class Variable(object):
 	A simple linear space variable.
 	"""
 
-	def __init__(self, name, order, initial=0.0, final=0.0, steps=1, enabled=True,
-			wait=0, const=None, resource_name=''):
+	def __init__(self, name, order, initial=0.0, final=0.0, steps=1, enabled=False,
+			wait=0, const=None, use_const=False, resource_name=''):
 		"""
 		name: A string labelling the variable.
 		order: The integer nesting order.
@@ -93,6 +96,7 @@ class Variable(object):
 			self.const = const
 		else:
 			self.const = initial
+		self.use_const = use_const
 
 		self.resource_name = resource_name
 
@@ -124,10 +128,10 @@ class Variable(object):
 		Create an iterator for the variable.
 		"""
 
-		if self.enabled:
-			return numpy.linspace(self.initial, self.final, self.steps)
-		else:
+		if self.use_const:
 			return [self.const]
+		else:
+			return numpy.linspace(self.initial, self.final, self.steps)
 
 
 if __name__ == '__main__':

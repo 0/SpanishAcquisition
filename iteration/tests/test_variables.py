@@ -54,13 +54,13 @@ class CombineVariablesTest(unittest.TestCase):
 		Use a single variable.
 		"""
 
-		var = variables.Variable('Name', 0, -5.0, 5.0, 11, const=6.0)
+		var = variables.Variable('Name', 0, -5.0, 5.0, 11, enabled=True, const=60.0)
 
 		expected = [(x,) for x in range(-5, 6)]
 
 		iterator, last, num_items, sorted_variables = variables.combine_variables([var])
 		eq_(self.list_extract(list(iterator)), expected)
-		eq_(self.extract(last), (6.0,))
+		eq_(self.extract(last), (60.0,))
 		eq_(num_items, len(expected))
 		eq_([x.name for x in sorted_variables], ['Name'])
 
@@ -70,10 +70,11 @@ class CombineVariablesTest(unittest.TestCase):
 		"""
 
 		vars = [
-			variables.Variable('A', 3, 1.0, 5.0, 3),
-			variables.Variable('B', 2, 11.0, 12.0, 2, const=10.0),
-			variables.Variable('D', 1, -99.0, 0.0, const=9.0, enabled=False),
-			variables.Variable('C', 2, 21.0, 25.0, 2),
+			variables.Variable('A', 3, 1.0, 5.0, 3, enabled=True),
+			variables.Variable('B', 2, 11.0, 12.0, 2, enabled=True, const=10.0),
+			variables.Variable('D', 1, -99.0, 0.0, enabled=True, const=9.0, use_const=True),
+			variables.Variable('C', 2, 21.0, 25.0, 2, enabled=True),
+			variables.Variable('E', 4, 0.0, 0.0, 1), # Disabled.
 		]
 
 		expected = [
@@ -100,14 +101,14 @@ class VariableTest(unittest.TestCase):
 		Create an iterator from a variable.
 		"""
 
-		var = variables.Variable('Name', 1, -1.0, -3.0, 5, const=10.0)
+		var = variables.Variable('Name', 1, -1.0, -3.0, 5, enabled=True, const=10.0)
 
-		# Enabled.
+		# Non-const.
 		it1 = var.to_iterator()
 		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
 
-		# Disabled.
-		var.enabled = False
+		# Const.
+		var.use_const = True
 
 		it2 = var.to_iterator()
 		eq_(list(it2), [10.0])

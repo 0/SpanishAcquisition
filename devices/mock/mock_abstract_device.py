@@ -139,6 +139,13 @@ class MockAbstractDevice(AbstractDevice):
 		else:
 			self.multi_command_responses.append(result)
 
+	def close(self):
+		"""
+		Pretend to close the connection.
+		"""
+
+		log.debug('Closing device: {0}'.format(self.name))
+
 
 if __name__ == '__main__':
 	import unittest

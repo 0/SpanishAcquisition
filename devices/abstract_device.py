@@ -323,6 +323,16 @@ class AbstractDevice(SuperDevice):
 		else:
 			self.responses_expected += 1
 
+	def close(self):
+		"""
+		Close the connection, if possible.
+		"""
+
+		log.debug('Closing device: {0}'.format(self.name))
+
+		if self._implementation == PYVISA or self._implementation == PYVISA_USB:
+			self.device.close()
+
 	def find_resource(self, path):
 		"""
 		Return a Resource given a resource path spec.

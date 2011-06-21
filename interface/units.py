@@ -23,6 +23,7 @@ class SIValues(object):
 	dimensions = Enum([
 		'time',
 		'frequency',
+		'current',
 	])
 
 	prefixes = {
@@ -52,6 +53,7 @@ class SIValues(object):
 	units = {
 		's': dimensions.time,
 		'Hz': dimensions.frequency,
+		'A': dimensions.current,
 	}
 	units_ = dict([(v, k) for (k, v) in units.items()])
 

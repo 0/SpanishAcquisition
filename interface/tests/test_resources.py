@@ -182,6 +182,39 @@ class ResourceTest(unittest.TestCase):
 		eq_(res2.convert('5'), 5)
 		eq_(res2.convert('5'), 5.0)
 
+	def testWrapping(self):
+		"""
+		Wrap resources in other resources.
+		"""
+
+		dev = WithAttribute()
+		res1 = resources.Resource(dev, 'x', 'x')
+
+		res1.value = 5
+		eq_(res1.value, 5)
+
+		res2 = resources.Resource.wrap(res1, 'wrapper1', lambda x: 2 * x, lambda x: 3 * x)
+
+		eq_(res2.value, 10)
+		res2.value = 5
+		eq_(res1.value, 15)
+		eq_(res2.value, 30)
+
+		res3 = resources.Resource.wrap(res2, 'wrapper2', lambda x: 5 * x)
+
+		eq_(res3.value, 150)
+		res3.value = 10
+		eq_(res1.value, 30)
+		eq_(res2.value, 60)
+		eq_(res3.value, 300)
+
+		res1.value = 1
+		eq_(res1.value, 1)
+		eq_(res2.value, 2)
+		eq_(res3.value, 10)
+
+		eq_(res3.wrappers, ['wrapper1', 'wrapper2'])
+
 
 class AcquisitionThreadTest(unittest.TestCase):
 	def testWithoutResource(self):

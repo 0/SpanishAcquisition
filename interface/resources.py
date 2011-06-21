@@ -1,3 +1,4 @@
+from copy import copy
 import logging
 from threading import Thread
 import time
@@ -34,6 +35,34 @@ class Resource(object):
 	A generic resource which can potentially be read from or written to.
 	"""
 
+	@staticmethod
+	def wrap(res, name, getter_filter=None, setter_filter=None):
+		"""
+		Produce a Resource which is a wrapper of the given Resource.
+
+		res: The wrapped resource.
+		name: The name of the wrapper.
+		getter_filter: Function of one argument through which to pass any obtained values.
+		setter_filter: Function of one argument through which to pass values when setting.
+		"""
+
+		result = copy(res)
+
+		def new_getter():
+			return getter_filter(res.value)
+
+		def new_setter(value):
+			res.value = setter_filter(value)
+
+		if getter_filter is not None:
+			result.getter = new_getter
+		if setter_filter is not None:
+			result.setter = new_setter
+
+		result.wrappers.append(name)
+
+		return result
+
 	def __init__(self, obj=None, getter=None, setter=None, converter=None, allowed_values=None):
 		"""
 		obj: The device to which the resource belongs.
@@ -59,6 +88,8 @@ class Resource(object):
 			self.allowed_values = set(allowed_values)
 		else:
 			self.allowed_values = None
+
+		self.wrappers = []
 
 	@property
 	def value(self):

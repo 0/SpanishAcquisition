@@ -19,7 +19,7 @@ def import_path(path):
 	sys.path.insert(0, os.path.dirname(path))
 
 	try:
-		return __import__(os.path.basename(path))
+		return __import__(name=os.path.basename(path), level=0)
 	except Exception as e:
 		raise ImportError('Could not import "{0}".'.format(path), e)
 	finally:

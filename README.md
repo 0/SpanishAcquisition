@@ -17,7 +17,9 @@
 ### Python modules
 
 * [numpy](http://numpy.scipy.org/)
+* [PyPubSub](http://pubsub.sourceforge.net/) >= 3.1
 * [scipy](http://www.scipy.org/)
+* [wxPython](http://www.wxpython.org/)
 
 #### Testing
 

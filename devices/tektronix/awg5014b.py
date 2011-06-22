@@ -2,9 +2,9 @@ import logging
 import re
 import struct
 
-from devices.abstract_device import AbstractDevice, AbstractSubdevice
-from devices.tools import BlockData, str_to_bool, Synchronized
-from interface.resources import Resource
+from ..abstract_device import AbstractDevice, AbstractSubdevice
+from ..tools import BlockData, str_to_bool, Synchronized
+from ...interface.resources import Resource
 
 """
 Tektronix AWG5014B Arbitrary Waveform Generator
@@ -359,6 +359,6 @@ implementation = AWG5014B
 if __name__ == '__main__':
 	import unittest
 
-	from tests.server import test_awg5014b as my_server_tests
+	from .tests.server import test_awg5014b as my_server_tests
 
 	unittest.main(module=my_server_tests)

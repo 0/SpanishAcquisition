@@ -1,8 +1,8 @@
 import logging
 
-from devices.abstract_device import AbstractDevice
-from devices.tools import Synchronized
-from interface.resources import Resource
+from ..abstract_device import AbstractDevice
+from ..tools import Synchronized
+from ...interface.resources import Resource
 
 """
 Agilent 34410A Digital Multimeter
@@ -112,6 +112,6 @@ implementation = DM34410A
 if __name__ == '__main__':
 	import unittest
 
-	from tests.server import test_dm34410a as my_server_tests
+	from .tests.server import test_dm34410a as my_server_tests
 
 	unittest.main(module=my_server_tests)

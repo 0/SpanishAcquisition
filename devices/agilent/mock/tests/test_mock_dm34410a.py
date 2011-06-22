@@ -1,7 +1,7 @@
 import unittest
 
-from devices.agilent import dm34410a
-from devices.agilent.mock import mock_dm34410a
+from ... import dm34410a
+from .. import mock_dm34410a
 
 
 # Don't lose the real device.
@@ -13,7 +13,7 @@ def setup():
 	dm34410a.DM34410A = mock_dm34410a.MockDM34410A
 
 # Run this test class.
-from devices.agilent.tests.server.test_dm34410a import DM34410ATest
+from ...tests.server.test_dm34410a import DM34410ATest
 
 def teardown():
 	# Restore the real device for any remaining tests.

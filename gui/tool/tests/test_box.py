@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from gui.tool import box
+from .. import box
 
 
 class DetermineWildcardTest(unittest.TestCase):

@@ -1,6 +1,6 @@
 from scipy import constants
 
-from tool.box import Enum
+from ..tool.box import Enum
 
 """
 Tools for working with quantities and units.
@@ -205,6 +205,6 @@ class Quantity(object):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_units as my_tests
+	from .tests import test_units as my_tests
 
 	unittest.main(module=my_tests)

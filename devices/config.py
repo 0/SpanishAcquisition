@@ -1,5 +1,5 @@
-from abstract_device import DeviceNotFoundError
-from tool.box import Enum, import_path
+from .abstract_device import DeviceNotFoundError
+from ..tool.box import Enum, import_path
 
 """
 Device configuration.
@@ -152,6 +152,6 @@ if __name__ == '__main__':
 	import unittest
 
 	# Does not run server tests.
-	from tests import test_config as my_tests
+	from .tests import test_config as my_tests
 
 	unittest.main(module=my_tests)

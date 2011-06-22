@@ -4,7 +4,7 @@ import unittest
 
 from testconfig import config as tc
 
-from devices.custom import voltage_source
+from ... import voltage_source
 
 
 log = logging.getLogger(__name__)

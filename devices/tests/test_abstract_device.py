@@ -1,9 +1,9 @@
 from nose.tools import eq_
 import unittest
 
-from interface.resources import Resource
+from ...interface.resources import Resource
 
-from devices import abstract_device
+from .. import abstract_device
 
 
 class AbstractDeviceTest(unittest.TestCase):

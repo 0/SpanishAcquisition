@@ -1,7 +1,7 @@
 import random
 
-from devices.agilent.dm34410a import DM34410A
-from devices.mock.mock_abstract_device import MockAbstractDevice
+from ..dm34410a import DM34410A
+from ...mock.mock_abstract_device import MockAbstractDevice
 
 """
 Mock Agilent 34410A Digital Multimeter
@@ -72,6 +72,6 @@ implementation = MockDM34410A
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_mock_dm34410a as my_tests
+	from .tests import test_mock_dm34410a as my_tests
 
 	unittest.main(module=my_tests)

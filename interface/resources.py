@@ -3,8 +3,8 @@ import logging
 from threading import Thread
 import time
 
-from interface.units import SIValues
-from tool.box import Without
+from .units import SIValues
+from ..tool.box import Without
 
 """
 Tools for working with generic resources.
@@ -189,6 +189,6 @@ class AcquisitionThread(Thread):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_resources as my_tests
+	from .tests import test_resources as my_tests
 
 	unittest.main(module=my_tests)

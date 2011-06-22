@@ -6,7 +6,7 @@ import unittest
 
 from testconfig import config as tc
 
-from devices.agilent import dm34410a
+from ... import dm34410a
 
 
 log = logging.getLogger(__name__)

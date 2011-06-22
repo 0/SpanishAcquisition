@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from interface import units
+from .. import units
 
 
 class SIValuesTest(unittest.TestCase):

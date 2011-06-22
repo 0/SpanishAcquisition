@@ -147,6 +147,6 @@ class YesNoQuestionDialog(wx.Dialog):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_box as my_tests
+	from .tests import test_box as my_tests
 
 	unittest.main(module=my_tests)

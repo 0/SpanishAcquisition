@@ -102,6 +102,6 @@ class ChainIterator(GroupIterator):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_group_iterators as my_tests
+	from .tests import test_group_iterators as my_tests
 
 	unittest.main(module=my_tests)

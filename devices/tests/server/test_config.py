@@ -1,10 +1,10 @@
 from nose.plugins.skip import SkipTest
 import unittest
 
-from devices.abstract_device import AbstractDevice
+from ...abstract_device import AbstractDevice
 from testconfig import config as tc
 
-from devices import config
+from ... import config
 
 
 class DeviceConfigTest(unittest.TestCase):

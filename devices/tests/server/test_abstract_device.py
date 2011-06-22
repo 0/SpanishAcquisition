@@ -4,7 +4,7 @@ import unittest
 
 from testconfig import config as tc
 
-from devices import abstract_device
+from ... import abstract_device
 
 
 class AbstractDeviceTest(unittest.TestCase):

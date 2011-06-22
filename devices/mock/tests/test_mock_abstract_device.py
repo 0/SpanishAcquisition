@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from devices.mock import mock_abstract_device
+from .. import mock_abstract_device
 
 
 class MockAbstractDeviceTest(unittest.TestCase):

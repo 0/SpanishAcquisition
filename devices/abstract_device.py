@@ -1,7 +1,7 @@
 import logging
 import threading
 
-from devices.tools import Synchronized
+from .tools import Synchronized
 
 """
 Hardware device abstraction interface.
@@ -390,6 +390,6 @@ if __name__ == '__main__':
 	import unittest
 
 	# Does not run server tests.
-	from tests import test_abstract_device as my_tests
+	from .tests import test_abstract_device as my_tests
 
 	unittest.main(module=my_tests)

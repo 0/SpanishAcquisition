@@ -1,6 +1,6 @@
 import logging
 
-from devices.abstract_device import AbstractDevice
+from ..abstract_device import AbstractDevice
 
 """
 Mock hardware device.
@@ -150,6 +150,6 @@ class MockAbstractDevice(AbstractDevice):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_mock_abstract_device as my_tests
+	from .tests import test_mock_abstract_device as my_tests
 
 	unittest.main(module=my_tests)

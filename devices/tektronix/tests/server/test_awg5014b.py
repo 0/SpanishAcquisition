@@ -4,9 +4,9 @@ from nose.tools import eq_
 import unittest
 
 from testconfig import config as tc
-from tests.tools import AssertHandler
+from .....tests.tools import AssertHandler
 
-from devices.tektronix import awg5014b
+from ... import awg5014b
 
 
 log = logging.getLogger(__name__)

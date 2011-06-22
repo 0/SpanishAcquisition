@@ -3,9 +3,9 @@ from threading import Lock
 import time
 import unittest
 
-from interface.units import Quantity, SIValues
+from ..units import Quantity, SIValues
 
-from interface import resources
+from .. import resources
 
 
 class WithAttribute(object):

@@ -1,8 +1,8 @@
 import re
 
-from devices.custom.voltage_source import VoltageSource
-from devices.mock.mock_abstract_device import MockAbstractDevice
-from devices.tools import BinaryEncoder
+from ..voltage_source import VoltageSource
+from ...mock.mock_abstract_device import MockAbstractDevice
+from ...tools import BinaryEncoder
 
 """
 Mock Voltage Source
@@ -116,6 +116,6 @@ implementation = MockVoltageSource
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_mock_voltage_source as my_tests
+	from .tests import test_mock_voltage_source as my_tests
 
 	unittest.main(module=my_tests)

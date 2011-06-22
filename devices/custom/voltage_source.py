@@ -2,9 +2,9 @@ import logging
 import numpy
 import time
 
-from devices.abstract_device import AbstractDevice, AbstractSubdevice
-from devices.tools import BinaryEncoder, Synchronized
-from interface.resources import Resource
+from ..abstract_device import AbstractDevice, AbstractSubdevice
+from ..tools import BinaryEncoder, Synchronized
+from ...interface.resources import Resource
 
 """
 Custom voltage source
@@ -302,6 +302,6 @@ if __name__ == '__main__':
 	import unittest
 
 	# Does not run server tests.
-	from tests import test_voltage_source as my_tests
+	from .tests import test_voltage_source as my_tests
 
 	unittest.main(module=my_tests)

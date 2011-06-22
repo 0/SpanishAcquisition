@@ -1,7 +1,7 @@
 import unittest
 
-from devices.custom import voltage_source
-from devices.custom.mock import mock_voltage_source
+from ... import voltage_source
+from .. import mock_voltage_source
 
 
 # Don't lose the real device.
@@ -13,7 +13,7 @@ def setup():
 	voltage_source.VoltageSource = mock_voltage_source.MockVoltageSource
 
 # Run this test class.
-from devices.custom.tests.server.test_voltage_source import VoltageSourceTest
+from ...tests.server.test_voltage_source import VoltageSourceTest
 
 def teardown():
 	# Restore the real device for any remaining tests.

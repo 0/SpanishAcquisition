@@ -2,7 +2,7 @@ from nose.tools import eq_
 import numpy
 import unittest
 
-from iteration import group_iterators
+from .. import group_iterators
 
 
 class IteratorTest(unittest.TestCase):

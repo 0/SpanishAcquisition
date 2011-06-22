@@ -3,7 +3,7 @@ from pubsub import pub
 from threading import RLock
 import unittest
 
-from tool import box
+from .. import box
 
 
 class ImportPathTest(unittest.TestCase):

@@ -1,8 +1,8 @@
 import struct
 
-from devices.mock.mock_abstract_device import MockAbstractDevice
-from devices.tektronix.awg5014b import AWG5014B
-from devices.tools import BlockData
+from ...mock.mock_abstract_device import MockAbstractDevice
+from ..awg5014b import AWG5014B
+from ...tools import BlockData
 
 """
 Mock Tektronix AWG5014B Arbitrary Waveform Generator
@@ -244,6 +244,6 @@ implementation = MockAWG5014B
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_mock_awg5014b as my_tests
+	from .tests import test_mock_awg5014b as my_tests
 
 	unittest.main(module=my_tests)

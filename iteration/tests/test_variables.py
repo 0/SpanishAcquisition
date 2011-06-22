@@ -2,7 +2,7 @@ import itertools
 from nose.tools import eq_
 import unittest
 
-from iteration import variables
+from .. import variables
 
 
 class ChangeIndicatorTest(unittest.TestCase):

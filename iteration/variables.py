@@ -2,8 +2,8 @@ import itertools
 import numpy
 import operator
 
-from interface.units import SIValues, Quantity
-from iteration.group_iterators import ChainIterator, ParallelIterator, ProductIterator
+from ..interface.units import SIValues, Quantity
+from .group_iterators import ChainIterator, ParallelIterator, ProductIterator
 
 
 def change_indicator():
@@ -137,6 +137,6 @@ class Variable(object):
 if __name__ == '__main__':
 	import unittest
 
-	from tests import test_variables as my_tests
+	from .tests import test_variables as my_tests
 
 	unittest.main(module=my_tests)

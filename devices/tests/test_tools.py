@@ -3,9 +3,9 @@ import threading
 import time
 import unittest
 
-from tests.tools import AssertHandler
+from ...tests.tools import AssertHandler
 
-from devices import tools
+from .. import tools
 
 
 class StrToBoolTest(unittest.TestCase):

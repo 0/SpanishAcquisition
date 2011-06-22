@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from devices.custom import voltage_source
+from .. import voltage_source
 
 
 class PortTest(unittest.TestCase):

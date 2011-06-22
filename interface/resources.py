@@ -59,7 +59,7 @@ class Resource(object):
 		if setter_filter is not None:
 			result.setter = new_setter
 
-		result.wrappers.append(name)
+		result.wrappers = res.wrappers + [name]
 
 		return result
 

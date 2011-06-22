@@ -213,6 +213,7 @@ class ResourceTest(unittest.TestCase):
 		eq_(res2.value, 2)
 		eq_(res3.value, 10)
 
+		eq_(res1.wrappers, [])
 		eq_(res3.wrappers, ['wrapper1', 'wrapper2'])
 
 

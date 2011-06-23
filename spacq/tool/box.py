@@ -9,22 +9,28 @@ Generic tools.
 def import_path(path):
 	"""
 	Import a Python module given its file path.
+
+	Note: The module must reside within this package.
 	"""
 
 	# Truncate the extension, if given.
 	if path[-3:] == '.py':
 		path = path[:-3]
 
-	# Prepend the given path to the import path.
-	sys.path.insert(0, os.path.dirname(path))
+	# Find the module name starting with the root package.
+	root_package = __name__.split('.')[0]
+	parts = path.rsplit(root_package, 1)
+
+	if len(parts) < 2:
+		raise ImportError('Path does not contain package name "{0}": {1}'.format(root_package, path))
+
+	module_name = root_package + parts[-1].replace('/', '.')
+	module_path = module_name.rsplit('.', 1)[0]
 
 	try:
-		return __import__(name=os.path.basename(path), level=0)
+		return __import__(module_name, fromlist=[module_path])
 	except Exception as e:
 		raise ImportError('Could not import "{0}".'.format(path), e)
-	finally:
-		# Clean up the import path.
-		del sys.path[0]
 
 
 class Enum(set):

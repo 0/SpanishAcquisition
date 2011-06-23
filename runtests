@@ -5,4 +5,4 @@ if (( $# == 0 )); then
 	EXCLUDE="--exclude=server"
 fi
 
-nosetests --config=tests/resources/nose.cfg $EXCLUDE $@
+nosetests --config=spacq/tests/resources/nose.cfg $EXCLUDE $@

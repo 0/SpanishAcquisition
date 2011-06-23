@@ -18,6 +18,7 @@ def str_to_bool(value):
 
 	return bool(value) and value.lower() != 'false'
 
+
 class BlockDataError(Exception):
 	"""
 	Problem reading block data.

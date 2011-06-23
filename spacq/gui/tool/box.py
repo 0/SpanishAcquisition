@@ -1,3 +1,4 @@
+import csv
 import pickle
 import wx
 
@@ -43,7 +44,7 @@ def load_pickled(parent, extension=None, file_type=None):
 				return pickle.load(f)
 			except Exception as e:
 				# Wrap all problems.
-				raise pickle.PickleError('Could not load data.', e)
+				raise IOError('Could not load data.', e)
 
 def save_pickled(parent, values, extension=None, file_type=None):
 	"""
@@ -66,7 +67,59 @@ def save_pickled(parent, values, extension=None, file_type=None):
 				pickle.dump(values, f, protocol=pickle.HIGHEST_PROTOCOL)
 			except Exception as e:
 				# Wrap all problems:
-				raise pickle.PickleError('Could not save data.', e)
+				raise IOError('Could not save data.', e)
+
+
+def load_csv(parent, extension='csv', file_type='CSV'):
+	"""
+	Load data from a CSV file based on a file dialog.
+	"""
+
+	wildcard = determine_wildcard(extension, file_type)
+	dlg = wx.FileDialog(parent=parent, message='Load...', wildcard=wildcard,
+			style=wx.FD_OPEN)
+
+	if dlg.ShowModal() == wx.ID_OK:
+		path = dlg.GetPath()
+
+		with open(path, 'rb') as f:
+			try:
+				# Try to determine if headers are present.
+				has_header = csv.Sniffer().has_header(f.read(1024))
+				f.seek(0)
+
+				return (has_header, list(csv.reader(f)))
+			except Exception as e:
+				# Wrap all problems.
+				raise IOError('Could not load data.', e)
+
+def save_csv(parent, values, headers=None, extension='csv', file_type='CSV'):
+	"""
+	Save data to a CSV file based on a file dialog.
+	"""
+
+	wildcard = determine_wildcard(extension, file_type)
+	dlg = wx.FileDialog(parent=parent, message='Save...',
+			wildcard=wildcard, style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+
+	if dlg.ShowModal() == wx.ID_OK:
+		path = dlg.GetPath()
+
+		# Automatically append extension if none given.
+		if extension is not None and '.' not in path:
+			path = '{0}.{1}'.format(path, extension)
+
+		with open(path, 'wb') as f:
+			try:
+				w = csv.writer(f)
+
+				if headers is not None:
+					w.writerow(headers)
+
+				w.writerows(values)
+			except Exception as e:
+				# Wrap all problems:
+				raise IOError('Could not save data.', e)
 
 
 class ErrorMessageDialog(wx.Dialog):

@@ -2,6 +2,7 @@ import logging
 import threading
 
 from .tools import Synchronized
+from ..tool.box import Enum
 
 """
 Hardware device abstraction interface.
@@ -11,8 +12,8 @@ Hardware device abstraction interface.
 log = logging.getLogger(__name__)
 
 
-# Drivers: PyVISA, Linux GPIB, PyVISA USB.
-PYVISA, LGPIB, PYVISA_USB = xrange(3)
+# PyVISA, Linux GPIB, PyVISA USB.
+drivers = Enum(['pyvisa', 'lgpib', 'pyvisa_usb'])
 
 
 # Try to import all available drivers.
@@ -24,15 +25,15 @@ try:
 except ImportError:
 	pass
 else:
-	available_drivers.append(LGPIB)
+	available_drivers.append(drivers.lgpib)
 
 try:
 	import visa
 except ImportError:
 	pass
 else:
-	available_drivers.append(PYVISA)
-	available_drivers.append(PYVISA_USB)
+	available_drivers.append(drivers.pyvisa)
+	available_drivers.append(drivers.pyvisa_usb)
 
 
 class DeviceNotFoundError(Exception):
@@ -134,37 +135,37 @@ class AbstractDevice(SuperDevice):
 		log.info('Creating device "{0}".'.format(self.name))
 
 		if ip_address is not None:
-			if PYVISA in available_drivers:
+			if drivers.pyvisa in available_drivers:
 				log.debug('Using PyVISA with ip_address="{0}".'.format(ip_address))
-				self.driver = PYVISA
+				self.driver = drivers.pyvisa
 				self.connection_resource = {
 					'resource_name': 'tcpip::{0}::instr'.format(ip_address),
 				}
 			else:
 				raise NotImplementedError('PyVISA required, but not available.')
 		elif gpib_pad is not None:
-			if LGPIB in available_drivers:
+			if drivers.lgpib in available_drivers:
 				log.debug('Using Linux GPIB with gpib_board="{0}", gpib_pad="{1}", '
 						'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
-				self.driver = LGPIB
+				self.driver = drivers.lgpib
 				self.connection_resource = {
 					'name': gpib_board,
 					'pad': gpib_pad,
 					'sad': gpib_sad,
 				}
-			elif PYVISA in available_drivers:
+			elif drivers.pyvisa in available_drivers:
 				log.debug('Using PyVISA with gpib_board="{0}", gpib_pad="{1}", '
 						'gpib_sad="{2}".'.format(gpib_board, gpib_pad, gpib_sad))
-				self.driver = PYVISA
+				self.driver = drivers.pyvisa
 				self.connection_resource = {
 					'resource_name': 'gpib{0}::{1}::{2}::instr'.format(gpib_board, gpib_pad, gpib_sad),
 				}
 			else:
 				raise NotImplementedError('Linux GPIB or PyVISA required, but not available.')
 		elif usb_resource is not None:
-			if PYVISA_USB in available_drivers:
+			if drivers.pyvisa_usb in available_drivers:
 				log.debug('Using PyVISA with usb_resource="{0}"'.format(usb_resource))
-				self.driver = PYVISA_USB
+				self.driver = drivers.pyvisa_usb
 				self.connection_resource = {
 					'resource_name': usb_resource,
 				}
@@ -183,19 +184,19 @@ class AbstractDevice(SuperDevice):
 
 		log.info('Connecting to device "{0}" using {1} at "{2}".'.format(self.name, self.driver, self.connection_resource))
 
-		if self.driver == PYVISA:
+		if self.driver == drivers.pyvisa:
 			try:
 				self.device = visa.Instrument(**self.connection_resource)
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
-		elif self.driver == LGPIB:
+		elif self.driver == drivers.lgpib:
 			try:
 				self.device = Gpib.Gpib(**self.connection_resource)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
 				log.debug('GPIB device IDN: {0}'.format(self.idn))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
-		elif self.driver == PYVISA_USB:
+		elif self.driver == drivers.pyvisa_usb:
 			try:
 				self.device = USBDevice(**self.connection_resource)
 			except visa.VisaIOError as e:
@@ -210,7 +211,7 @@ class AbstractDevice(SuperDevice):
 
 		log.debug('Starting multi-command message for device "{0}"'.format(self.name))
 
-		if self.driver not in [PYVISA, LGPIB]:
+		if self.driver not in [drivers.pyvisa, drivers.lgpib]:
 			raise NotImplementedError('Unsupported driver: "{0}".'.format(self.driver))
 
 		self.multi_command = []
@@ -264,9 +265,9 @@ class AbstractDevice(SuperDevice):
 
 		log.debug('Writing to device "{0}": {1}'.format(self.name, message))
 
-		if self.driver == PYVISA or self.driver == LGPIB:
+		if self.driver in [drivers.pyvisa, drivers.lgpib]:
 			self.device.write(message)
-		elif self.driver == PYVISA_USB:
+		elif self.driver == drivers.pyvisa_usb:
 			# Send the message raw.
 			visa.vpp43.write(self.device.vi, message)
 
@@ -280,9 +281,9 @@ class AbstractDevice(SuperDevice):
 
 		buf = ''
 
-		if self.driver == PYVISA or self.driver == PYVISA_USB:
+		if self.driver in [drivers.pyvisa, drivers.pyvisa_usb]:
 			buf = self.device.read_raw()
-		elif self.driver == LGPIB:
+		elif self.driver == drivers.lgpib:
 			status = 0
 			while not status:
 				buf += self.device.read(len=chunk_size)
@@ -330,7 +331,7 @@ class AbstractDevice(SuperDevice):
 
 		log.debug('Closing device: {0}'.format(self.name))
 
-		if self.driver == PYVISA or self.driver == PYVISA_USB:
+		if self.driver in [drivers.pyvisa, drivers.pyvisa_usb]:
 			self.device.close()
 
 	def find_resource(self, path):

@@ -14,6 +14,7 @@ def triples_to_mesh(x, y, z):
 		the mesh
 		the x bounds
 		the y bounds
+		the z bounds
 	"""
 
 	x_values, y_values = sort(unique(x)), sort(unique(y))
@@ -25,4 +26,5 @@ def triples_to_mesh(x, y, z):
 
 	target_z = griddata((x, y), z, (target_x, target_y), method='cubic')
 
-	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]))
+	return (target_z, (x_values[0], x_values[-1]), (y_values[0], y_values[-1]),
+			(min(z), max(z)))

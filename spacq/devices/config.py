@@ -19,17 +19,26 @@ def device_tree():
 		subtree = {}
 
 		for model, mock_model in zip(manufacturer.models, manufacturer.mock_models):
-			if model is not None and mock_model is not None and model.name != mock_model.name:
-				raise ValueError('Different device names: "{0}" and '
-						'"{1}".'.format(model.name, mock_model.name))
+			if model is None and mock_model is None:
+				continue
+			elif model is not None and mock_model is None:
+				name = model.name
+			elif model is None and mock_model is not None:
+				name = mock_model.name
+			elif model is not None and mock_model is not None:
+				if model.name != mock_model.name:
+					raise ValueError('Different device names: "{0}" and '
+							'"{1}".'.format(model.name, mock_model.name))
 
-			subtree[model.name] = {}
+				name = model.name
+
+			subtree[name] = {}
 
 			if model is not None:
-				subtree[model.name]['real'] = model.implementation
+				subtree[name]['real'] = model.implementation
 
 			if mock_model is not None:
-				subtree[model.name]['mock'] = mock_model.implementation
+				subtree[name]['mock'] = mock_model.implementation
 
 		tree[manufacturer.name] = subtree
 

@@ -1,5 +1,5 @@
 from nose.tools import eq_
-from numpy import append, arange, linspace, repeat
+from numpy import arange, linspace, repeat
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 import unittest
 

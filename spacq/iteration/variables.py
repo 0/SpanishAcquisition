@@ -4,7 +4,7 @@ import operator
 
 from spacq.interface.units import SIValues, Quantity
 
-from .group_iterators import ChainIterator, ParallelIterator, ProductIterator
+from .group_iterators import ParallelIterator, ProductIterator
 
 
 def change_indicator():

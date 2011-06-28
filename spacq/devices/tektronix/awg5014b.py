@@ -252,7 +252,6 @@ class AWG5014B(AbstractDevice):
 		"""
 
 		num_waveforms = int(self.ask('wlist:size?'))
-		result = []
 
 		self.multi_command_start()
 		# Waveforms on the AWG are numbered from 0.

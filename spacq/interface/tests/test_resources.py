@@ -179,8 +179,8 @@ class ResourceTest(unittest.TestCase):
 		res3 = resources.Resource(dev, converter=float)
 
 		eq_(res1.convert('5'), '5')
-		eq_(res2.convert('5'), 5)
-		eq_(res2.convert('5'), 5.0)
+		eq_(res2.convert('5') / 2, 2)
+		eq_(res3.convert('5') / 2, 2.5)
 
 	def testWrapping(self):
 		"""

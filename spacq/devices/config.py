@@ -167,19 +167,19 @@ class DeviceConfig(object):
 		tree = device_tree()
 
 		if self.manufacturer not in tree:
-			raise ConnectionError('Unknown manufacturer: {0}'.format(self.manufacturer), e)
+			raise ConnectionError('Unknown manufacturer: {0}'.format(self.manufacturer))
 		else:
 			subtree = tree[self.manufacturer]
 
 		if self.model not in subtree:
-			raise ConnectionError('Unknown model: {0}'.format(self.model), e)
+			raise ConnectionError('Unknown model: {0}'.format(self.model))
 		else:
 			subtree = subtree[self.model]
 
 		kind = 'mock' if self.mock else 'real'
 
 		if kind not in subtree:
-			raise ConnectionError('Unknown kind: {0}'.format(kind), e)
+			raise ConnectionError('Unknown kind: {0}'.format(kind))
 		else:
 			implementation = subtree[kind]
 

@@ -8,6 +8,37 @@ from testconfig import config as tc
 from .. import config
 
 
+class DeviceTreeTest(unittest.TestCase):
+	def testTree(self):
+		"""
+		Ensure the tree looks correct.
+		"""
+
+		tree = config.device_tree()
+
+		assert 'Agilent' in tree
+		assert 'Tektronix' in tree
+
+		agi = tree['Agilent']
+		tek = tree['Tektronix']
+
+		assert '34410A' in agi
+		assert 'AWG5014B' in tek
+
+		dm = agi['34410A']
+		awg = tek['AWG5014B']
+
+		from ..agilent.dm34410a import DM34410A
+		from ..agilent.mock.mock_dm34410a import MockDM34410A
+		from ..tektronix.awg5014b import AWG5014B
+		from ..tektronix.mock.mock_awg5014b import MockAWG5014B
+
+		eq_(dm['real'], DM34410A)
+		eq_(dm['mock'], MockDM34410A)
+		eq_(awg['real'], AWG5014B)
+		eq_(awg['mock'], MockAWG5014B)
+
+
 class DeviceConfigTest(unittest.TestCase):
 	def __obtain_device(self):
 		"""

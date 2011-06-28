@@ -6,6 +6,36 @@ Device configuration.
 """
 
 
+def device_tree():
+	"""
+	Build a device tree from the existing devices.
+	"""
+
+	from .. import devices
+
+	tree = {}
+
+	for manufacturer in devices.manufacturers:
+		subtree = {}
+
+		for model, mock_model in zip(manufacturer.models, manufacturer.mock_models):
+			if model is not None and mock_model is not None and model.name != mock_model.name:
+				raise ValueError('Different device names: "{0}" and '
+						'"{1}".'.format(model.name, mock_model.name))
+
+			subtree[model.name] = {}
+
+			if model is not None:
+				subtree[model.name]['real'] = model.implementation
+
+			if mock_model is not None:
+				subtree[model.name]['mock'] = mock_model.implementation
+
+		tree[manufacturer.name] = subtree
+
+	return tree
+
+
 class ConnectionError(Exception):
 	"""
 	Unable to connect.

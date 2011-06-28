@@ -106,6 +106,7 @@ class DM34410A(AbstractDevice):
 		return result
 
 
+name = '34410A'
 implementation = DM34410A
 
 

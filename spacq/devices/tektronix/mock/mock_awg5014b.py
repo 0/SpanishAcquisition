@@ -238,6 +238,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 		MockAbstractDevice.write(self, message, result, done)
 
 
+name = 'AWG5014B'
 implementation = MockAWG5014B
 
 

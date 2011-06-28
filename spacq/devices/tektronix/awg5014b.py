@@ -353,6 +353,7 @@ class AWG5014B(AbstractDevice):
 		self.write('*trg')
 
 
+name = 'AWG5014B'
 implementation = AWG5014B
 
 

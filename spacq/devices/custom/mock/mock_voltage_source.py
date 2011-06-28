@@ -110,6 +110,7 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 			self.output = BinaryEncoder.encode(self.output)
 
 
+name = 'Voltage source'
 implementation = MockVoltageSource
 
 

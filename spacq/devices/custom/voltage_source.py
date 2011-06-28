@@ -295,6 +295,7 @@ class VoltageSource(AbstractDevice):
 		return result
 
 
+name = 'Voltage source'
 implementation = VoltageSource
 
 

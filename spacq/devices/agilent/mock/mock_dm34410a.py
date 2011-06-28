@@ -66,6 +66,7 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 		MockAbstractDevice.write(self, message, result, done)
 
 
+name = '34410A'
 implementation = MockDM34410A
 
 

@@ -2,10 +2,11 @@ import logging
 import numpy
 import time
 
+from spacq.interface.resources import Resource
+from spacq.tool.box import Synchronized
+
 from ..abstract_device import AbstractDevice, AbstractSubdevice
 from ..tools import BinaryEncoder
-from ...interface.resources import Resource
-from ...tool.box import Synchronized
 
 """
 Custom voltage source

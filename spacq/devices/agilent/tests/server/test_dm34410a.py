@@ -1,7 +1,7 @@
 import logging
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
-import numbers
+from numbers import Real
 import unittest
 
 from testconfig import config as tc
@@ -73,7 +73,7 @@ class DM34410ATest(unittest.TestCase):
 
 		dm = self.__obtain_device()
 
-		isinstance(dm.reading, numbers.Real)
+		isinstance(dm.reading, Real)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 import logging
 import threading
 
-from ..tool.box import Enum, Synchronized
+from spacq.tool.box import Enum, Synchronized
 
 """
 Hardware device abstraction interface.

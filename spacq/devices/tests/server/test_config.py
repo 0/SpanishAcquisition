@@ -1,8 +1,8 @@
 from nose.plugins.skip import SkipTest
 import unittest
 
-from ...abstract_device import AbstractDevice
 from testconfig import config as tc
+from ...abstract_device import AbstractDevice
 
 from ... import config
 

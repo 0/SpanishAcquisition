@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from ...interface.resources import Resource
+from spacq.interface.resources import Resource
 
 from .. import abstract_device
 

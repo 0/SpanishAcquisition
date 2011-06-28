@@ -1,7 +1,7 @@
 from nose.tools import eq_
 import unittest
 
-from ...tests.tools import AssertHandler
+from spacq.tests.tools import AssertHandler
 
 from .. import tools
 

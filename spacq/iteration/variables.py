@@ -2,7 +2,8 @@ import itertools
 import numpy
 import operator
 
-from ..interface.units import SIValues, Quantity
+from spacq.interface.units import SIValues, Quantity
+
 from .group_iterators import ChainIterator, ParallelIterator, ProductIterator
 
 

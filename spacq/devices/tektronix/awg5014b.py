@@ -2,10 +2,11 @@ import logging
 import re
 import struct
 
+from spacq.interface.resources import Resource
+from spacq.tool.box import Synchronized
+
 from ..abstract_device import AbstractDevice, AbstractSubdevice
 from ..tools import BlockData, str_to_bool
-from ...interface.resources import Resource
-from ...tool.box import Synchronized
 
 """
 Tektronix AWG5014B Arbitrary Waveform Generator

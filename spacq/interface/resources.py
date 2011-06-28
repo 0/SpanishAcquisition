@@ -3,8 +3,9 @@ import logging
 from threading import Thread
 import time
 
+from spacq.tool.box import Without
+
 from .units import SIValues
-from ..tool.box import Without
 
 """
 Tools for working with generic resources.

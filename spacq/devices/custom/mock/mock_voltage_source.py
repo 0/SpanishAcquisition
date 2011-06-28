@@ -1,8 +1,8 @@
 import re
 
-from ..voltage_source import VoltageSource
 from ...mock.mock_abstract_device import MockAbstractDevice
 from ...tools import BinaryEncoder
+from ..voltage_source import VoltageSource
 
 """
 Mock Voltage Source

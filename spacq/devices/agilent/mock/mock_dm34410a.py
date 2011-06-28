@@ -1,7 +1,7 @@
 import random
 
-from ..dm34410a import DM34410A
 from ...mock.mock_abstract_device import MockAbstractDevice
+from ..dm34410a import DM34410A
 
 """
 Mock Agilent 34410A Digital Multimeter

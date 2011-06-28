@@ -1,6 +1,6 @@
 from scipy import constants
 
-from ..tool.box import Enum
+from spacq.tool.box import Enum
 
 """
 Tools for working with quantities and units.

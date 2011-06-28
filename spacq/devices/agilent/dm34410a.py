@@ -1,8 +1,9 @@
 import logging
 
+from spacq.interface.resources import Resource
+from spacq.tool.box import Synchronized
+
 from ..abstract_device import AbstractDevice
-from ...interface.resources import Resource
-from ...tool.box import Synchronized
 
 """
 Agilent 34410A Digital Multimeter

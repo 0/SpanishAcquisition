@@ -1,5 +1,6 @@
+from spacq.tool.box import Enum
+
 from .abstract_device import DeviceNotFoundError
-from ..tool.box import Enum
 
 """
 Device configuration.

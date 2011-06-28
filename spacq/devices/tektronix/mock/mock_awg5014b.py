@@ -1,8 +1,8 @@
 import struct
 
 from ...mock.mock_abstract_device import MockAbstractDevice
-from ..awg5014b import AWG5014B
 from ...tools import BlockData
+from ..awg5014b import AWG5014B
 
 """
 Mock Tektronix AWG5014B Arbitrary Waveform Generator

@@ -72,6 +72,37 @@ class DeviceConfigTest(unittest.TestCase):
 
 		assert isinstance(cfg.device, MockAbstractDevice)
 
+	def testInvalidConnect(self):
+		"""
+		Fail to connect to a non-existing device.
+		"""
+
+		dev = self.__obtain_device()
+
+		cfg = config.DeviceConfig()
+
+		# These values don't matter.
+		cfg.address_mode = cfg.address_modes.ethernet
+		cfg.ip_address = '127.0.0.1'
+
+		# No implementation.
+		try:
+			cfg.connect()
+		except config.ConnectionError:
+			pass
+		else:
+			assert False, 'Expected ConnectionError.'
+
+		# Incorrect implementation.
+		cfg.manufacturer = 'Fender'
+		cfg.model = 'Telecaster'
+		try:
+			cfg.connect()
+		except config.ConnectionError:
+			pass
+		else:
+			assert False, 'Expected ConnectionError.'
+
 	def testDiffResources(self):
 		"""
 		Try changing up some resources.

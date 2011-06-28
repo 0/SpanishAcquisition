@@ -6,48 +6,6 @@ import unittest
 from .. import box
 
 
-class ImportPathTest(unittest.TestCase):
-	def testValid(self):
-		"""
-		Import valid modules.
-		"""
-
-		# With extension.
-		m1 = box.import_path('spacq/tool/box.py')
-		eq_(m1.__doc__, box.__doc__)
-
-		# Without extension.
-		m2 = box.import_path('spacq/tool/box')
-		eq_(m2.__doc__, box.__doc__)
-
-		# With irrelevant path.
-		m3 = box.import_path('/irrelevant/spacq/path/spacq/tool/box.py')
-		eq_(m3.__doc__, box.__doc__)
-
-
-	def testInvalid(self):
-		"""
-		Try to import invalid modules.
-		"""
-
-		erroneous = ['', 'not/a/module.py', 'spacq/not/a/module.py']
-		# Empty.
-		try:
-			box.import_path('')
-		except ImportError:
-			pass
-		else:
-			assert False, 'Expected ImportError.'
-
-		# Non-empty.
-		try:
-			box.import_path('not/a/module.py')
-		except ImportError:
-			pass
-		else:
-			assert False, 'Expected ImportError.'
-
-
 class EnumTest(unittest.TestCase):
 	def testEmpty(self):
 		"""

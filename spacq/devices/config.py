@@ -1,5 +1,5 @@
 from .abstract_device import DeviceNotFoundError
-from ..tool.box import Enum, import_path
+from ..tool.box import Enum
 
 """
 Device configuration.

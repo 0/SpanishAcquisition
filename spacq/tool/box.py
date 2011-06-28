@@ -1,36 +1,6 @@
-import os
-import sys
-
 """
 Generic tools.
 """
-
-
-def import_path(path):
-	"""
-	Import a Python module given its file path.
-
-	Note: The module must reside within this package.
-	"""
-
-	# Truncate the extension, if given.
-	if path[-3:] == '.py':
-		path = path[:-3]
-
-	# Find the module name starting with the root package.
-	root_package = __name__.split('.')[0]
-	parts = path.rsplit(root_package, 1)
-
-	if len(parts) < 2:
-		raise ImportError('Path does not contain package name "{0}": {1}'.format(root_package, path))
-
-	module_name = root_package + parts[-1].replace('/', '.')
-	module_path = module_name.rsplit('.', 1)[0]
-
-	try:
-		return __import__(module_name, fromlist=[module_path])
-	except Exception as e:
-		raise ImportError('Could not import "{0}".'.format(path), e)
 
 
 class Enum(set):

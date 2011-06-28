@@ -64,8 +64,10 @@ class DeviceConfig(object):
 		self.gpib_sad = 0
 		self.usb_resource = None
 
-		# Path to module that implements this device.
-		self.implementation_path = None
+		# Information about module that implements this device.
+		self.manufacturer = None
+		self.model = None
+		self.mock = False
 
 		# Resource path to label mappings.
 		self.resource_labels = {}
@@ -132,8 +134,8 @@ class DeviceConfig(object):
 		if self.address_mode not in self.address_modes:
 			raise ConnectionError('Invalid address mode specified.')
 
-		if self.implementation_path is None:
-			raise ConnectionError('No implementation path specified.')
+		if self.manufacturer is None or self.model is None:
+			raise ConnectionError('No implementation specified.')
 
 		address = {}
 
@@ -152,18 +154,24 @@ class DeviceConfig(object):
 
 			address['usb_resource'] = self.usb_resource
 
-		if self.implementation_path[-3:] != '.py':
-			raise ConnectionError('Must use a Python implementation.')
+		tree = device_tree()
 
-		try:
-			implementation_module = import_path(self.implementation_path)
-		except ImportError as e:
-			raise ConnectionError('Unable to import implementation.', e)
+		if self.manufacturer not in tree:
+			raise ConnectionError('Unknown manufacturer: {0}'.format(self.manufacturer), e)
+		else:
+			subtree = tree[self.manufacturer]
 
-		try:
-			implementation = implementation_module.implementation
-		except AttributeError:
-			raise ConnectionError('Implementation does not supply "implementation" global.')
+		if self.model not in subtree:
+			raise ConnectionError('Unknown model: {0}'.format(self.model), e)
+		else:
+			subtree = subtree[self.model]
+
+		kind = 'mock' if self.mock else 'real'
+
+		if kind not in subtree:
+			raise ConnectionError('Unknown kind: {0}'.format(kind), e)
+		else:
+			implementation = subtree[kind]
 
 		try:
 			device = implementation(autoconnect=False, **address)

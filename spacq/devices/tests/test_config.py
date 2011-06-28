@@ -46,7 +46,7 @@ class DeviceConfigTest(unittest.TestCase):
 		"""
 
 		for name, device in tc['devices'].items():
-			if 'mock_implementation_path' in device:
+			if 'has_mock' in device and device['has_mock']:
 				return device
 
 		raise SkipTest('No suitable device found.')
@@ -64,7 +64,9 @@ class DeviceConfigTest(unittest.TestCase):
 		cfg.address_mode = cfg.address_modes.ethernet
 		cfg.ip_address = '127.0.0.1'
 
-		cfg.implementation_path = dev['mock_implementation_path']
+		cfg.manufacturer = dev['manufacturer']
+		cfg.model = dev['model']
+		cfg.mock = True
 
 		cfg.connect()
 

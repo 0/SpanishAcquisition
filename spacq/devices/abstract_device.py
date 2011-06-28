@@ -1,8 +1,7 @@
 import logging
 import threading
 
-from .tools import Synchronized
-from ..tool.box import Enum
+from ..tool.box import Enum, Synchronized
 
 """
 Hardware device abstraction interface.

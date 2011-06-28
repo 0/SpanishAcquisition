@@ -3,8 +3,9 @@ import numpy
 import time
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
-from ..tools import BinaryEncoder, Synchronized
+from ..tools import BinaryEncoder
 from ...interface.resources import Resource
+from ...tool.box import Synchronized
 
 """
 Custom voltage source

@@ -1,8 +1,8 @@
 import logging
 
 from ..abstract_device import AbstractDevice
-from ..tools import Synchronized
 from ...interface.resources import Resource
+from ...tool.box import Synchronized
 
 """
 Agilent 34410A Digital Multimeter

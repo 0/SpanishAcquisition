@@ -53,8 +53,8 @@ class Port(AbstractSubdevice):
 		AbstractSubdevice._setup(self)
 
 		# These values are used to tune the input values according to empirical error.
-		self.gain = 1
-		self.offset = 0
+		self.gain = 1.0
+		self.offset = 0.0
 
 		# Resources.
 		write_only = ['voltage']

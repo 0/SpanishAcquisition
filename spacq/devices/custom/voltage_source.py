@@ -23,6 +23,10 @@ class Port(AbstractSubdevice):
 	An output port on the voltage source.
 	"""
 
+	# Since there is no way to determine whether calibration has completed,
+	# wait this long and hope for the best.
+	calibration_delay = 2 # s
+
 	@staticmethod
 	def format_for_dac(msg):
 		"""
@@ -166,7 +170,7 @@ class Port(AbstractSubdevice):
 
 		calibrate: Run self-calibration on this port as well.
 
-		Note: It is essential to wait after this method returns until the calibration is done.
+		Note: If self-calibrating, it is essential to wait the calibration_delay after this method returns.
 		"""
 
 		flags = ((not self.adaptive_filtering) << 15 |

@@ -56,10 +56,6 @@ def combine_variables(variables):
 		num_items *= var_items
 		sorted_variables.extend(vars)
 
-	# This shouldn't be possible, but just in case.
-	if num_items <= 0:
-		return None
-
 	iterator = ProductIterator(iterators)
 
 	last_values = []

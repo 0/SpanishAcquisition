@@ -28,7 +28,7 @@ class AssertHandler(logging.handlers.BufferingHandler):
 			re_flags |= re.IGNORECASE
 
 		for record in self.buffer:
-			if record.levelname.lower() == level and re.match(msg, record.msg, re_flags):
+			if record.levelname.lower() == level and re.search(msg, record.msg, re_flags):
 				return
 
 		assert False, 'Log message not found at level "{0}": {1}'.format(level, msg)

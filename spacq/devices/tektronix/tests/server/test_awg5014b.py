@@ -119,7 +119,9 @@ class AWG5014BTest(unittest.TestCase):
 		eq_(awg.waveform_names, existing_waveforms + ['Test 1', 'Test 2'])
 
 		eq_(awg.get_waveform('Test 1'), data1)
+		eq_(awg.channels[1].amplitude, 0.8)
 		eq_(awg.get_waveform('Test 2'), data2)
+		eq_(awg.channels[2].amplitude, 0.4)
 
 		for ch in [1, 2]:
 			eq_(awg.channels[ch].enabled, True)

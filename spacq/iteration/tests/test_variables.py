@@ -2,6 +2,8 @@ import itertools
 from nose.tools import eq_
 import unittest
 
+from spacq.interface.units import IncompatibleDimensions
+
 from .. import variables
 
 
@@ -112,6 +114,33 @@ class VariableTest(unittest.TestCase):
 
 		it2 = var.to_iterator()
 		eq_(list(it2), [10.0])
+
+	def testAdjust(self):
+		"""
+		Try to adjust the values after initialization.
+		"""
+
+		var = variables.Variable('Name', 1)
+
+		var.steps = 1000
+		eq_(var.steps, 1000)
+
+		try:
+			var.steps = -1
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError.'
+
+		var.wait = '100 ms'
+		eq_(var.wait, '100 ms')
+
+		try:
+			var.wait = '100 Hz'
+		except IncompatibleDimensions:
+			pass
+		else:
+			assert False, 'Expected IncompatibleDimensions.'
 
 
 if __name__ == '__main__':

@@ -109,7 +109,7 @@ class QuantityTest(unittest.TestCase):
 		assert units.Quantity(5.5, time) != units.Quantity(5.4, time)
 
 		try:
-			units.Quantity(1, time) == units.Quantity(1, frequency)
+			units.Quantity(1, time) > units.Quantity(1, frequency)
 		except units.IncompatibleDimensions:
 			pass
 		else:

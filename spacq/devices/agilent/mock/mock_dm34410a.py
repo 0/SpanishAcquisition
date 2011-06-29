@@ -37,10 +37,6 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 				if cmd[1] == 'voltage' and cmd[2] == 'dc':
 					self.mock_state['mode'] = 'dc'
 					done = True
-			elif cmd[0] == 'measure':
-				if cmd[1] == 'voltage' and cmd[2] == 'dc' and query:
-					result = '+4.27150000E-03'
-					done = True
 			elif cmd[0] == 'sense':
 				if cmd[1] == 'voltage' and cmd[2] == 'dc':
 					if cmd[3] == 'nplc':

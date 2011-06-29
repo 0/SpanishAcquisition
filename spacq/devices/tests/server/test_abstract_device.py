@@ -53,7 +53,7 @@ class AbstractDeviceTest(unittest.TestCase):
 				continue
 
 			# Some values to check against.
-			id = dev.ask('*idn?')
+			id = dev.idn
 			ver = dev.ask('system:version?')
 
 			expected = [ver, ver, id]

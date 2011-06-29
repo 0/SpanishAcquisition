@@ -3,6 +3,8 @@ from threading import Lock
 import time
 import unittest
 
+from spacq.tests.tools import AssertHandler
+
 from ..units import Quantity, SIValues
 
 from .. import resources
@@ -182,6 +184,29 @@ class ResourceTest(unittest.TestCase):
 		eq_(res2.convert('5') / 2, 2)
 		eq_(res3.convert('5') / 2, 2.5)
 
+	def testAllowedValues(self):
+		"""
+		Verify that only allowed values are allowed.
+		"""
+
+		allowed = set([5, 10, 15])
+
+		dev = WithAttribute()
+		res = resources.Resource(dev, 'x', 'x', allowed_values=allowed)
+
+		for value in allowed:
+			res.value = value
+			eq_(res.value, value)
+
+		try:
+			res.value = -5
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError'
+
+		eq_(res.allowed_values, allowed)
+
 	def testWrapping(self):
 		"""
 		Wrap resources in other resources.
@@ -280,6 +305,28 @@ class AcquisitionThreadTest(unittest.TestCase):
 		thr.done = True
 
 		eq_(buf, expected)
+
+	def testWithUnreadableResource(self):
+		"""
+		Watch the errors come rolling in.
+		"""
+
+		res = resources.Resource()
+
+		buf = []
+		delay = Quantity(0.1, SIValues.dimensions.time)
+
+		thr = resources.AcquisitionThread(delay, buf.append, res)
+
+		log = AssertHandler()
+
+		thr.start()
+		time.sleep(delay.value * 10)
+		thr.done = True
+
+		log.assert_logged('error', 'not readable')
+
+		eq_(buf, [])
 
 
 if __name__ == '__main__':

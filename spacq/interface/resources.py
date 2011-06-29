@@ -113,6 +113,9 @@ class Resource(object):
 		if self.setter is None:
 			raise NotWritable('Resource not writable.')
 
+		if self.allowed_values is not None and v not in self.allowed_values:
+			raise ValueError('Disallowed value: {0}'.format(v))
+
 		if callable(self.setter):
 			self.setter(v)
 		elif self.obj is not None:

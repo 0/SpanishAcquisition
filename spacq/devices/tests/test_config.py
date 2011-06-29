@@ -77,8 +77,6 @@ class DeviceConfigTest(unittest.TestCase):
 		Fail to connect to a non-existing device.
 		"""
 
-		dev = self.__obtain_device()
-
 		cfg = config.DeviceConfig()
 
 		# These values don't matter.

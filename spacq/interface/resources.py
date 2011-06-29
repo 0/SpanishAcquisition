@@ -188,11 +188,3 @@ class AcquisitionThread(Thread):
 
 			if delay > 0:
 				time.sleep(delay)
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_resources as my_tests
-
-	unittest.main(module=my_tests)

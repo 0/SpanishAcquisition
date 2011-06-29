@@ -109,11 +109,3 @@ class DM34410A(AbstractDevice):
 
 name = '34410A'
 implementation = DM34410A
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests.server import test_dm34410a as my_server_tests
-
-	unittest.main(module=my_server_tests)

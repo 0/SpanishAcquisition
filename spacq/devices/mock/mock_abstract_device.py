@@ -145,11 +145,3 @@ class MockAbstractDevice(AbstractDevice):
 		"""
 
 		log.debug('Closing device: {0}'.format(self.name))
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_mock_abstract_device as my_tests
-
-	unittest.main(module=my_tests)

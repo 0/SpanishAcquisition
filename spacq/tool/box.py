@@ -90,11 +90,3 @@ class Without(object):
 
 	def __exit__(self, *args, **kwargs):
 		return False
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_box as my_tests
-
-	unittest.main(module=my_tests)

@@ -112,11 +112,3 @@ class MockVoltageSource(MockAbstractDevice, VoltageSource):
 
 name = 'Voltage source'
 implementation = MockVoltageSource
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_mock_voltage_source as my_tests
-
-	unittest.main(module=my_tests)

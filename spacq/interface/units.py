@@ -200,11 +200,3 @@ class Quantity(object):
 			value = self.value / min_multiplier
 
 		return '{0:.10g} {1}{2}'.format(value, min_prefix, SIValues.units_[self.dimension])
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_units as my_tests
-
-	unittest.main(module=my_tests)

@@ -303,12 +303,3 @@ class VoltageSource(AbstractDevice):
 
 name = 'Voltage source'
 implementation = VoltageSource
-
-
-if __name__ == '__main__':
-	import unittest
-
-	# Does not run server tests.
-	from .tests import test_voltage_source as my_tests
-
-	unittest.main(module=my_tests)

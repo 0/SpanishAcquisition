@@ -161,11 +161,3 @@ class BinaryEncoder(object):
 		log.debug('Found encoded length: {0}'.format(result))
 
 		return result
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_tools as my_tests
-
-	unittest.main(module=my_tests)

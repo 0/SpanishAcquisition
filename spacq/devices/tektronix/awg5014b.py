@@ -356,11 +356,3 @@ class AWG5014B(AbstractDevice):
 
 name = 'AWG5014B'
 implementation = AWG5014B
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests.server import test_awg5014b as my_server_tests
-
-	unittest.main(module=my_server_tests)

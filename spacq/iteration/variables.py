@@ -129,11 +129,3 @@ class Variable(object):
 			return [self.const]
 		else:
 			return numpy.linspace(self.initial, self.final, self.steps)
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_variables as my_tests
-
-	unittest.main(module=my_tests)

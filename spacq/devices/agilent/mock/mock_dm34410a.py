@@ -64,11 +64,3 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 
 name = '34410A'
 implementation = MockDM34410A
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_mock_dm34410a as my_tests
-
-	unittest.main(module=my_tests)

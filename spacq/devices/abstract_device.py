@@ -384,12 +384,3 @@ class AbstractSubdevice(SuperDevice):
 		self.device = device
 
 		self._setup()
-
-
-if __name__ == '__main__':
-	import unittest
-
-	# Does not run server tests.
-	from .tests import test_abstract_device as my_tests
-
-	unittest.main(module=my_tests)

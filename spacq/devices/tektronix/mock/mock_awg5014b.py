@@ -240,11 +240,3 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 
 name = 'AWG5014B'
 implementation = MockAWG5014B
-
-
-if __name__ == '__main__':
-	import unittest
-
-	from .tests import test_mock_awg5014b as my_tests
-
-	unittest.main(module=my_tests)

@@ -48,7 +48,7 @@ class TwoDimensionalPlotSetupDialog(PlotSetupDialog):
 
 	def make_plot(self):
 		try:
-			x_data, y_data = [[float(x[axis]) for x in self.data] for axis in self.axes]
+			x_data, y_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:
 			ErrorMessageDialog(self, str(e), 'Invalid value').Show()
 			return

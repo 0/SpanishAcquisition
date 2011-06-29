@@ -48,17 +48,17 @@ class SurfacePlotFrame(wx.Frame):
 
 
 class SurfacePlotSetupDialog(PlotSetupDialog):
-	def __init__(self, parent, headings, rows, *args, **kwargs):
+	def __init__(self, parent, headings, data, *args, **kwargs):
 		PlotSetupDialog.__init__(self, parent, headings, ['x', 'y', 'z'],
 				*args, **kwargs)
 
 		self.parent = parent
 		self.headings = headings
-		self.rows = rows
+		self.data = data
 
 	def make_plot(self):
 		try:
-			x_data, y_data, z_data = [[float(x[axis]) for x in self.rows] for axis in self.axes]
+			x_data, y_data, z_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:
 			ErrorMessageDialog(self, str(e), 'Invalid value').Show()
 			return

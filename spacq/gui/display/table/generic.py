@@ -1,3 +1,4 @@
+from numpy import array
 import wx
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 
@@ -19,19 +20,26 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		ListCtrlAutoWidthMixin.__init__(self)
 
 		self.headings = []
-		self.rows = []
+		self.data = array([])
 
 	def GetValue(self):
-		return (self.headings, self.rows)
+		return (self.headings, self.data)
 
-	def SetValue(self, headings, rows):
+	def SetValue(self, headings, data):
+		"""
+		headings: A list of strings.
+		data: A 2D NumPy array.
+		"""
+
 		self.ClearAll()
 
 		self.headings = headings
-		self.rows = rows
-		self.SetItemCount(len(rows))
+		self.data = data
 
-		if rows:
+		num_items = len(data)
+		self.SetItemCount(num_items)
+
+		if num_items > 0:
 			width, height = self.GetSize()
 			# Give some room for the scrollbar.
 			col_width = (width - 50) / len(self.headings)
@@ -46,7 +54,7 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		Return cell value for LC_VIRTUAL.
 		"""
 
-		value = self.rows[item][col]
+		value = self.data[item,col]
 
 		try:
 			return '{0:n}'.format(value)

@@ -269,6 +269,10 @@ class ScalarLiveViewPanel(wx.Panel):
 
 	@resource.setter
 	def resource(self, value):
+		# Ignore unreadable resources.
+		if value is not None and not value.readable:
+			value = None
+
 		if self.running:
 			# Currently running.
 			running = True

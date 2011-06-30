@@ -209,7 +209,7 @@ class ResourceTest(unittest.TestCase):
 
 	def testWrapping(self):
 		"""
-		Wrap resources in other resources.
+		Wrap resources in other resources, and then undo.
 		"""
 
 		dev = WithAttribute()
@@ -218,14 +218,16 @@ class ResourceTest(unittest.TestCase):
 		res1.value = 5
 		eq_(res1.value, 5)
 
-		res2 = resources.Resource.wrap(res1, 'wrapper1', lambda x: 2 * x, lambda x: 3 * x)
+		# Wrap once.
+		res2 = res1.wrapped('wrapper1', lambda x: 2 * x, lambda x: 3 * x)
 
 		eq_(res2.value, 10)
 		res2.value = 5
 		eq_(res1.value, 15)
 		eq_(res2.value, 30)
 
-		res3 = resources.Resource.wrap(res2, 'wrapper2', lambda x: 5 * x)
+		# Wrap again.
+		res3 = res2.wrapped('wrapper2', lambda x: 5 * x)
 
 		eq_(res3.value, 150)
 		res3.value = 10
@@ -233,13 +235,31 @@ class ResourceTest(unittest.TestCase):
 		eq_(res2.value, 60)
 		eq_(res3.value, 300)
 
+		# Unwrap.
+		res4 = res3.unwrapped('wrapper1')
+
+		eq_(res4.value, 150)
+		res4.value = 7
+		eq_(res1.value, 7)
+		eq_(res2.value, 14)
+		eq_(res3.value, 70)
+		eq_(res4.value, 35)
+
+		# Modify the original Resource.
 		res1.value = 1
 		eq_(res1.value, 1)
 		eq_(res2.value, 2)
 		eq_(res3.value, 10)
+		eq_(res4.value, 5)
 
-		eq_(res1.wrappers, [])
-		eq_(res3.wrappers, ['wrapper1', 'wrapper2'])
+		assert not res1.is_wrapped_by('wrapper1')
+		assert not res1.is_wrapped_by('wrapper2')
+		assert     res2.is_wrapped_by('wrapper1')
+		assert not res2.is_wrapped_by('wrapper2')
+		assert     res3.is_wrapped_by('wrapper1')
+		assert     res3.is_wrapped_by('wrapper2')
+		assert not res4.is_wrapped_by('wrapper1')
+		assert     res4.is_wrapped_by('wrapper2')
 
 
 class AcquisitionThreadTest(unittest.TestCase):

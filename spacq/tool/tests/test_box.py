@@ -7,6 +7,37 @@ import unittest
 from .. import box
 
 
+class SiftTest(unittest.TestCase):
+	def testEmpty(self):
+		"""
+		Sift nothing.
+		"""
+
+		eq_(box.sift([], object), [])
+
+	def testAllSame(self):
+		"""
+		Either keep all or remove all.
+		"""
+
+		items = [object() for _ in xrange(5)]
+
+		eq_(box.sift(items, object), items)
+		eq_(box.sift(items, Exception), [])
+
+	def testVaried(self):
+		"""
+		All sorts of objects.
+		"""
+
+		items = [ValueError(), TypeError(), KeyError(), 5]
+
+		eq_(box.sift(items, object), items)
+		eq_(box.sift(items, int), [items[3]])
+		eq_(box.sift(items, Exception), items[0:3])
+		eq_(box.sift(items, ValueError), [items[0]])
+
+
 class EnumTest(unittest.TestCase):
 	def testEmpty(self):
 		"""

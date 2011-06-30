@@ -5,6 +5,14 @@ Generic tools.
 """
 
 
+def sift(items, cls):
+	"""
+	Filter out items which are not instances of cls.
+	"""
+
+	return [item for item in items if isinstance(item, cls)]
+
+
 class Enum(set):
 	"""
 	An enumerated type.

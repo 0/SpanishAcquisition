@@ -17,14 +17,12 @@ class VoltageSourceTunerDialog(wx.Dialog):
 	A dialog for tuning a voltage source port.
 	"""
 
-	def __init__(self, parent, global_store, ok_callback, port, voltage_resource_name,
-			*args, **kwargs):
+	def __init__(self, parent, global_store, ok_callback, port,	*args, **kwargs):
 		wx.Dialog.__init__(self, parent, title='Port {0} tuning'.format(port.num))
 
 		self.global_store = global_store
 		self.ok_callback = ok_callback
 		self.port = port
-		self.voltage_resource_name = voltage_resource_name
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
@@ -46,9 +44,15 @@ class VoltageSourceTunerDialog(wx.Dialog):
 		### Autotune.
 		autotuning_static_box = wx.StaticBox(self, label='Autotuning')
 		autotuning_box = wx.StaticBoxSizer(autotuning_static_box, wx.VERTICAL)
-		autotuning_sizer = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
-		autotuning_box.Add(autotuning_sizer, flag=wx.CENTER)
 		tuning_box.Add(autotuning_box, flag=wx.EXPAND|wx.ALL, border=5)
+
+		autotuning_sizer = wx.FlexGridSizer(rows=3, cols=2, hgap=5)
+		autotuning_box.Add(autotuning_sizer, flag=wx.CENTER)
+
+		autotuning_sizer.Add(wx.StaticText(self, label='Resource name:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.resource_name_input = wx.TextCtrl(self, size=(300,-1))
+		autotuning_sizer.Add(self.resource_name_input)
 
 		autotuning_sizer.Add(wx.StaticText(self, label='Max:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
@@ -63,7 +67,6 @@ class VoltageSourceTunerDialog(wx.Dialog):
 		autotuning_sizer.Add(self.automin_input)
 
 		self.autotune_button = wx.Button(self, label='Autotune')
-		self.autotune_button.Disable()
 		self.Bind(wx.EVT_BUTTON, self.OnAutotune, self.autotune_button)
 		autotuning_box.Add(self.autotune_button, flag=wx.EXPAND)
 
@@ -96,18 +99,6 @@ class VoltageSourceTunerDialog(wx.Dialog):
 
 		self.SetSizerAndFit(dialog_box)
 
-		try:
-			self.set_voltage_resource(self.global_store.resources[self.voltage_resource_name])
-		except KeyError:
-			pass
-
-		# Subscriptions.
-		pub.subscribe(self.msg_resource, 'resource.added')
-		pub.subscribe(self.msg_resource, 'resource.removed')
-
-	def set_voltage_resource(self, resource):
-		self.autotune_button.Enable(resource is not None)
-
 	def autotune(self, resource):
 		gain, offset = self.port.autotune(resource, set_result=False,
 				min_value=self.automin_input.GetValue(),
@@ -131,13 +122,23 @@ class VoltageSourceTunerDialog(wx.Dialog):
 		return (self.gain_input.GetValue(), self.offset_input.GetValue())
 
 	def OnAutotune(self, evt=None):
-		self.autotune_button.Disable()
+		name = self.resource_name_input.Value
+
+		if not name:
+			ErrorMessageDialog(self, 'No resource provided').Show()
+			return
 
 		try:
-			resource = self.global_store.resources[self.voltage_resource_name]
+			resource = self.global_store.resources[name]
 		except KeyError:
-			# Leave the button disabled.
+			ErrorMessageDialog(self, name, 'Missing resource').Show()
 			return
+
+		if not resource.readable:
+			ErrorMessageDialog(self, name, 'Unreadable resource').Show()
+			return
+
+		self.autotune_button.Disable()
 
 		thr = Thread(target=self.autotune, args=(resource,))
 		thr.daemon = True
@@ -155,23 +156,17 @@ class VoltageSourceTunerDialog(wx.Dialog):
 
 		self.Destroy()
 
-	def msg_resource(self, name, value=None):
-		if name == self.voltage_resource_name:
-			self.set_voltage_resource(value)
-
 
 class VoltageSourceSettingsPanel(wx.Panel):
 	"""
 	All the settings for a voltage source.
 	"""
 
-	def __init__(self, parent, global_store, vsrc_name, voltage_resource_name,
-			*args, **kwargs):
+	def __init__(self, parent, global_store, vsrc_name, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
 		self.global_store = global_store
 		self.vsrc_name = vsrc_name
-		self.voltage_resource_name = voltage_resource_name
 
 		self.vsrc = None
 
@@ -287,8 +282,7 @@ class VoltageSourceSettingsPanel(wx.Panel):
 		def ok_callback(dlg):
 			port.gain, port.offset = dlg.GetValue()
 
-		dlg = VoltageSourceTunerDialog(self, self.global_store, ok_callback, port,
-				self.voltage_resource_name)
+		dlg = VoltageSourceTunerDialog(self, self.global_store, ok_callback, port)
 		dlg.SetValue(port.gain, port.offset)
 		dlg.Show()
 
@@ -357,16 +351,14 @@ class VoltageSourceSettingsDialog(wx.Dialog):
 	A wrapper for VoltageSourceSettingsPanel.
 	"""
 
-	def __init__(self, parent, global_store, vsrc_name, voltage_resource_name,
-			*args, **kwargs):
+	def __init__(self, parent, global_store, vsrc_name, *args, **kwargs):
 		wx.Dialog.__init__(self, parent, title='Voltage source settings', *args, **kwargs)
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Settings panel.
-		self.panel = VoltageSourceSettingsPanel(self, global_store,	vsrc_name,
-				voltage_resource_name)
+		self.panel = VoltageSourceSettingsPanel(self, global_store,	vsrc_name)
 		dialog_box.Add(self.panel)
 
 		self.SetSizerAndFit(dialog_box)

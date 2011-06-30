@@ -3,6 +3,9 @@ from threading import Thread
 import time
 import wx
 
+from spacq.iteration.variables import OutputVariable
+from spacq.tool.box import sift
+
 from ..tool.box import ErrorMessageDialog
 
 
@@ -61,7 +64,7 @@ class SmoothResetPanel(wx.Panel):
 		Return all the selected variables, ensuring that their resources are valid.
 		"""
 
-		all_vars = self.global_store.variables.values()
+		all_vars = sift(self.global_store.variables.values(), OutputVariable)
 		vars = [var for var in all_vars if var.enabled and var.use_const and var.resource_name]
 
 		missing_resources = []

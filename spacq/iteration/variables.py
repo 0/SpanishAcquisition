@@ -22,7 +22,7 @@ def change_indicator():
 
 def combine_variables(variables):
 	"""
-	Create a GroupIterator out of some Variables.
+	Create a GroupIterator out of some OutputVariable instances.
 
 	The returned values are:
 		iterator
@@ -68,45 +68,38 @@ def combine_variables(variables):
 
 class Variable(object):
 	"""
-	A simple linear space variable.
+	An abstract superclass for all variables.
 	"""
 
-	def __init__(self, name, order, initial=0.0, final=0.0, steps=1, enabled=False,
-			wait=0, const=None, use_const=False, resource_name=''):
-		"""
-		name: A string labelling the variable.
-		order: The integer nesting order.
-		"""
-
+	def __init__(self, name, enabled=False, resource_name=''):
 		self.name = name
-		self.order = order
-
-		# Linear space parameters.
-		self.initial = initial
-		self.final = final
-		self._steps = steps
-
-		# Iteration parameters.
 		self.enabled = enabled
-		self._wait = Quantity(wait, SIValues.dimensions.time)
-		if const is not None:
-			self.const = const
-		else:
-			self.const = initial
-		self.use_const = use_const
-
 		self.resource_name = resource_name
 
-	@property
-	def steps(self):
-		return self._steps
 
-	@steps.setter
-	def steps(self, value):
-		if value <= 0:
-			raise ValueError('Number of steps must be positive, not "{0}".'.format(value))
+class InputVariable(Variable):
+	"""
+	An input (measurement) variable.
+	"""
 
-		self._steps = value
+	def __init__(self, *args, **kwargs):
+		Variable.__init__(self, *args, **kwargs)
+
+
+class OutputVariable(Variable):
+	"""
+	An abstract superclass for output variables.
+	"""
+
+	def __init__(self, order, wait=0, const=0.0, use_const=False, *args, **kwargs):
+		Variable.__init__(self, *args, **kwargs)
+
+		self.order = order
+
+		# Iteration parameters.
+		self._wait = Quantity(wait, SIValues.dimensions.time)
+		self.const = const
+		self.use_const = use_const
 
 	@property
 	def wait(self):
@@ -120,11 +113,33 @@ class Variable(object):
 
 		self._wait = wait
 
-	def to_iterator(self):
-		"""
-		Create an iterator for the variable.
-		"""
 
+class LinSpaceVariable(OutputVariable):
+
+	"""
+	A linear space variable.
+	"""
+
+	def __init__(self, initial=0.0, final=0.0, steps=1, *args, **kwargs):
+		OutputVariable.__init__(self, *args, **kwargs)
+
+		# Linear space parameters.
+		self.initial = initial
+		self.final = final
+		self._steps = steps
+
+	@property
+	def steps(self):
+		return self._steps
+
+	@steps.setter
+	def steps(self, value):
+		if value <= 0:
+			raise ValueError('Number of steps must be positive, not "{0}".'.format(value))
+
+		self._steps = value
+
+	def to_iterator(self):
 		if self.use_const:
 			return [self.const]
 		else:

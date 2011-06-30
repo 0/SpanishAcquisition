@@ -8,7 +8,8 @@ import time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
-from spacq.iteration.variables import combine_variables
+from spacq.iteration.variables import combine_variables, OutputVariable
+from spacq.tool.box import sift
 
 from ..tool.box import ErrorMessageDialog, YesNoQuestionDialog
 
@@ -285,7 +286,6 @@ class DataCapturePanel(wx.Panel):
 
 		### Start.
 		self.start_button = wx.Button(self, label='Start')
-		self.start_button.Disable()
 		self.Bind(wx.EVT_BUTTON, self.OnBeginCapture, self.start_button)
 		capture_box.Add(self.start_button, flag=wx.CENTER)
 
@@ -323,17 +323,11 @@ class DataCapturePanel(wx.Panel):
 
 		self.SetSizer(panel_box)
 
-		self.set_variable()
-
-		# Subscriptions.
-		pub.subscribe(self.msg_variable, 'variable')
-
-	def set_variable(self):
-		self.start_button.Enable(bool(self.global_store.variables))
-
 	def OnBeginCapture(self, evt=None):
-		if not self.global_store.variables:
-			ErrorMessageDialog(self, 'No variables defined', 'No variables defined').Show()
+		output_variables = sift(self.global_store.variables.values(), OutputVariable)
+
+		if not output_variables:
+			ErrorMessageDialog(self, 'No output variables defined', 'No variables').Show()
 			return
 
 		exporting = False
@@ -363,7 +357,7 @@ class DataCapturePanel(wx.Panel):
 			# Show the path in the GUI.
 			self.last_file_name.Value = file_path
 
-		iterator, last, num_items, variables = combine_variables(self.global_store.variables.values())
+		iterator, last, num_items, variables = combine_variables(output_variables)
 		resource_names = [x.resource_name for x in variables]
 
 		if exporting:
@@ -439,6 +433,3 @@ class DataCapturePanel(wx.Panel):
 		dlg.close_callback = close_callback
 		dlg.Show()
 		dlg.start()
-
-	def msg_variable(self, name, value=None):
-		self.set_variable()

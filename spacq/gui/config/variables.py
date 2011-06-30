@@ -1,7 +1,7 @@
 import ObjectListView
 import wx
 
-from spacq.iteration.variables import Variable
+from spacq.iteration.variables import LinSpaceVariable
 
 from ..tool.box import ErrorMessageDialog, load_pickled, save_pickled
 
@@ -177,7 +177,7 @@ class VariablesPanel(wx.Panel):
 			done = False
 			while not done:
 				name = 'New variable {0}'.format(num)
-				var = Variable(name=name, order=self.max_order()+1)
+				var = LinSpaceVariable(name=name, order=self.max_order()+1)
 
 				try:
 					self.global_store.variables[name] = var

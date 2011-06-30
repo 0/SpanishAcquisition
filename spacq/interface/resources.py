@@ -226,5 +226,5 @@ class AcquisitionThread(Thread):
 				else:
 					return
 
-			if delay > 0:
+			if not self.done and delay > 0:
 				time.sleep(delay)

@@ -173,10 +173,11 @@ class ScalarLiveViewPanel(wx.Panel):
 	A panel to display a live view plot of a scalar resource.
 	"""
 
-	def __init__(self, parent, measurement_resource_name, *args, **kwargs):
+	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
-		self.measurement_resource_name = measurement_resource_name
+		self.global_store = global_store
+		self._measurement_resource_name = None
 
 		# Defaults.
 		self.plot_settings = PlotSettings()
@@ -283,6 +284,25 @@ class ScalarLiveViewPanel(wx.Panel):
 		if running:
 			self.OnRun()
 
+	@property
+	def measurement_resource_name(self):
+		if self._measurement_resource_name is None:
+			return ''
+		else:
+			return self._measurement_resource_name
+
+	@measurement_resource_name.setter
+	def measurement_resource_name(self, value):
+		if value:
+			self._measurement_resource_name = value
+			try:
+				self.resource = self.global_store.resources[self._measurement_resource_name]
+			except KeyError:
+				self.resource = None
+		else:
+			self._measurement_resource_name = None
+			self.resource = None
+
 	def init_values(self):
 		"""
 		Clear captured values.
@@ -362,6 +382,19 @@ class ScalarLiveViewPanel(wx.Panel):
 		# Plot.
 		self.update_plot()
 
+	def close(self):
+		"""
+		Perform cleanup.
+		"""
+
+		# Ensure the thread exits.
+		self.acq_thread.resource = None
+		self.acq_thread.done = True
+		if not self.running:
+			self.running_lock.release()
+		self.acq_thread.join()
+		del self.acq_thread
+
 	def OnRun(self, evt=None):
 		"""
 		Let the acquisition thread run.
@@ -437,7 +470,7 @@ class ScalarLiveViewPanel(wx.Panel):
 		dlg.Show()
 
 	def msg_resource(self, name, value=None):
-		if name == self.measurement_resource_name:
+		if self.measurement_resource_name is not None and name == self.measurement_resource_name:
 			self.resource = value
 
 	def msg_data_capture_start(self, name):

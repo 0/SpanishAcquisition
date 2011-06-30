@@ -423,8 +423,8 @@ class DataCapturePanel(wx.Panel):
 						export_csv.writerows(buf)
 						export_file.flush()
 
-						while queue:
-							queue.pop()
+						while buf:
+							buf.pop()
 
 		def close_callback(dlg):
 			if exporting:

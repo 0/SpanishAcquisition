@@ -8,7 +8,7 @@ import time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
-from spacq.iteration.variables import combine_variables, OutputVariable
+from spacq.iteration.variables import combine_variables, InputVariable, OutputVariable
 from spacq.tool.box import sift
 
 from ..tool.box import ErrorMessageDialog, YesNoQuestionDialog
@@ -19,8 +19,9 @@ class DataCaptureDialog(wx.Dialog):
 	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
 	"""
 
-	def __init__(self, parent, resource_names, resources, iterator,	last_values, num_items, variables,
-			measurement_resource=None, continuous=False, *args, **kwargs):
+	def __init__(self, parent, resource_names, resources, variables, iterator, last_values, num_items,
+			measurement_resource_names, measurement_resources, measurement_variables, continuous=False,
+			*args, **kwargs):
 		if 'style' in kwargs:
 			kwargs['style'] |= wx.RESIZE_BORDER
 		else:
@@ -31,11 +32,13 @@ class DataCaptureDialog(wx.Dialog):
 		self.parent = parent
 		self.resource_names = resource_names
 		self.resources = resources
-		self.measurement_resource = measurement_resource
+		self.variables = variables
 		self.iterator = iter(iterator)
 		self.last_values = last_values
 		self.num_items = num_items
-		self.variables = variables
+		self.measurement_resource_names = measurement_resource_names
+		self.measurement_resources = measurement_resources
+		self.measurement_variables = measurement_variables
 		self.continuous = continuous
 
 		# Only show elapsed time in continuous mode.
@@ -67,7 +70,6 @@ class DataCaptureDialog(wx.Dialog):
 		dialog_box.Add(self.values_box, flag=wx.EXPAND|wx.ALL, border=5)
 
 		self.value_outputs = []
-
 		for var in self.variables:
 			output = wx.TextCtrl(self, style=wx.TE_READONLY)
 			output.BackgroundColour = wx.LIGHT_GREY
@@ -76,6 +78,19 @@ class DataCaptureDialog(wx.Dialog):
 			self.values_box.Add(wx.StaticText(self, label=var.name),
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 			self.values_box.Add(output, flag=wx.EXPAND)
+
+		for _ in xrange(2):
+			self.values_box.Add(wx.StaticLine(self), flag=wx.EXPAND|wx.ALL, border=5)
+
+		self.value_inputs = []
+		for var in self.measurement_variables:
+			input = wx.TextCtrl(self, style=wx.TE_READONLY)
+			input.BackgroundColour = wx.LIGHT_GREY
+			self.value_inputs.append(input)
+
+			self.values_box.Add(wx.StaticText(self, label=var.name),
+					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+			self.values_box.Add(input, flag=wx.EXPAND)
 
 		## Times.
 		times_box = wx.FlexGridSizer(rows=2 if self.show_remaining_time else 1, cols=2, hgap=5)
@@ -233,18 +248,28 @@ class DataCaptureDialog(wx.Dialog):
 		# Is dwell period over?
 		if time.time() >= self.sleep_until:
 			if self.old_values:
-				# Some values have already been set, so their dwell period has expired.
-				if self.measurement_resource is not None:
-					current_value = self.measurement_resource.value
-				else:
-					current_value = None
+				current_values = []
+				# Some values have already been set, so their dwell period has expired; we can measure.
+				for name, resource, input in zip(self.measurement_resource_names, self.measurement_resources,
+						self.value_inputs):
+					if resource is not None:
+						try:
+							value = resource.value
+						except Exception as e:
+							msg = 'Resource: {0}\nError: {1}'.format(name, str(e))
+							ErrorMessageDialog(self.parent, msg, 'Error reading from resource').Show()
+
+							wx.CallAfter(self.end)
+							return
+
+						current_values.append(value)
+						input.Value = str(value)
 
 				if self.data_callback is not None:
 					# Ignoring all the change markers.
 					real_values = list(self.old_values[::2])
 
-					result = [time.time()] + real_values + [current_value]
-					self.data_callback(result)
+					self.data_callback([time.time()] + real_values, current_values)
 
 			# Get the next set of values.
 			try:
@@ -261,20 +286,22 @@ class DataCaptureDialog(wx.Dialog):
 
 		delay = self.sleep_until - time.time()
 
-		# Avoid blocking for over 200 ms.
 		if delay > 0.2:
+			# Avoid blocking for over 200 ms.
 			delay = 0.2
+		elif delay < 0.01:
+			# But wait at least 5 ms.
+			delay = 0.005
 
 		if not self.done:
 			self.timer.Start(delay * 1000, oneShot=True)
 
 
 class DataCapturePanel(wx.Panel):
-	def __init__(self, parent, global_store, measurement_resource_name, *args, **kwargs):
+	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
 		self.global_store = global_store
-		self.measurement_resource_name = measurement_resource_name
 
 		# Panel.
 		panel_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -324,10 +351,63 @@ class DataCapturePanel(wx.Panel):
 		self.SetSizer(panel_box)
 
 	def OnBeginCapture(self, evt=None):
-		output_variables = sift(self.global_store.variables.values(), OutputVariable)
+		all_variables = [var for var in self.global_store.variables.values() if var.enabled]
+		output_variables = sift(all_variables, OutputVariable)
+		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
 
 		if not output_variables:
 			ErrorMessageDialog(self, 'No output variables defined', 'No variables').Show()
+			return
+
+		iterator, last, num_items, output_variables = combine_variables(output_variables)
+		resource_names = [var.resource_name for var in output_variables]
+		measurement_resource_names = [var.resource_name for var in input_variables]
+
+		continuous = self.continuous_checkbox.Value
+		if continuous:
+			# Cycle forever.
+			iterator = itertools.cycle(iterator)
+
+		missing_resources = []
+		unreadable_resources = []
+		unwritable_resources = []
+
+		resources = []
+		for name in resource_names:
+			if name == '':
+				resources.append(None)
+				continue
+			elif name not in self.global_store.resources:
+				missing_resources.append(name)
+			else:
+				resource = self.global_store.resources[name]
+
+				if resource.writable:
+					resources.append(resource)
+				else:
+					unwritable_resources.append(name)
+
+		measurement_resources = []
+		for name in measurement_resource_names:
+			if name == '':
+				measurement_resources.append(None)
+			elif name not in self.global_store.resources:
+				missing_resources.append(name)
+			else:
+				resource = self.global_store.resources[name]
+
+				if resource.readable:
+					measurement_resources.append(resource)
+				else:
+					unreadable_resources.append(name)
+
+		if missing_resources:
+			ErrorMessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
+		if unreadable_resources:
+			ErrorMessageDialog(self, ', '.join(unreadable_resources), 'Unreadable resources').Show()
+		if unwritable_resources:
+			ErrorMessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
+		if missing_resources or unreadable_resources or unwritable_resources:
 			return
 
 		exporting = False
@@ -357,61 +437,28 @@ class DataCapturePanel(wx.Panel):
 			# Show the path in the GUI.
 			self.last_file_name.Value = file_path
 
-		iterator, last, num_items, variables = combine_variables(output_variables)
-		resource_names = [x.resource_name for x in variables]
+			# Write the header.
+			export_csv.writerow(['__time__'] + [var.name for var in output_variables] +
+					[var.name for var in input_variables])
 
-		if exporting:
-			# Header.
-			export_csv.writerow(['__time__'] + [var.name for var in variables] + ['__measurement__'])
+		dlg = DataCaptureDialog(self, resource_names, resources, output_variables, iterator, last,
+				num_items, measurement_resource_names, measurement_resources, input_variables, continuous)
 
-		continuous = self.continuous_checkbox.Value
-		if continuous:
-			# Cycle forever.
-			iterator = itertools.cycle(iterator)
-
-		resources = []
-		missing_resources = []
-		for name in resource_names:
-			if name == '':
-				resources.append(None)
-				continue
-			elif name not in self.global_store.resources:
-				missing_resources.append(name)
-			else:
-				resources.append(self.global_store.resources[name])
-
-		if missing_resources:
-			ErrorMessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
-			return
-
-		try:
-			measurement_resource = self.global_store.resources[self.measurement_resource_name]
-		except KeyError:
-			measurement_resource = None
-
-		if measurement_resource and not measurement_resource.readable:
-			msg = 'Not readable: {0}'.format(self.measurement_resource_name)
-			ErrorMessageDialog(self, msg, 'Invalid resource').Show()
-			return
-
-		dlg = DataCaptureDialog(self, resource_names, resources, iterator, last, num_items,
-				variables, measurement_resource, continuous)
-
-		if measurement_resource is not None:
-			pub.sendMessage('data_capture.start', name=self.measurement_resource_name)
+		for name in measurement_resource_names:
+			pub.sendMessage('data_capture.start', name=name)
 
 		# Export buffer.
 		max_buf_size = 10
 		buf = []
 		buf_lock = Lock()
 
-		def data_callback(values):
-			if measurement_resource is not None:
-				pub.sendMessage('data_capture.data', name=self.measurement_resource_name, value=values[-1])
+		def data_callback(values, measurement_values):
+			for name, value in zip(measurement_resource_names, measurement_values):
+				pub.sendMessage('data_capture.data', name=name, value=value)
 
 			if exporting:
 				with buf_lock:
-					buf.append(values)
+					buf.append(values + measurement_values)
 
 					if len(buf) >= max_buf_size:
 						export_csv.writerows(buf)
@@ -426,8 +473,8 @@ class DataCapturePanel(wx.Panel):
 					export_csv.writerows(buf)
 					export_file.close()
 
-			if measurement_resource is not None:
-				pub.sendMessage('data_capture.stop', name=self.measurement_resource_name)
+			for name in measurement_resource_names:
+				pub.sendMessage('data_capture.stop', name=name)
 
 		dlg.data_callback = data_callback
 		dlg.close_callback = close_callback

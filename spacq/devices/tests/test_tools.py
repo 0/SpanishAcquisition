@@ -64,7 +64,7 @@ class BlockDataTest(unittest.TestCase):
 		"""
 
 		data = [
-			('Too ', '#14Too long.', 'extra data ignored: long.'),
+			('Too ', '#14Too long.', 'extra data ignored: \'long.\''),
 		]
 
 		log = AssertHandler()

@@ -192,7 +192,7 @@ class AbstractDevice(SuperDevice):
 			try:
 				self.device = Gpib.Gpib(**self.connection_resource)
 				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
-				log.debug('GPIB device IDN: {0}'.format(self.idn))
+				log.debug('GPIB device IDN: {0}'.format(repr(self.idn)))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.pyvisa_usb:
@@ -257,12 +257,12 @@ class AbstractDevice(SuperDevice):
 		"""
 
 		if self.multi_command is not None:
-			log.debug('Writing to multi-command buffer for device "{0}": {1}'.format(self.name, message))
+			log.debug('Writing to multi-command buffer for device "{0}": {1}'.format(self.name, repr(message)))
 
 			self.multi_command.append(message)
 			return
 
-		log.debug('Writing to device "{0}": {1}'.format(self.name, message))
+		log.debug('Writing to device "{0}": {1}'.format(self.name, repr(message)))
 
 		if self.driver in [drivers.pyvisa, drivers.lgpib]:
 			self.device.write(message)
@@ -288,7 +288,7 @@ class AbstractDevice(SuperDevice):
 				buf += self.device.read(len=chunk_size)
 				status = self.device.ibsta() & IbstaBits.END
 
-		log.debug('Read from device "{0}": {1}'.format(self.name, buf))
+		log.debug('Read from device "{0}": {1}'.format(self.name, repr(buf)))
 
 		return buf
 

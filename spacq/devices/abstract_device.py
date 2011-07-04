@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 import threading
 
 from spacq.tool.box import Enum, Synchronized
@@ -6,9 +8,6 @@ from spacq.tool.box import Enum, Synchronized
 """
 Hardware device abstraction interface.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 # PyVISA, Linux GPIB, PyVISA USB.

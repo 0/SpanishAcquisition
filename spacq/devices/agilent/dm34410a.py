@@ -1,4 +1,5 @@
 import logging
+log = logging.getLogger(__name__)
 
 from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
@@ -10,9 +11,6 @@ Agilent 34410A Digital Multimeter
 
 Obtain measurements from the multimeter.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class DM34410A(AbstractDevice):

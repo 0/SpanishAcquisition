@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 import re
 import struct
 
@@ -13,9 +15,6 @@ Tektronix AWG5014B Arbitrary Waveform Generator
 
 Control the AWG's settings and output waveforms.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class Marker(AbstractSubdevice):

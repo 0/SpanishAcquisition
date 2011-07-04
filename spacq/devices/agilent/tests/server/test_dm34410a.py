@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 from numbers import Real
@@ -7,9 +9,6 @@ import unittest
 from testconfig import config as tc
 
 from ... import dm34410a
-
-
-log = logging.getLogger(__name__)
 
 
 class DM34410ATest(unittest.TestCase):

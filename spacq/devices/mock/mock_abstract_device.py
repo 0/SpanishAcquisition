@@ -1,13 +1,11 @@
 import logging
+log = logging.getLogger(__name__)
 
 from ..abstract_device import AbstractDevice
 
 """
 Mock hardware device.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class MockAbstractDevice(AbstractDevice):

@@ -1,12 +1,11 @@
 import logging
+log = logging.getLogger(__name__)
+
 import string
 
 """
 Tools for working with hardware devices.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 def str_to_bool(value):

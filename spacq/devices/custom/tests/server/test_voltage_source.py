@@ -1,13 +1,12 @@
 import logging
+log = logging.getLogger(__name__)
+
 from nose.plugins.skip import SkipTest
 import unittest
 
 from testconfig import config as tc
 
 from ... import voltage_source
-
-
-log = logging.getLogger(__name__)
 
 
 class VoltageSourceTest(unittest.TestCase):

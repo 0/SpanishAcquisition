@@ -1,5 +1,7 @@
-from copy import copy
 import logging
+log = logging.getLogger(__name__)
+
+from copy import copy
 from threading import Thread
 import time
 
@@ -10,9 +12,6 @@ from .units import SIValues
 """
 Tools for working with generic resources.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class NotReadable(Exception):

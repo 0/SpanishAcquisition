@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
@@ -7,9 +9,6 @@ from spacq.tests.tools import AssertHandler
 from testconfig import config as tc
 
 from ... import awg5014b
-
-
-log = logging.getLogger(__name__)
 
 
 class AWG5014BTest(unittest.TestCase):

@@ -1,4 +1,6 @@
 import logging
+log = logging.getLogger(__name__)
+
 import numpy
 import time
 
@@ -13,9 +15,6 @@ Custom voltage source
 
 Control the output voltages on all the ports.
 """
-
-
-log = logging.getLogger(__name__)
 
 
 class Port(AbstractSubdevice):

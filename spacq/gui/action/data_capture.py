@@ -11,10 +11,10 @@ from wx.lib.filebrowsebutton import DirBrowseButton
 from spacq.iteration.variables import combine_variables, InputVariable, OutputVariable
 from spacq.tool.box import sift
 
-from ..tool.box import ErrorMessageDialog, YesNoQuestionDialog
+from ..tool.box import Dialog, ErrorMessageDialog, YesNoQuestionDialog
 
 
-class DataCaptureDialog(wx.Dialog):
+class DataCaptureDialog(Dialog):
 	"""
 	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
 	"""
@@ -27,7 +27,7 @@ class DataCaptureDialog(wx.Dialog):
 		else:
 			kwargs['style'] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
 
-		wx.Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
+		Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
 
 		self.parent = parent
 		self.resource_names = resource_names

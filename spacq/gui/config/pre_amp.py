@@ -1,6 +1,8 @@
 import wx
 from wx.lib.agw.floatspin import FloatSpin
 
+from ..tool.box import Dialog
+
 """
 Pre-amp configuration.
 
@@ -13,9 +15,9 @@ class PreAmpSettings(object):
 		self.sensitivity_range = 0 # 10 ^ (...) A V^-1
 
 
-class PreAmpSettingsDialog(wx.Dialog):
+class PreAmpSettingsDialog(Dialog):
 	def __init__(self, parent, ok_callback, *args, **kwargs):
-		wx.Dialog.__init__(self, parent, title='Pre-amp settings')
+		Dialog.__init__(self, parent, title='Pre-amp settings')
 
 		self.ok_callback = ok_callback
 

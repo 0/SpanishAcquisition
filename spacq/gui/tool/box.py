@@ -27,6 +27,7 @@ def determine_wildcard(extension=None, file_type=None):
 
 	return wildcard
 
+
 def load_pickled(parent, extension=None, file_type=None):
 	"""
 	Unpickle data from a file based on a file dialog.
@@ -122,13 +123,34 @@ def save_csv(parent, values, headers=None, extension='csv', file_type='CSV'):
 				raise IOError('Could not save data.', e)
 
 
-class ErrorMessageDialog(wx.Dialog):
+class Dialog(wx.Dialog):
+	"""
+	Auto-destroying dialog.
+	"""
+
+	def __init__(self, parent, auto_destroy=True, *args, **kwargs):
+		wx.Dialog.__init__(self, parent, *args, **kwargs)
+
+		self.auto_destroy = auto_destroy
+
+		self.Bind(wx.EVT_SHOW, self.OnShow)
+
+	def OnShow(self, evt):
+		"""
+		Destroy the dialog when it disappears.
+		"""
+
+		if self.auto_destroy and not evt.Show:
+			self.Destroy()
+
+
+class ErrorMessageDialog(Dialog):
 	"""
 	A simple error message dialog.
 	"""
 
 	def __init__(self, parent, message, title='', *args, **kwargs):
-		wx.Dialog.__init__(self, parent=parent, title=title,
+		Dialog.__init__(self, parent=parent, title=title,
 				style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER,
 				*args, **kwargs)
 
@@ -147,14 +169,14 @@ class ErrorMessageDialog(wx.Dialog):
 		self.SetSizerAndFit(dialog_box)
 
 
-class YesNoQuestionDialog(wx.Dialog):
+class YesNoQuestionDialog(Dialog):
 	"""
 	A yes/no question dialog.
 	"""
 
 	def __init__(self, parent, prompt, yes_callback=None, no_callback=None, title='',
 			*args, **kwargs):
-		wx.Dialog.__init__(self, parent=parent, title=title,
+		Dialog.__init__(self, parent=parent, title=title,
 				style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER,
 				*args, **kwargs)
 

@@ -5,20 +5,20 @@ from time import sleep
 import wx
 from wx.lib.agw.floatspin import FloatSpin
 
-from ...tool.box import load_csv, save_csv, ErrorMessageDialog
+from ...tool.box import load_csv, save_csv, Dialog, ErrorMessageDialog
 
 """
 Configuration for a VoltageSource.
 """
 
 
-class VoltageSourceTunerDialog(wx.Dialog):
+class VoltageSourceTunerDialog(Dialog):
 	"""
 	A dialog for tuning a voltage source port.
 	"""
 
 	def __init__(self, parent, global_store, ok_callback, port,	*args, **kwargs):
-		wx.Dialog.__init__(self, parent, title='Port {0} tuning'.format(port.num))
+		Dialog.__init__(self, parent, title='Port {0} tuning'.format(port.num))
 
 		self.global_store = global_store
 		self.ok_callback = ok_callback
@@ -346,13 +346,13 @@ class VoltageSourceSettingsPanel(wx.Panel):
 			self.set_vsrc(value)
 
 
-class VoltageSourceSettingsDialog(wx.Dialog):
+class VoltageSourceSettingsDialog(Dialog):
 	"""
 	A wrapper for VoltageSourceSettingsPanel.
 	"""
 
 	def __init__(self, parent, global_store, vsrc_name, *args, **kwargs):
-		wx.Dialog.__init__(self, parent, title='Voltage source settings', *args, **kwargs)
+		Dialog.__init__(self, parent, title='Voltage source settings', *args, **kwargs)
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)

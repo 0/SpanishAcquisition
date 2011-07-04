@@ -10,7 +10,7 @@ from wx.lib.agw import floatspin
 from spacq.interface.resources import AcquisitionThread
 from spacq.interface.units import Quantity, SIValues
 
-from ....tool.box import ErrorMessageDialog
+from ....tool.box import Dialog, ErrorMessageDialog
 from ..two_dimensional import TwoDimensionalPlot
 
 """
@@ -35,13 +35,13 @@ class PlotSettings(object):
 		self.units_to = ''
 
 
-class PlotSettingsDialog(wx.Dialog):
+class PlotSettingsDialog(Dialog):
 	"""
 	Set up the live view plot.
 	"""
 
 	def __init__(self, parent, ok_callback, *args, **kwargs):
-		wx.Dialog.__init__(self, parent=parent, title='Plot settings')
+		Dialog.__init__(self, parent=parent, title='Plot settings')
 
 		self.ok_callback = ok_callback
 

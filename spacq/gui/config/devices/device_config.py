@@ -3,7 +3,7 @@ from wx.lib.masked.ipaddrctrl import IpAddrCtrl
 
 from spacq.devices.config import device_tree, ConnectionError, DeviceConfig
 
-from ...tool.box import ErrorMessageDialog, load_pickled, save_pickled
+from ...tool.box import load_pickled, save_pickled, Dialog, ErrorMessageDialog
 from .resource_tree import DeviceResourcesPanel
 
 """
@@ -275,13 +275,13 @@ class DeviceConfigPanel(wx.Panel):
 		self.connect_button.Disable()
 
 
-class DeviceConfigDialog(wx.Dialog):
+class DeviceConfigDialog(Dialog):
 	"""
 	A dialog for configuring a device, including connection and resources.
 	"""
 
 	def __init__(self, parent, ok_callback, *args, **kwargs):
-		wx.Dialog.__init__(self, parent, style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER,
+		Dialog.__init__(self, parent, style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER,
 				*args, **kwargs)
 
 		self.ok_callback = ok_callback

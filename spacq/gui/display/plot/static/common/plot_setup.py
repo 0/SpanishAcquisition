@@ -1,5 +1,7 @@
 import wx
 
+from .....tool.box import Dialog
+
 """
 Plot configuration.
 """
@@ -46,13 +48,13 @@ class AxisSelectionPanel(wx.Panel):
 		self.selection_callback(result)
 
 
-class PlotSetupDialog(wx.Dialog):
+class PlotSetupDialog(Dialog):
 	"""
 	Plot configuration dialog.
 	"""
 
 	def __init__(self, parent, headings, axis_names, *args, **kwargs):
-		wx.Dialog.__init__(self, parent, *args, **kwargs)
+		Dialog.__init__(self, parent, *args, **kwargs)
 
 		self.axes = [None for _ in axis_names]
 

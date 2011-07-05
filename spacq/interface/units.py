@@ -1,4 +1,4 @@
-from scipy import constants
+from math import log
 
 from spacq.tool.box import Enum
 
@@ -27,26 +27,27 @@ class SIValues(object):
 	])
 
 	prefixes = {
-		'z': constants.zepto,
-		'a': constants.atto,
-		'f': constants.femto,
-		'p': constants.pico,
-		'n': constants.nano,
-		'u': constants.micro,
-		'm': constants.milli,
-		'c': constants.centi,
-		'd': constants.deci,
+		'y': 1e-24,
+		'z': 1e-21,
+		'a': 1e-18,
+		'f': 1e-15,
+		'p': 1e-12,
+		'n': 1e-9,
+		'u': 1e-6,
+		'm': 1e-3,
+		'c': 1e-2,
+		'd': 1e-1,
 		'': 1,
-		'da': constants.deka,
-		'h': constants.hecto,
-		'k': constants.kilo,
-		'M': constants.mega,
-		'G': constants.giga,
-		'T': constants.tera,
-		'P': constants.peta,
-		'E': constants.exa,
-		'Z': constants.zetta,
-		'Y': constants.yotta,
+		'da': 1e1,
+		'h': 1e2,
+		'k': 1e3,
+		'M': 1e6,
+		'G': 1e9,
+		'T': 1e12,
+		'P': 1e15,
+		'E': 1e18,
+		'Z': 1e21,
+		'Y': 1e24,
 	}
 	prefixes_ = dict([(v, k) for (k, v) in prefixes.items()])
 
@@ -192,7 +193,7 @@ class Quantity(object):
 
 			min_distance, min_multiplier, min_prefix = None, None, None
 			for multiplier, prefix in multipliers:
-				distance = abs(self.value - multiplier)
+				distance = abs(log(abs(self.value)) - log(multiplier))
 
 				if min_distance is None or distance < min_distance:
 					min_distance, min_multiplier, min_prefix = distance, multiplier, prefix

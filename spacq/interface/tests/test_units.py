@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_almost_equal, eq_
 import unittest
 
 from .. import units
@@ -18,11 +18,15 @@ class SIValuesTest(unittest.TestCase):
 
 class QuantityTest(unittest.TestCase):
 	data = [
-		(0, units.SIValues.dimensions.time),
-		(1, units.SIValues.dimensions.time),
-		(10, units.SIValues.dimensions.current),
-		(0.5, units.SIValues.dimensions.frequency),
-		(123456789, units.SIValues.dimensions.frequency),
+		(0, units.SIValues.dimensions.time, '0 s'),
+		(1, units.SIValues.dimensions.time, '1 s'),
+		(10, units.SIValues.dimensions.current, '1 daA'),
+		(0.5, units.SIValues.dimensions.frequency, '0.5 Hz'),
+		(-123456789, units.SIValues.dimensions.frequency, '-0.123456789 GHz'),
+		(3e40, units.SIValues.dimensions.current, '3e+16 YA'),
+		(-3e40, units.SIValues.dimensions.current, '-3e+16 YA'),
+		(7e-40, units.SIValues.dimensions.current, '7e-16 yA'),
+		(-7e-40, units.SIValues.dimensions.current, '-7e-16 yA'),
 	]
 
 	def testSimple(self):
@@ -30,7 +34,7 @@ class QuantityTest(unittest.TestCase):
 		Some simple quantities.
 		"""
 
-		for value, dimension in self.data:
+		for value, dimension, _ in self.data:
 			q = units.Quantity(value, dimension)
 
 			eq_(q.value, value)
@@ -69,7 +73,7 @@ class QuantityTest(unittest.TestCase):
 
 		for string in data:
 			try:
-				print units.Quantity.from_string(string)
+				units.Quantity.from_string(string)
 			except ValueError:
 				pass
 			else:
@@ -131,7 +135,7 @@ class QuantityTest(unittest.TestCase):
 		Quantity = units.Quantity
 		SIValues = units.SIValues
 
-		for value, dimension in self.data:
+		for value, dimension, _ in self.data:
 			q = units.Quantity(value, dimension)
 
 			eq_(eval(repr(q)), q)
@@ -141,10 +145,17 @@ class QuantityTest(unittest.TestCase):
 		Ensure that str() gives a meaningful value.
 		"""
 
-		for value, dimension in self.data:
+		for value, dimension, string in self.data:
 			q = units.Quantity(value, dimension)
 
-			eq_(units.Quantity.from_string(str(q)), q)
+			eq_(str(q), string)
+
+			result = units.Quantity.from_string(str(q)).value
+
+			if q.value == 0:
+				eq_(result, 0)
+			else:
+				assert_almost_equal(result / q.value, 1.0)
 
 		# Zero is a special case.
 		zero = units.Quantity(0, units.SIValues.dimensions.time)

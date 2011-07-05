@@ -43,23 +43,23 @@ class ScalingSettingsDialog(Dialog):
 		### Linear scale.
 		settings_box.Add(wx.StaticText(self, label='Linear scale:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.linear_scale_input = FloatSpin(self, value=0, min_val=-100, max_val=100,
-				increment=1, digits=2)
-		settings_box.Add(self.linear_scale_input)
+		self.linear_scale_input = FloatSpin(self, value=0, min_val=-1e9, max_val=1e9,
+				increment=1, digits=5)
+		settings_box.Add(self.linear_scale_input, flag=wx.EXPAND)
 
 		### Exponential scale.
 		settings_box.Add(wx.StaticText(self, label='Exponential scale:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.exponential_scale_input = FloatSpin(self, value=0, min_val=-100, max_val=100,
 				increment=1, digits=2)
-		settings_box.Add(self.exponential_scale_input)
+		settings_box.Add(self.exponential_scale_input, flag=wx.EXPAND)
 
 		### Offset.
 		settings_box.Add(wx.StaticText(self, label='Offset:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.offset_input = FloatSpin(self, value=0, min_val=-100, max_val=100,
-				increment=1, digits=2)
-		settings_box.Add(self.offset_input)
+		self.offset_input = FloatSpin(self, value=0, min_val=-1e9, max_val=1e9,
+				increment=1, digits=5, size=(200, -1))
+		settings_box.Add(self.offset_input, flag=wx.EXPAND)
 
 		## End buttons.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)

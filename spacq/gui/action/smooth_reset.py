@@ -57,7 +57,7 @@ class SmoothResetPanel(wx.Panel):
 
 		for value in values:
 			resource.value = value
-			time.sleep(variable._wait.value)
+			time.sleep(0.1) # s
 
 	def choose_variables(self):
 		"""

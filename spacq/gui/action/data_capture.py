@@ -1,6 +1,8 @@
 import csv
 from datetime import timedelta
 import itertools
+# FIXME: Python 2.7 provides collections.OrderedDict()
+from ordereddict import OrderedDict
 import os
 from pubsub import pub
 from threading import Lock
@@ -19,9 +21,8 @@ class DataCaptureDialog(Dialog):
 	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
 	"""
 
-	def __init__(self, parent, resource_names, resources, variables, iterator, last_values, num_items,
-			measurement_resource_names, measurement_resources, measurement_variables, continuous=False,
-			*args, **kwargs):
+	def __init__(self, parent, resources, variables, iterator, last_values, num_items,
+			measurement_resources, measurement_variables, continuous=False, *args, **kwargs):
 		if 'style' in kwargs:
 			kwargs['style'] |= wx.RESIZE_BORDER
 		else:
@@ -30,13 +31,11 @@ class DataCaptureDialog(Dialog):
 		Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
 
 		self.parent = parent
-		self.resource_names = resource_names
 		self.resources = resources
 		self.variables = variables
 		self.iterator = iter(iterator)
 		self.last_values = last_values
 		self.num_items = num_items
-		self.measurement_resource_names = measurement_resource_names
 		self.measurement_resources = measurement_resources
 		self.measurement_variables = measurement_variables
 		self.continuous = continuous
@@ -162,8 +161,8 @@ class DataCaptureDialog(Dialog):
 
 		changed = self.changed_indices(self.old_values, values)
 
-		for i, (name, resource, output, value) in enumerate(zip(self.resource_names,
-				self.resources, self.value_outputs, values[::2])):
+		for i, ((name, resource), output, value) in enumerate(zip(self.resources.items(),
+				self.value_outputs, values[::2])):
 			# Only set resources for updated values.
 			if (i not in changed or
 					(len(self.old_values) > 2 * i and self.old_values[2 * i] == value)):
@@ -250,8 +249,7 @@ class DataCaptureDialog(Dialog):
 			if self.old_values:
 				current_values = []
 				# Some values have already been set, so their dwell period has expired; we can measure.
-				for name, resource, input in zip(self.measurement_resource_names, self.measurement_resources,
-						self.value_inputs):
+				for (name, resource), input in zip(self.measurement_resources.items(), self.value_inputs):
 					if resource is not None:
 						try:
 							value = resource.value
@@ -372,32 +370,33 @@ class DataCapturePanel(wx.Panel):
 		unreadable_resources = []
 		unwritable_resources = []
 
-		resources = []
+		resources = OrderedDict()
 		for name in resource_names:
 			if name == '':
-				resources.append(None)
-				continue
+				# Make a placeholder.
+				num = 0
+				while num in resources:
+					num += 1
+				resources[num] = None
 			elif name not in self.global_store.resources:
 				missing_resources.append(name)
 			else:
 				resource = self.global_store.resources[name]
 
 				if resource.writable:
-					resources.append(resource)
+					resources[name] = resource
 				else:
 					unwritable_resources.append(name)
 
-		measurement_resources = []
+		measurement_resources = OrderedDict()
 		for name in measurement_resource_names:
-			if name == '':
-				measurement_resources.append(None)
-			elif name not in self.global_store.resources:
+			if name not in self.global_store.resources:
 				missing_resources.append(name)
 			else:
 				resource = self.global_store.resources[name]
 
 				if resource.readable:
-					measurement_resources.append(resource)
+					measurement_resources[name] = resource
 				else:
 					unreadable_resources.append(name)
 
@@ -441,8 +440,8 @@ class DataCapturePanel(wx.Panel):
 			export_csv.writerow(['__time__'] + [var.name for var in output_variables] +
 					[var.name for var in input_variables])
 
-		dlg = DataCaptureDialog(self, resource_names, resources, output_variables, iterator, last,
-				num_items, measurement_resource_names, measurement_resources, input_variables, continuous)
+		dlg = DataCaptureDialog(self, resources, output_variables, iterator, last, num_items,
+				measurement_resources, input_variables, continuous)
 
 		for name in measurement_resource_names:
 			pub.sendMessage('data_capture.start', name=name)

@@ -5,7 +5,7 @@ import unittest
 
 from spacq.tests.tools import AssertHandler
 
-from ..units import Quantity, SIValues
+from ..units import Quantity
 
 from .. import resources
 
@@ -269,7 +269,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		"""
 
 		buf = []
-		delay = Quantity(0.1, SIValues.dimensions.time)
+		delay = Quantity(100, 'ms')
 		
 		thr = resources.AcquisitionThread(delay, buf.append)
 
@@ -290,7 +290,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		expected = [res.value] * 10
 
 		buf = []
-		delay = Quantity(0.1, SIValues.dimensions.time)
+		delay = Quantity(100, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res)
 
@@ -312,7 +312,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		expected = [res.value] * 8
 
 		buf = []
-		delay = Quantity(0.1, SIValues.dimensions.time)
+		delay = Quantity(100, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res, running_lock=lock)
 
@@ -334,7 +334,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		res = resources.Resource()
 
 		buf = []
-		delay = Quantity(0.1, SIValues.dimensions.time)
+		delay = Quantity(100, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res)
 

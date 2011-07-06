@@ -2,7 +2,7 @@ import itertools
 import numpy
 import operator
 
-from spacq.interface.units import SIValues, Quantity
+from spacq.interface.units import Quantity
 
 from .group_iterators import ParallelIterator, ProductIterator
 
@@ -91,13 +91,13 @@ class OutputVariable(Variable):
 	An abstract superclass for output variables.
 	"""
 
-	def __init__(self, order, wait=0, const=0.0, use_const=False, *args, **kwargs):
+	def __init__(self, order, wait='0 s', const=0.0, use_const=False, *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
 
 		self.order = order
 
 		# Iteration parameters.
-		self._wait = Quantity(wait, SIValues.dimensions.time)
+		self._wait = Quantity(wait)
 		self.const = const
 		self.use_const = use_const
 
@@ -107,9 +107,8 @@ class OutputVariable(Variable):
 
 	@wait.setter
 	def wait(self, value):
-		wait = Quantity.from_string(value)
-
-		wait.assert_dimension(SIValues.dimensions.time)
+		wait = Quantity(value)
+		wait.assert_dimensions('s')
 
 		self._wait = wait
 

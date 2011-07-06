@@ -8,7 +8,7 @@ import wx
 from wx.lib.agw import floatspin
 
 from spacq.interface.resources import AcquisitionThread
-from spacq.interface.units import Quantity, SIValues
+from spacq.interface.units import Quantity
 
 from ....tool.box import Dialog, ErrorMessageDialog
 from ..two_dimensional import TwoDimensionalPlot
@@ -25,7 +25,7 @@ class PlotSettings(object):
 
 	def __init__(self):
 		self.num_points = 100
-		self.delay = Quantity(0.5, SIValues.dimensions.time)
+		self.delay = Quantity(0.5, 's')
 		self.update_x = True
 		self.time_value = 0
 		self.time_mode = 0
@@ -63,6 +63,7 @@ class PlotSettingsDialog(Dialog):
 		## Delay.
 		capture_sizer.Add(wx.StaticText(self, label='Delay (s):'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		# TODO: Input should be a time amount directly (eg. '200 ms').
 		self.delay_input = floatspin.FloatSpin(self, min_val=0.2, max_val=1e4, increment=0.1, digits=2)
 		capture_sizer.Add(self.delay_input, flag=wx.CENTER)
 
@@ -145,7 +146,7 @@ class PlotSettingsDialog(Dialog):
 	def GetValue(self):
 		plot_settings = PlotSettings()
 		plot_settings.num_points = self.points_input.Value
-		plot_settings.delay = Quantity(self.delay_input.GetValue(), SIValues.dimensions.time)
+		plot_settings.delay = Quantity(self.delay_input.GetValue(), 's')
 		plot_settings.update_x = self.update_x_axis.Value
 		plot_settings.time_value = self.time_value.Selection
 		plot_settings.time_mode = self.time_mode.Selection
@@ -441,8 +442,8 @@ class ScalarLiveViewPanel(wx.Panel):
 
 			if self.plot_settings.units_from and self.plot_settings.units_to:
 				try:
-					quantity_from = Quantity.from_string('1 {0}'.format(self.plot_settings.units_from))
-					quantity_to = Quantity.from_string('1 {0}'.format(self.plot_settings.units_to))
+					quantity_from = Quantity(1, self.plot_settings.units_from)
+					quantity_to = Quantity(1, self.plot_settings.units_to)
 				except ValueError as e:
 					self.unit_conversion = 0
 					ErrorMessageDialog(self, str(e), 'Invalid unit').Show()

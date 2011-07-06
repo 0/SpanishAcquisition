@@ -7,8 +7,6 @@ import time
 
 from spacq.tool.box import Without
 
-from .units import SIValues
-
 """
 Tools for working with generic resources.
 """
@@ -187,7 +185,7 @@ class AcquisitionThread(Thread):
 	def __init__(self, delay, callback, resource=None, running_lock=None):
 		Thread.__init__(self)
 
-		delay.assert_dimension(SIValues.dimensions.time)
+		delay.assert_dimensions('s')
 
 		self.resource = resource
 		self.delay = delay

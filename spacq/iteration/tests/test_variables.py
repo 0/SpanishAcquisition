@@ -139,7 +139,7 @@ class LinSpaceVariableTest(unittest.TestCase):
 		else:
 			assert False, 'Expected ValueError.'
 
-		var.wait = '100 ms'
+		var.wait = '1e2 ms'
 		eq_(var.wait, '100 ms')
 
 		try:

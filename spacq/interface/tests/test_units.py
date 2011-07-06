@@ -1,32 +1,30 @@
-from nose.tools import assert_almost_equal, eq_
+from nose.tools import assert_raises, eq_
 import unittest
 
 from .. import units
 
 
-class SIValuesTest(unittest.TestCase):
-	def testAllUnits(self):
-		"""
-		Verify that each dimension has exactly one associated unit.
-		"""
-
-		eq_(len(units.SIValues.dimensions), len(units.SIValues.units))
-
-		for dim in units.SIValues.dimensions:
-			assert dim in units.SIValues.units_
-
-
 class QuantityTest(unittest.TestCase):
+	# String value, value, units, multiplier, proper string value.
 	data = [
-		(0, units.SIValues.dimensions.time, '0 s'),
-		(1, units.SIValues.dimensions.time, '1 s'),
-		(10, units.SIValues.dimensions.current, '1 daA'),
-		(0.5, units.SIValues.dimensions.frequency, '0.5 Hz'),
-		(-123456789, units.SIValues.dimensions.frequency, '-0.123456789 GHz'),
-		(3e40, units.SIValues.dimensions.current, '3e+16 YA'),
-		(-3e40, units.SIValues.dimensions.current, '-3e+16 YA'),
-		(7e-40, units.SIValues.dimensions.current, '7e-16 yA'),
-		(-7e-40, units.SIValues.dimensions.current, '-7e-16 yA'),
+		# Straightforward.
+		('-1 s', -1, 's', 0, None),
+		('0 s', 0, 's', 0, None),
+		('1e0 s', 1, 's', 0, '1 s'),
+		# Multiple units.
+		('10 A.m', 10, 'A.m', 0, None),
+		('0.5 GJ.Hz.cd', 0.5, 'GJ.Hz.cd', 9, None),
+		('500 kg.ms-1', 500, 'kg.ms-1', -3, None),
+		('-1234567890123 m.s-2', -1234567890123, 'm.s-2', 0, '-1.23456789e+12 m.s-2'),
+		# Large & small.
+		('3e40 nA', 3e40, 'nA', -9, '3e+40 nA'),
+		('-3e40 mA', -3e40, 'mA', -3, '-3e+40 mA'),
+		('7e-40 GA', 7e-40, 'GA', 9, None),
+		('-7e-40 uA', -7e-40, 'uA', -6, None),
+		# Various whitespace.
+		('5s', 5, 's', 0, '5 s'),
+		('5s . Hz\t2 ', 5, 's.Hz2', 0, '5 s.Hz2'),
+		(' \t 123454321 \t   uHz  \t  ', 123454321, 'uHz', -6, '123454321 uHz'),
 	]
 
 	def testSimple(self):
@@ -34,35 +32,24 @@ class QuantityTest(unittest.TestCase):
 		Some simple quantities.
 		"""
 
-		for value, dimension, _ in self.data:
-			q = units.Quantity(value, dimension)
+		for string, value, orig_units, multiplier, _ in self.data:
+			q = units.Quantity(string)
 
-			eq_(q.value, value)
-			eq_(q.dimension, dimension)
+			eq_(q, units.Quantity(value, orig_units))
+			eq_(q.value, value * 10 ** multiplier)
 
-	def testFromString(self):
+	def testArray(self):
 		"""
-		Check string parsing.
+		Use arrays of quantities.
 		"""
 
-		data = [
-			('0 s', 0, units.SIValues.dimensions.time),
-			('500 ms', 500 * 1e-3, units.SIValues.dimensions.time),
-			('10 Hz', 10 * 1e0, units.SIValues.dimensions.frequency),
-			('123456789 ns', 123456789 * 1e-9, units.SIValues.dimensions.time),
-			('987654321 GHz', 987654321 * 1e9, units.SIValues.dimensions.frequency),
-			('-56 pA', -56 * 1e-12, units.SIValues.dimensions.current),
-			# Various whitespace.
-			('5s', 5 * 1e0, units.SIValues.dimensions.time),
-			(' \t 123454321 \t   uHz  \t  ', 123454321 * 1e-6, units.SIValues.dimensions.frequency),
-		]
+		qs = [units.Quantity([[0.0, -1], [2.0, 0.3], [4e44, -5.5e-5]], symbols) for symbols in
+				['nN.g', 'N.ng', 'g2.um.s-2', 'g2.um.s-2']]
 
-		for string, value, dimension in data:
-			q = units.Quantity(value, dimension)
+		for q in qs:
+			eq_(q, qs[0])
 
-			eq_(units.Quantity.from_string(string), q)
-
-	def testBadFromString(self):
+	def testBadStrings(self):
 		"""
 		Invalid strings pretending to be quantities.
 		"""
@@ -72,55 +59,59 @@ class QuantityTest(unittest.TestCase):
 		]
 
 		for string in data:
-			try:
-				units.Quantity.from_string(string)
-			except ValueError:
-				pass
-			else:
-				assert False, 'Expected ValueError for "{0}".'.format(string)
+			assert_raises(ValueError, units.Quantity, string)
 
-	def testAssertDimension(self):
+	def testMismatchedUnits(self):
+		"""
+		Values should be comparable as long as they have the same dimensions.
+		"""
+
+		qs = [
+			units.Quantity(1, 'GJ.s'),
+			units.Quantity(1e9, 'J.Hz-1'),
+			units.Quantity(1, 'Tg.m2.s-1'),
+			units.Quantity(1, 'kg.Gm.m.Hz'),
+			units.Quantity(1000, 'Gg.m2.s.Hz2'),
+		]
+
+		for q in qs:
+			eq_(q, qs[0])
+
+	def testAssertDimensions(self):
 		"""
 		Ensure that dimensions are asserted correctly.
 		"""
 
-		q = units.Quantity(5, units.SIValues.dimensions.time)
+		q = units.Quantity(5, 's')
 
 		# No exception.
-		assert q.assert_dimension(units.SIValues.dimensions.time, exception=False)
-		assert not q.assert_dimension(units.SIValues.dimensions.frequency, exception=False)
+		assert q.assert_dimensions('s', exception=False)
+		assert not q.assert_dimensions('N.m', exception=False)
 
 		# Exception.
-		assert q.assert_dimension(units.SIValues.dimensions.time)
-		try:
-			q.assert_dimension(units.SIValues.dimensions.frequency)
-		except units.IncompatibleDimensions:
-			pass
-		else:
-			assert False, 'Expected IncompatibleDimensions.'
+		assert q.assert_dimensions('s')
+		assert_raises(units.IncompatibleDimensions, q.assert_dimensions, 'A')
+		assert_raises(units.IncompatibleDimensions, eq_, units.Quantity(1, 's'), units.Quantity(1, 'm'))
 
 	def testComparison(self):
 		"""
 		Check that comparison works.
 		"""
 
-		time = units.SIValues.dimensions.time
-		frequency = units.SIValues.dimensions.frequency
-
-		assert units.Quantity(1, time) == units.Quantity(1, time)
-		assert units.Quantity(1, time) < units.Quantity(2, time)
-		assert units.Quantity(5.5, time) >= units.Quantity(5.5, time)
-		assert units.Quantity(5.5, time) != units.Quantity(5.4, time)
+		assert units.Quantity(1, 's.m') == units.Quantity(1, 'm.s')
+		assert units.Quantity(1, 'm.s-1') < units.Quantity(2, 's-1.m')
+		assert units.Quantity(5.5, 's') >= units.Quantity(5.5, 's')
+		assert units.Quantity(5.5, 's') != units.Quantity(5.4, 's')
 
 		try:
-			units.Quantity(1, time) > units.Quantity(1, frequency)
+			units.Quantity(1, 's') > units.Quantity(1, 's2')
 		except units.IncompatibleDimensions:
 			pass
 		else:
 			assert False, 'Expected IncompatibleDimensions.'
 
 		try:
-			units.Quantity(1, time) <= units.Quantity(1, frequency)
+			units.Quantity(1, 's') <= units.Quantity(1, 'Hz')
 		except units.IncompatibleDimensions:
 			pass
 		else:
@@ -133,10 +124,9 @@ class QuantityTest(unittest.TestCase):
 
 		# For eval().
 		Quantity = units.Quantity
-		SIValues = units.SIValues
 
-		for value, dimension, _ in self.data:
-			q = units.Quantity(value, dimension)
+		for _, value, orig_units, _, _ in self.data:
+			q = units.Quantity(value, orig_units)
 
 			eq_(eval(repr(q)), q)
 
@@ -145,39 +135,13 @@ class QuantityTest(unittest.TestCase):
 		Ensure that str() gives a meaningful value.
 		"""
 
-		for value, dimension, string in self.data:
-			q = units.Quantity(value, dimension)
+		for string, value, orig_units, _, proper_string in self.data:
+			if proper_string is None:
+				proper_string = string
 
-			eq_(str(q), string)
+			q = units.Quantity(value, orig_units)
 
-			result = units.Quantity.from_string(str(q)).value
-
-			if q.value == 0:
-				eq_(result, 0)
-			else:
-				assert_almost_equal(result / q.value, 1.0)
-
-		# Zero is a special case.
-		zero = units.Quantity(0, units.SIValues.dimensions.time)
-		eq_(str(zero), '0 s')
-
-	def testStrKeepPrefix(self):
-		"""
-		Optionally keep the original prefix for str().
-		"""
-
-		# No prefix to keep.
-		q1 = units.Quantity(1234, units.SIValues.dimensions.time)
-		eq_(str(q1), '1.234 ks')
-
-		# Kept prefix.
-		q2 = units.Quantity.from_string('1234 ns')
-		eq_(str(q2), '1234 ns')
-
-		# Cleared prefix.
-		q3 = units.Quantity.from_string('1234 ns')
-		q3.original_prefix = None
-		eq_(str(q3), '1.234 us')
+			eq_(str(q), proper_string)
 
 
 if __name__ == '__main__':

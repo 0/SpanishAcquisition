@@ -60,9 +60,9 @@ class AbstractDeviceTest(unittest.TestCase):
 
 			dev.multi_command_start()
 			dev.ask('system:version?')
-			dev.write('*opc')
+			dev.opc
 			dev.ask('system:version?')
-			dev.ask('*idn?')
+			dev.idn
 			responses = dev.multi_command_stop()
 
 			eq_(responses, expected)

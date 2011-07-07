@@ -128,7 +128,7 @@ class DPO7104(AbstractDevice):
 		bytes_per_point = self.waveform_bytes
 
 		self.write('acquire:state run')
-		self.ask('*opc?')
+		self.opc
 		curve_raw = self.ask_raw('curve?')
 
 		curve = BlockData.from_block_data(curve_raw)

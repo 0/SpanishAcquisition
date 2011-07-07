@@ -369,7 +369,32 @@ class AbstractDevice(SuperDevice):
 		Ask the device for identification.
 		"""
 
-		return self.ask('*idn?')
+		if self.driver in [drivers.pyvisa, drivers.lgpib]:
+			return self.ask('*idn?')
+
+	@property
+	def opc(self):
+		"""
+		Wait until the device is done.
+		"""
+
+		while True:
+			if self.driver == drivers.pyvisa:
+				try:
+					self.ask('*opc?')
+				except visa.VisaIOError as e:
+					if e.error_code != visa.VI_ERROR_TMO:
+						raise
+				else:
+					break
+			elif self.driver == drivers.lgpib:
+				try:
+					self.ask('*opc?')
+				except gpib.GpibError as e:
+					# TODO: Keep going on timeout.
+					raise
+				else:
+					break
 
 
 class AbstractSubdevice(SuperDevice):

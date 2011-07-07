@@ -21,6 +21,7 @@ class DPO7104(AbstractDevice):
 	Interface for Tektronix DPO7104 DPO.
 	"""
 
+	allowed_stopafters = ['runstop', 'sequence']
 	allowed_waveform_bytes = [1, 2] # Channel data only.
 
 	def _setup(self):
@@ -31,10 +32,11 @@ class DPO7104(AbstractDevice):
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
-		read_write = ['waveform_bytes']
+		read_write = ['stopafter', 'waveform_bytes']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		self.resources['stopafter'].allowed_values = self.allowed_stopafters
 		self.resources['waveform_bytes'].allowed_values = self.allowed_waveform_bytes
 		self.resources['waveform_bytes'].converter = int
 
@@ -42,9 +44,9 @@ class DPO7104(AbstractDevice):
 		AbstractDevice._connected(self)
 
 		self.reset()
+		self.autoset()
 
-		self.write('autoset execute')
-		self.write('acquire:stopafter sequence')
+		self.stopafter = 'sequence'
 
 	@Synchronized()
 	def reset(self):
@@ -54,6 +56,33 @@ class DPO7104(AbstractDevice):
 
 		log.info('Resetting "{0}".'.format(self.name))
 		self.write('*rst')
+
+	def autoset(self):
+		"""
+		Autoset the scaling.
+		"""
+
+		self.write('autoset execute')
+
+	@property
+	def stopafter(self):
+		"""
+		The acqusition mode.
+		"""
+
+		value = self.ask('acquire:stopafter?')
+
+		if value == 'RUNST':
+			return 'runstop'
+		elif value == 'SEQ':
+			return 'sequence'
+
+	@stopafter.setter
+	def stopafter(self, value):
+		if value not in self.allowed_stopafters:
+			raise ValueError('Invalid acquisition mode: {0}'.format(value))
+
+		self.write('acquire:stopafter {0}'.format(value))
 
 	@property
 	def waveform_bytes(self):

@@ -1,6 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from math import ceil
 import struct
 
 from spacq.interface.resources import Resource
@@ -20,6 +21,11 @@ class DPO7104(AbstractDevice):
 	"""
 	Interface for Tektronix DPO7104 DPO.
 	"""
+
+	byte_format_letters = [None, 'b', 'h']
+
+	# The upper limit to the number of samples to be received per transmission.
+	max_receive_samples = 1e7
 
 	allowed_stopafters = ['runstop', 'sequence']
 	allowed_waveform_bytes = [1, 2] # Channel data only.
@@ -147,26 +153,62 @@ class DPO7104(AbstractDevice):
 		return [2 * float(x - value_min) / value_diff - 1.0 for x in waveform]
 
 	@property
+	def data_start(self):
+		"""
+		The first data point to transfer.
+		"""
+
+		return int(self.ask('data:start?'))
+
+	@data_start.setter
+	def data_start(self, value):
+		self.write('data:start {0}'.format(value))
+
+	@property
+	def data_stop(self):
+		"""
+		The last data point to transfer.
+		"""
+
+		return int(self.ask('data:stop?'))
+
+	@data_stop.setter
+	def data_stop(self, value):
+		self.write('data:stop {0}'.format(value))
+
+	@property
+	def record_length(self):
+		"""
+		The number of data points in a waveform.
+		"""
+
+		return int(self.ask('horizontal:mode:recordlength?'))
+
+	@property
 	@Synchronized()
 	def waveform(self):
 		"""
 		A waveform acquired from the scope.
 		"""
 
-		bytes_per_point = self.waveform_bytes
-
 		self.write('acquire:state run')
 		self.opc
-		curve_raw = self.ask_raw('curve?')
 
-		curve = BlockData.from_block_data(curve_raw)
+		# Receive in chunks.
+		num_data_points = self.record_length
+		num_transmissions = int(ceil(num_data_points / self.max_receive_samples))
 
-		if bytes_per_point == 1:
-			format_code = 'b'
-		elif bytes_per_point == 2:
-			format_code = 'h'
+		curve = []
+		for i in xrange(num_transmissions):
+			self.data_start = i * self.max_receive_samples + 1
+			self.data_stop = (i + 1) * self.max_receive_samples
 
-		num_data_points = len(curve) / bytes_per_point
+			curve_raw = self.ask_raw('curve?')
+			curve.append(BlockData.from_block_data(curve_raw))
+
+		curve = ''.join(curve)
+
+		format_code = self.byte_format_letters[self.waveform_bytes]
 		curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
 
 		return self.normalize_waveform(curve_data)

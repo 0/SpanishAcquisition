@@ -269,12 +269,12 @@ class AcquisitionThreadTest(unittest.TestCase):
 		"""
 
 		buf = []
-		delay = Quantity(100, 'ms')
+		delay = Quantity(30, 'ms')
 		
 		thr = resources.AcquisitionThread(delay, buf.append)
 
 		thr.start()
-		time.sleep(delay.value * 10)
+		time.sleep(delay.value * 5)
 		thr.done = True
 
 		eq_(buf, [])
@@ -287,15 +287,15 @@ class AcquisitionThreadTest(unittest.TestCase):
 		dev = WithMethods()
 		res = resources.Resource(dev, dev.get_x)
 
-		expected = [res.value] * 10
+		expected = [res.value] * 5
 
 		buf = []
-		delay = Quantity(100, 'ms')
+		delay = Quantity(30, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res)
 
 		thr.start()
-		time.sleep(delay.value * 10)
+		time.sleep(delay.value * 5)
 		thr.done = True
 
 		eq_(buf, expected)
@@ -309,19 +309,19 @@ class AcquisitionThreadTest(unittest.TestCase):
 		res = resources.Resource(dev, dev.get_x)
 		lock = Lock()
 
-		expected = [res.value] * 8
+		expected = [res.value] * 4
 
 		buf = []
-		delay = Quantity(100, 'ms')
+		delay = Quantity(30, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res, running_lock=lock)
 
 		thr.start()
-		time.sleep(delay.value * 4)
+		time.sleep(delay.value * 2)
 		lock.acquire()
-		time.sleep(delay.value * 4)
+		time.sleep(delay.value * 2)
 		lock.release()
-		time.sleep(delay.value * 4)
+		time.sleep(delay.value * 2)
 		thr.done = True
 
 		eq_(buf, expected)
@@ -334,14 +334,14 @@ class AcquisitionThreadTest(unittest.TestCase):
 		res = resources.Resource()
 
 		buf = []
-		delay = Quantity(100, 'ms')
+		delay = Quantity(30, 'ms')
 
 		thr = resources.AcquisitionThread(delay, buf.append, res)
 
 		log = AssertHandler()
 
 		thr.start()
-		time.sleep(delay.value * 10)
+		time.sleep(delay.value * 5)
 		thr.done = True
 
 		log.assert_logged('error', 'not readable')

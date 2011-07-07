@@ -1,4 +1,5 @@
 from nose.tools import eq_
+from numpy import linspace
 from threading import Lock
 import time
 import unittest
@@ -260,6 +261,46 @@ class ResourceTest(unittest.TestCase):
 		assert     res3.is_wrapped_by('wrapper2')
 		assert not res4.is_wrapped_by('wrapper1')
 		assert     res4.is_wrapped_by('wrapper2')
+
+	def testSweep(self):
+		"""
+		Ramp up and down.
+		"""
+
+		buf = None
+		def setter(value):
+			if abs(value) > 10:
+				raise ValueError(value)
+
+			buf.append(value)
+
+		exceptions = None
+		def exception_callback(e):
+			exceptions.append(tuple(e))
+
+		res = resources.Resource(setter=setter)
+
+		# Check the values.
+		buf = []
+		res.sweep(1.0, 5.0, 5)
+		eq_(buf, list(linspace(1.0, 5.0, 5)))
+
+		# Check the time.
+		buf = []
+		start_time = time.time()
+		res.sweep(-5.0, 5.0, 11, delay=0.05)
+		time_diff = time.time() - start_time
+		assert time_diff > 0.55
+		assert time_diff < 0.75
+		eq_(buf, list(linspace(-5.0, 5.0, 11)))
+
+		# Check the exceptions.
+		buf = []
+		exceptions = []
+		res.sweep(9.0, 12.0, 4, delay=0.05, exception_callback=exception_callback)
+		res.sweep(-15.0, 0.0, 3, delay=0.05, exception_callback=exception_callback)
+		eq_(buf, list(linspace(9.0, 10.0, 2)))
+		eq_(exceptions, [(11.0,), (-15.0,)])
 
 
 class AcquisitionThreadTest(unittest.TestCase):

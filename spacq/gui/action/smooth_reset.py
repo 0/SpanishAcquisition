@@ -1,6 +1,5 @@
-import numpy
+from functools import partial
 from threading import Thread
-import time
 import wx
 
 from spacq.iteration.variables import OutputVariable
@@ -47,18 +46,6 @@ class SmoothResetPanel(wx.Panel):
 
 		self.SetSizer(panel_box)
 
-	def sweep_var(self, variable, steps, from_zero):
-		if from_zero:
-			values = numpy.linspace(0, variable.const, steps)
-		else:
-			values = numpy.linspace(variable.const, 0, steps)
-
-		resource = self.global_store.resources[variable.resource_name]
-
-		for value in values:
-			resource.value = value
-			time.sleep(0.1) # s
-
 	def choose_variables(self):
 		"""
 		Return all the selected variables, ensuring that their resources are valid.
@@ -93,12 +80,22 @@ class SmoothResetPanel(wx.Panel):
 		self.to_button.Disable()
 		self.from_button.Disable()
 
+		def exception_callback(e):
+			ErrorMessageDialog(self, str(e), 'Error writing to resource').Show()
+
 		def sweep_all_vars():
 			try:
 				thrs = []
 				for var in vars:
-					thr = Thread(target=self.sweep_var,
-							args=(var, self.reset_steps_input.Value, from_zero))
+					resource = self.global_store.resources[var.resource_name]
+
+					if from_zero:
+						value_from, value_to = 0, var.const
+					else:
+						value_from, value_to = var.const, 0
+
+					thr = Thread(target=resource.sweep, args=(value_from, value_to, self.reset_steps_input.Value),
+							kwargs={'exception_callback': partial(wx.CallAfter, exception_callback)})
 					thr.daemon = True
 					thrs.append(thr)
 

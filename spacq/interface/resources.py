@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from copy import copy
+from numpy import linspace
 from threading import Thread
 import time
 
@@ -173,6 +174,21 @@ class Resource(object):
 		result.wrappers = self.wrappers[:idx] + self.wrappers[idx+1:]
 
 		return result
+
+	def sweep(self, value_from, value_to, steps, delay=0.1, exception_callback=None):
+		"""
+		Sweep the Resource slowly over a linear space.
+		"""
+
+		for value in linspace(value_from, value_to, steps):
+			try:
+				self.value = value
+			except Exception as e:
+				if exception_callback is not None:
+					exception_callback(e)
+				return
+
+			time.sleep(delay)
 
 
 class AcquisitionThread(Thread):

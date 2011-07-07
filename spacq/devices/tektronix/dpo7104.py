@@ -200,8 +200,8 @@ class DPO7104(AbstractDevice):
 
 		curve = []
 		for i in xrange(num_transmissions):
-			self.data_start = i * self.max_receive_samples + 1
-			self.data_stop = (i + 1) * self.max_receive_samples
+			self.data_start = int(i * self.max_receive_samples) + 1
+			self.data_stop = int((i + 1) * self.max_receive_samples)
 
 			curve_raw = self.ask_raw('curve?')
 			curve.append(BlockData.from_block_data(curve_raw))

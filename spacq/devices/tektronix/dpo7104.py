@@ -32,13 +32,15 @@ class DPO7104(AbstractDevice):
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
-		read_write = ['stopafter', 'waveform_bytes']
+		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'horizontal_scale']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['stopafter'].allowed_values = self.allowed_stopafters
 		self.resources['waveform_bytes'].allowed_values = self.allowed_waveform_bytes
 		self.resources['waveform_bytes'].converter = int
+		self.resources['sample_rate'].converter = float
+		self.resources['horizontal_scale'].converter = float
 
 	def _connected(self):
 		AbstractDevice._connected(self)
@@ -107,6 +109,32 @@ class DPO7104(AbstractDevice):
 		max_val = 2 ** bits
 
 		return (-max_val, max_val - 1)
+
+	@property
+	def sample_rate(self):
+		"""
+		The sample rate in s-1.
+		"""
+
+		return float(self.ask('horizontal:mode:samplerate?'))
+
+	@sample_rate.setter
+	def sample_rate(self, value):
+		self.write('horizontal:mode:samplerate {0}'.format(value))
+
+	@property
+	def horizontal_scale(self):
+		"""
+		The horizontal time scale for each division in s.
+
+		Note: There are 10 divisions, so a waveform will be 10 times as long.
+		"""
+
+		return float(self.ask('horizontal:mode:scale?'))
+
+	@horizontal_scale.setter
+	def horizontal_scale(self, value):
+		self.write('horizontal:mode:scale {0}'.format(value))
 
 	def normalize_waveform(self, waveform):
 		"""

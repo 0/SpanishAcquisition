@@ -144,7 +144,12 @@ class DataCaptureDialog(Dialog):
 		Find the indices of the values which differ in their change indicators.
 		"""
 
-		return [i for i, x in enumerate(itertools.izip_longest(old[1::2], new[1::2])) if x[0] != x[1]]
+		# Extract the change indicators.
+		old, new = old[1::2], new[1::2]
+
+		for i, (o, n) in enumerate(itertools.izip_longest(old, new)):
+			if o != n:
+				return range(i, max(len(old), len(new)))
 
 	def next_values(self, values):
 		"""

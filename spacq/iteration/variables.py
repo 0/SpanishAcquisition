@@ -46,7 +46,7 @@ def combine_variables(variables):
 	sorted_variables = []
 	# Treat each order to its own parallel iterator.
 	for _, vars in grouped:
-		# Each variable also gets its own tupled parallel iterator with a change indicator.
+		# Each variable also gets its own parallel iterator with a change indicator.
 		with_indicators = [ParallelIterator([x.to_iterator(), change_indicator()]) for x in vars]
 
 		var_iter = ParallelIterator(with_indicators)

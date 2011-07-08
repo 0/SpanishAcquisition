@@ -3,7 +3,7 @@ from wx.lib.masked.ipaddrctrl import IpAddrCtrl
 
 from spacq.devices.config import device_tree, ConnectionError, DeviceConfig
 
-from ...tool.box import load_pickled, save_pickled, Dialog, ErrorMessageDialog
+from ...tool.box import load_pickled, save_pickled, Dialog, MessageDialog
 from .resource_tree import DeviceResourcesPanel
 
 """
@@ -264,7 +264,7 @@ class DeviceConfigPanel(wx.Panel):
 		try:
 			dev_cfg.connect()
 		except ConnectionError as e:
-			ErrorMessageDialog(self, str(e), 'Connection error').Show()
+			MessageDialog(self, str(e), 'Connection error').Show()
 			return
 
 		self.device = dev_cfg.device
@@ -355,7 +355,7 @@ class DeviceConfigDialog(Dialog):
 			save_pickled(self, self.GetValue(), extension='dev',
 					file_type='Device configuration')
 		except IOError as e:
-			ErrorMessageDialog(self, str(e), 'Save error').Show()
+			MessageDialog(self, str(e), 'Save error').Show()
 			return
 
 	def OnLoad(self, evt=None):
@@ -368,5 +368,5 @@ class DeviceConfigDialog(Dialog):
 			except Exception as e:
 				raise IOError('Could not set values.', e)
 		except IOError as e:
-			ErrorMessageDialog(self, str(e), 'Load error').Show()
+			MessageDialog(self, str(e), 'Load error').Show()
 			return

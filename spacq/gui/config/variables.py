@@ -3,7 +3,7 @@ import wx
 
 from spacq.iteration.variables import LinSpaceVariable
 
-from ..tool.box import ErrorMessageDialog, load_pickled, save_pickled
+from ..tool.box import MessageDialog, load_pickled, save_pickled
 
 """
 An interface for creating and editing Variable objects.
@@ -112,7 +112,7 @@ class VariablesPanel(wx.Panel):
 			try:
 				self.global_store.variables[var_new_name] = var
 			except KeyError:
-				ErrorMessageDialog(self, var_new_name, 'Variable name conflicts').Show()
+				MessageDialog(self, var_new_name, 'Variable name conflicts').Show()
 				evt.Veto()
 				return
 
@@ -133,7 +133,7 @@ class VariablesPanel(wx.Panel):
 		try:
 			save_pickled(self, self.olv.GetObjects(), extension='var', file_type='Variables')
 		except IOError as e:
-			ErrorMessageDialog(self, str(e), 'Save error').Show()
+			MessageDialog(self, str(e), 'Save error').Show()
 			return
 
 	def OnLoad(self, evt=None):
@@ -144,7 +144,7 @@ class VariablesPanel(wx.Panel):
 		try:
 			values = load_pickled(self, extension='var', file_type='Variables')
 		except IOError as e:
-			ErrorMessageDialog(self, str(e), 'Load error').Show()
+			MessageDialog(self, str(e), 'Load error').Show()
 			return
 
 		if values is not None:
@@ -164,7 +164,7 @@ class VariablesPanel(wx.Panel):
 				self.olv.AddObject(var)
 
 			if conflicting_names:
-				ErrorMessageDialog(self, ', '.join(conflicting_names), 'Variable names conflict').Show()
+				MessageDialog(self, ', '.join(conflicting_names), 'Variable names conflict').Show()
 
 	def OnAddVariable(self, evt=None):
 		"""

@@ -2,7 +2,7 @@ import wx
 
 from spacq.iteration.mesh import triples_to_mesh
 
-from ....tool.box import ErrorMessageDialog
+from ....tool.box import MessageDialog
 from ..surface import SurfacePlot
 from .common.plot_setup import PlotSetupDialog
 
@@ -60,13 +60,13 @@ class SurfacePlotSetupDialog(PlotSetupDialog):
 		try:
 			x_data, y_data, z_data = [self.data[:,axis].astype(float) for axis in self.axes]
 		except ValueError as e:
-			ErrorMessageDialog(self, str(e), 'Invalid value').Show()
+			MessageDialog(self, str(e), 'Invalid value').Show()
 			return
 
 		try:
 			surface_data, x_bounds, y_bounds, _ = triples_to_mesh(x_data, y_data, z_data)
 		except Exception as e:
-			ErrorMessageDialog(self, str(e), 'Conversion failure').Show()
+			MessageDialog(self, str(e), 'Conversion failure').Show()
 			return
 
 		x_label, y_label, z_label = [self.headings[x] for x in self.axes]

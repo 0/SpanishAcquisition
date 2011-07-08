@@ -4,7 +4,7 @@ from wx.gizmos import TreeListCtrl
 
 from spacq.interface.resources import NotReadable
 
-from ...tool.box import ErrorMessageDialog
+from ...tool.box import MessageDialog
 
 """
 A tree of subdevices and resources.
@@ -241,7 +241,7 @@ class ResourceTree(TreeListCtrl):
 					try:
 						self.set_value(evt.Item, dlg.GetStringSelection())
 					except ValueError as e:
-						ErrorMessageDialog(self, str(e), 'Invalid value').Show()
+						MessageDialog(self, str(e), 'Invalid value').Show()
 						return
 
 				# No need for the editor.
@@ -257,7 +257,7 @@ class ResourceTree(TreeListCtrl):
 			try:
 				self.set_value(evt.Item, value)
 			except ValueError as e:
-				ErrorMessageDialog(self, str(e), 'Invalid value').Show()
+				MessageDialog(self, str(e), 'Invalid value').Show()
 				return
 
 	def OnActivated(self, evt):

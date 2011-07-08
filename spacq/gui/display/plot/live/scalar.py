@@ -10,7 +10,7 @@ from wx.lib.agw import floatspin
 from spacq.interface.resources import AcquisitionThread
 from spacq.interface.units import Quantity
 
-from ....tool.box import Dialog, ErrorMessageDialog
+from ....tool.box import Dialog, MessageDialog
 from ..two_dimensional import TwoDimensionalPlot
 
 """
@@ -446,7 +446,7 @@ class ScalarLiveViewPanel(wx.Panel):
 					quantity_to = Quantity(1, self.plot_settings.units_to)
 				except ValueError as e:
 					self.unit_conversion = 0
-					ErrorMessageDialog(self, str(e), 'Invalid unit').Show()
+					MessageDialog(self, str(e), 'Invalid unit').Show()
 				else:
 					# We don't actually care about the units; just the prefix values.
 					self.unit_conversion = math.log(quantity_from.value, 10) - math.log(quantity_to.value, 10)

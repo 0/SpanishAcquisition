@@ -5,7 +5,7 @@ from time import sleep
 import wx
 from wx.lib.agw.floatspin import FloatSpin
 
-from ...tool.box import load_csv, save_csv, Dialog, ErrorMessageDialog
+from ...tool.box import load_csv, save_csv, Dialog, MessageDialog
 
 """
 Configuration for a VoltageSource.
@@ -125,17 +125,17 @@ class VoltageSourceTunerDialog(Dialog):
 		name = self.resource_name_input.Value
 
 		if not name:
-			ErrorMessageDialog(self, 'No resource provided').Show()
+			MessageDialog(self, 'No resource provided').Show()
 			return
 
 		try:
 			resource = self.global_store.resources[name]
 		except KeyError:
-			ErrorMessageDialog(self, name, 'Missing resource').Show()
+			MessageDialog(self, name, 'Missing resource').Show()
 			return
 
 		if not resource.readable:
-			ErrorMessageDialog(self, name, 'Unreadable resource').Show()
+			MessageDialog(self, name, 'Unreadable resource').Show()
 			return
 
 		self.autotune_button.Disable()
@@ -274,7 +274,7 @@ class VoltageSourceSettingsPanel(wx.Panel):
 		try:
 			self.vsrc.ports[port_num].voltage = self.port_value_inputs[port_num].GetValue()
 		except ValueError as e:
-			ErrorMessageDialog(self, str(e), 'Invalid value').Show()
+			MessageDialog(self, str(e), 'Invalid value').Show()
 
 	def OnTune(self, port_num, evt=None):
 		port = self.vsrc.ports[port_num]
@@ -304,7 +304,7 @@ class VoltageSourceSettingsPanel(wx.Panel):
 		try:
 			save_csv(self, values)
 		except IOError as e:
-			ErrorMessageDialog(self, str(e), 'Save error').Show()
+			MessageDialog(self, str(e), 'Save error').Show()
 			return
 
 	def OnLoad(self, evt=None):
@@ -334,7 +334,7 @@ class VoltageSourceSettingsPanel(wx.Panel):
 				except TypeError:
 					raise ValueError('Not a number for port {0}.'.format(i))
 		except (IOError, ValueError) as e:
-			ErrorMessageDialog(self, str(e), 'Load error').Show()
+			MessageDialog(self, str(e), 'Load error').Show()
 			return
 
 		for port, values in zip(self.vsrc.ports, port_values):

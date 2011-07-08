@@ -5,7 +5,7 @@ import wx
 from spacq.iteration.variables import OutputVariable
 from spacq.tool.box import sift
 
-from ..tool.box import ErrorMessageDialog
+from ..tool.box import MessageDialog
 
 
 class SmoothResetPanel(wx.Panel):
@@ -64,9 +64,9 @@ class SmoothResetPanel(wx.Panel):
 				missing_resources.append(var.resource_name)
 
 		if missing_resources:
-			ErrorMessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
+			MessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
 		if unwritable_resources:
-			ErrorMessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
+			MessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
 		if missing_resources or unwritable_resources:
 			return None
 
@@ -81,7 +81,7 @@ class SmoothResetPanel(wx.Panel):
 		self.from_button.Disable()
 
 		def exception_callback(e):
-			ErrorMessageDialog(self, str(e), 'Error writing to resource').Show()
+			MessageDialog(self, str(e), 'Error writing to resource').Show()
 
 		def sweep_all_vars():
 			try:

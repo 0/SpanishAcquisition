@@ -13,7 +13,7 @@ from wx.lib.filebrowsebutton import DirBrowseButton
 from spacq.iteration.variables import combine_variables, InputVariable, OutputVariable
 from spacq.tool.box import sift
 
-from ..tool.box import Dialog, ErrorMessageDialog, YesNoQuestionDialog
+from ..tool.box import Dialog, MessageDialog, YesNoQuestionDialog
 
 
 class DataCaptureDialog(Dialog):
@@ -178,7 +178,7 @@ class DataCaptureDialog(Dialog):
 					resource.value = value
 				except Exception as e:
 					msg = 'Resource: {0}\nError: {1}'.format(name, str(e))
-					ErrorMessageDialog(self.parent, msg, 'Error writing to resource').Show()
+					MessageDialog(self.parent, msg, 'Error writing to resource').Show()
 
 					wx.CallAfter(self.end, fatal=True)
 					return False
@@ -260,7 +260,7 @@ class DataCaptureDialog(Dialog):
 							value = resource.value
 						except Exception as e:
 							msg = 'Resource: {0}\nError: {1}'.format(name, str(e))
-							ErrorMessageDialog(self.parent, msg, 'Error reading from resource').Show()
+							MessageDialog(self.parent, msg, 'Error reading from resource').Show()
 
 							wx.CallAfter(self.end)
 							return
@@ -359,7 +359,7 @@ class DataCapturePanel(wx.Panel):
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
 
 		if not output_variables:
-			ErrorMessageDialog(self, 'No output variables defined', 'No variables').Show()
+			MessageDialog(self, 'No output variables defined', 'No variables').Show()
 			return
 
 		iterator, last, num_items, output_variables = combine_variables(output_variables)
@@ -406,11 +406,11 @@ class DataCapturePanel(wx.Panel):
 					unreadable_resources.append(name)
 
 		if missing_resources:
-			ErrorMessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
+			MessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
 		if unreadable_resources:
-			ErrorMessageDialog(self, ', '.join(unreadable_resources), 'Unreadable resources').Show()
+			MessageDialog(self, ', '.join(unreadable_resources), 'Unreadable resources').Show()
 		if unwritable_resources:
-			ErrorMessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
+			MessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
 		if missing_resources or unreadable_resources or unwritable_resources:
 			return
 
@@ -421,16 +421,16 @@ class DataCapturePanel(wx.Panel):
 			name = '{0:04}-{1:02}-{2:02}_{3:02}-{4:02}-{5:02}.csv'.format(*time.localtime())
 
 			if not dir:
-				ErrorMessageDialog(self, 'No directory selected.', 'Export path').Show()
+				MessageDialog(self, 'No directory selected.', 'Export path').Show()
 				return
 
 			if not os.path.isdir(dir):
-				ErrorMessageDialog(self, 'Invalid directory selected', 'Export path').Show()
+				MessageDialog(self, 'Invalid directory selected', 'Export path').Show()
 				return
 
 			file_path = os.path.join(dir, name)
 			if os.path.exists(file_path):
-				ErrorMessageDialog(self, file_path, 'File exists').Show()
+				MessageDialog(self, file_path, 'File exists').Show()
 				return
 
 			# Everything looks alright, so open the file.

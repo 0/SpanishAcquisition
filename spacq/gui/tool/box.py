@@ -145,7 +145,7 @@ class Dialog(wx.Dialog):
 				self.Destroy()
 
 
-class ErrorMessageDialog(Dialog):
+class MessageDialog(Dialog):
 	"""
 	A simple error message dialog.
 	"""

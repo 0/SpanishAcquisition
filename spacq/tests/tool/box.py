@@ -22,7 +22,7 @@ class AssertHandler(logging.handlers.BufferingHandler):
 
 		logging.getLogger().addHandler(self)
 
-	def assert_logged(self, level, msg, ignore_case=True):
+	def assert_logged(self, level, msg, ignore_case=True, literal=False):
 		"""
 		Assert that a message matching the level and regular expression has been logged.
 		"""
@@ -34,8 +34,10 @@ class AssertHandler(logging.handlers.BufferingHandler):
 			re_flags |= re.IGNORECASE
 
 		for record in self.buffer:
-			if record.levelname.lower() == level and re.search(msg, record.msg, re_flags):
-				return
+			if record.levelname.lower() == level:
+				if (literal and msg == record.msg or
+						not literal and re.search(msg, record.msg, re_flags)):
+					return
 
 		assert False, 'Log message not found at level "{0}": {1}'.format(level, msg)
 

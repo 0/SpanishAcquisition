@@ -5,7 +5,7 @@ from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
 
-from spacq.tests.tools import AssertHandler
+from spacq.tests.tool.box import AssertHandler
 from testconfig import config as tc
 
 from ... import awg5014b

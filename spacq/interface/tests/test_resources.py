@@ -4,7 +4,7 @@ from threading import Lock
 import time
 import unittest
 
-from spacq.tests.tools import AssertHandler
+from spacq.tests.tool.box import AssertHandler
 
 from ..units import Quantity
 

@@ -1,9 +1,9 @@
 import ObjectListView
 import wx
 
-from spacq.iteration.variables import LinSpaceVariable
+from spacq.iteration.variables import OutputVariable, LinSpaceConfig
 
-from ..tool.box import MessageDialog, load_pickled, save_pickled
+from ..tool.box import Dialog, MessageDialog, load_pickled, save_pickled
 
 """
 An interface for creating and editing Variable objects.
@@ -24,15 +24,133 @@ class VariableColumnDefn(ObjectListView.ColumnDefn):
 			self.width = 0
 
 
+class LinSpaceConfigPanel(wx.Panel):
+	def __init__(self, parent, *args, **kwargs):
+		wx.Panel.__init__(self, parent, *args, **kwargs)
+
+		# Panel.
+		panel_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Config.
+		config_sizer = wx.FlexGridSizer(rows=3, cols=2)
+		config_sizer.AddGrowableCol(1, 1)
+		panel_box.Add(config_sizer, proportion=1, flag=wx.EXPAND)
+
+		### Initial.
+		config_sizer.Add(wx.StaticText(self, label='Initial:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		self.initial_input = wx.TextCtrl(self)
+		config_sizer.Add(self.initial_input, flag=wx.EXPAND|wx.ALL, border=5)
+
+		### Final.
+		config_sizer.Add(wx.StaticText(self, label='Final:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		self.final_input = wx.TextCtrl(self)
+		config_sizer.Add(self.final_input, flag=wx.EXPAND|wx.ALL, border=5)
+
+		### Steps.
+		config_sizer.Add(wx.StaticText(self, label='Steps:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		self.steps_input = wx.SpinCtrl(self, min=1, initial=1, max=1e9)
+		config_sizer.Add(self.steps_input, flag=wx.EXPAND|wx.ALL, border=5)
+
+		self.SetSizerAndFit(panel_box)
+
+	def GetValue(self):
+		# Ensure the values are sane.
+		try:
+			initial = float(self.initial_input.Value)
+		except ValueError:
+			raise ValueError('Invalid initial value.')
+
+		try:
+			final = float(self.final_input.Value)
+		except ValueError:
+			raise ValueError('Invalid final value.')
+
+		return LinSpaceConfig(initial, final, self.steps_input.Value)
+
+	def SetValue(self, config):
+		self.initial_input.Value, self.final_input.Value, self.steps_input.Value = (str(config.initial),
+				str(config.final), config.steps)
+
+
+class VariableEditor(Dialog):
+	def __init__(self, parent, ok_callback, *args, **kwargs):
+		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
+
+		Dialog.__init__(self, parent, *args, **kwargs)
+
+		self.ok_callback = ok_callback
+
+		# Dialog.
+		dialog_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Config.
+		self.config_notebook = wx.Notebook(self)
+		dialog_box.Add(self.config_notebook, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
+
+		self.config_panel_types = []
+
+		### Linear.
+		linspace_config_panel = LinSpaceConfigPanel(self.config_notebook)
+		self.config_panel_types.append(LinSpaceConfig)
+		self.config_notebook.AddPage(linspace_config_panel, 'Linear')
+
+		## Smooth set.
+		smooth_static_box = wx.StaticBox(self, label='Smooth set')
+		smooth_box = wx.StaticBoxSizer(smooth_static_box, wx.HORIZONTAL)
+		dialog_box.Add(smooth_box, flag=wx.CENTER|wx.ALL, border=5)
+
+		smooth_box.Add(wx.StaticText(self, label='Steps:'), flag=wx.CENTER)
+
+		self.smooth_steps_input = wx.SpinCtrl(self, min=1, initial=10)
+		smooth_box.Add(self.smooth_steps_input, flag=wx.CENTER|wx.ALL, border=5)
+
+		self.smooth_from_checkbox = wx.CheckBox(self, label='From const')
+		smooth_box.Add(self.smooth_from_checkbox, flag=wx.CENTER|wx.ALL, border=5)
+
+		self.smooth_to_checkbox = wx.CheckBox(self, label='To const')
+		smooth_box.Add(self.smooth_to_checkbox, flag=wx.CENTER|wx.ALL, border=5)
+
+		## End buttons.
+		button_box = wx.BoxSizer(wx.HORIZONTAL)
+		dialog_box.Add(button_box, flag=wx.CENTER|wx.ALL, border=5)
+
+		ok_button = wx.Button(self, wx.ID_OK)
+		self.Bind(wx.EVT_BUTTON, self.OnOk, ok_button)
+		button_box.Add(ok_button)
+
+		cancel_button = wx.Button(self, wx.ID_CANCEL)
+		button_box.Add(cancel_button)
+
+		self.SetSizerAndFit(dialog_box)
+
+	def GetValue(self):
+		return (self.config_notebook.CurrentPage.GetValue(), self.smooth_steps_input.Value,
+				self.smooth_from_checkbox.Value, self.smooth_to_checkbox.Value)
+
+	def SetValue(self, config, smooth_steps, smooth_from, smooth_to):
+		type = self.config_panel_types.index(config.__class__)
+		self.config_notebook.ChangeSelection(type)
+		self.config_notebook.CurrentPage.SetValue(config)
+
+		(self.smooth_steps_input.Value, self.smooth_from_checkbox.Value,
+				self.smooth_to_checkbox.Value) = smooth_steps, smooth_from, smooth_to
+
+	def OnOk(self, evt=None):
+		if self.ok_callback(self):
+			self.Destroy()
+
+
 class VariablesPanel(wx.Panel):
 	col_name = VariableColumnDefn(checkStateGetter='enabled', title='Name', valueGetter='name',
 			isSpaceFilling=True, align='left')
 	col_order = VariableColumnDefn(title='#', valueGetter='order', width=40)
 	col_resource = VariableColumnDefn(title='Resource', valueGetter='resource_name',
 			isSpaceFilling=True, align='left')
-	col_initial = VariableColumnDefn(title='Initial', valueGetter='initial')
-	col_final = VariableColumnDefn(title='Final', valueGetter='final')
-	col_steps = VariableColumnDefn(title='Steps', valueGetter='steps')
+	col_values = VariableColumnDefn(title='Values', valueGetter=lambda x: str(x),
+			isSpaceFilling=True, align='left')
 	col_wait = VariableColumnDefn(title='Wait time', valueGetter='wait')
 	col_const = VariableColumnDefn(checkStateGetter='use_const', title='Const. value',
 			valueGetter='const')
@@ -49,11 +167,12 @@ class VariablesPanel(wx.Panel):
 		self.olv = ObjectListView.GroupListView(self)
 		panel_box.Add(self.olv, proportion=1, flag=wx.ALL|wx.EXPAND)
 
-		self.olv.SetColumns([self.col_name, self.col_order, self.col_resource, self.col_initial,
-				self.col_final, self.col_steps, self.col_wait, self.col_const])
+		self.olv.SetColumns([self.col_name, self.col_order, self.col_resource, self.col_values,
+				self.col_wait, self.col_const])
 		self.olv.SetSortColumn(self.col_order)
 
 		self.olv.cellEditMode = self.olv.CELLEDIT_DOUBLECLICK
+		self.olv.Bind(ObjectListView.EVT_CELL_EDIT_STARTING, self.OnCellEditStarting)
 		self.olv.Bind(ObjectListView.EVT_CELL_EDIT_FINISHING, self.OnCellEditFinishing)
 		self.olv.Bind(ObjectListView.EVT_CELL_EDIT_FINISHED, self.OnCellEditFinished)
 
@@ -96,6 +215,34 @@ class VariablesPanel(wx.Panel):
 			return max(x.order for x in self.olv.GetObjects())
 		except ValueError:
 			return 0
+
+	def OnCellEditStarting(self, evt):
+		col = evt.objectListView.columns[evt.subItemIndex]
+		var = evt.rowModel
+
+		# Ignore frivolous requests.
+		if evt.rowIndex < 0:
+			evt.Veto()
+			return
+
+		if col == self.col_values:
+			def ok_callback(dlg):
+				try:
+					values = dlg.GetValue()
+				except ValueError as e:
+					MessageDialog(self, str(e), 'Invalid value').Show()
+					return False
+
+				var.config, var.smooth_steps, var.smooth_from, var.smooth_to = values
+
+				return True
+
+			dlg = VariableEditor(self, ok_callback)
+			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to)
+			dlg.Show()
+
+			# No need to use the default editor.
+			evt.Veto()
 
 	def OnCellEditFinishing(self, evt):
 		col = evt.objectListView.columns[evt.subItemIndex]
@@ -177,7 +324,7 @@ class VariablesPanel(wx.Panel):
 			done = False
 			while not done:
 				name = 'New variable {0}'.format(num)
-				var = LinSpaceVariable(name=name, order=self.max_order()+1)
+				var = OutputVariable(name=name, order=self.max_order()+1)
 
 				try:
 					self.global_store.variables[name] = var

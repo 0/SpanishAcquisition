@@ -1,4 +1,4 @@
-import itertools
+from itertools import groupby, islice
 import numpy
 import operator
 
@@ -26,7 +26,6 @@ def combine_variables(variables):
 
 	The returned values are:
 		iterator
-		tuple of constant values
 		number of items in the iterator
 		variables sorted by their order in the tuples
 	"""
@@ -35,11 +34,11 @@ def combine_variables(variables):
 	variables = [var for var in variables if var.enabled]
 
 	if not variables:
-		return ([], (), 0, [])
+		return ([], 0, [])
 
 	order_attr = operator.attrgetter('order')
 	ordered = sorted(variables, key=order_attr, reverse=True)
-	grouped = ((order, list(vars)) for order, vars in itertools.groupby(ordered, order_attr))
+	grouped = ((order, list(vars)) for order, vars in groupby(ordered, order_attr))
 
 	iterators = []
 	num_items = 1
@@ -47,7 +46,7 @@ def combine_variables(variables):
 	# Treat each order to its own parallel iterator.
 	for _, vars in grouped:
 		# Each variable also gets its own parallel iterator with a change indicator.
-		with_indicators = [ParallelIterator([x.to_iterator(), change_indicator()]) for x in vars]
+		with_indicators = [ParallelIterator([x.iterator, change_indicator()]) for x in vars]
 
 		var_iter = ParallelIterator(with_indicators)
 		var_items = sum(1 for _ in var_iter)
@@ -58,12 +57,7 @@ def combine_variables(variables):
 
 	iterator = ProductIterator(iterators)
 
-	last_values = []
-	for var in sorted_variables:
-		# Using 2 as a value different from change_indicator values.
-		last_values.extend([var.const, 2])
-
-	return (iterator, tuple(last_values), num_items, sorted_variables)
+	return (iterator, num_items, sorted_variables)
 
 
 class Variable(object):
@@ -91,15 +85,31 @@ class OutputVariable(Variable):
 	An abstract superclass for output variables.
 	"""
 
-	def __init__(self, order, wait='0 s', const=0.0, use_const=False, *args, **kwargs):
+	# Maximum number of initial values to display in string form.
+	display_values = 4
+
+	# Maximum number of values to search through for the end.
+	search_values = 1000
+
+	def __init__(self, order, config=None, wait='0 s', const=0.0, use_const=False, *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
 
 		self.order = order
+
+		if config is not None:
+			self.config = config
+		else:
+			self.config = LinSpaceConfig(0.0, 0.0, 1)
 
 		# Iteration parameters.
 		self._wait = Quantity(wait)
 		self.const = const
 		self.use_const = use_const
+
+		# Smooth set.
+		self.smooth_steps = 10
+		self.smooth_from = False
+		self.smooth_to = False
 
 	@property
 	def wait(self):
@@ -112,20 +122,38 @@ class OutputVariable(Variable):
 
 		self._wait = wait
 
+	@property
+	def iterator(self):
+		if self.use_const:
+			return [self.const]
+		else:
+			return self.config.to_iterator()
 
-class LinSpaceVariable(OutputVariable):
+	def __str__(self):
+		found_values = list(islice(self.iterator, 0, self.search_values + 1))
 
+		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
+
+		if len(found_values) > self.display_values:
+			shown_values += ', ...'
+
+			if len(found_values) <= self.search_values:
+				shown_values += ', {0:g}'.format(found_values[-1])
+
+		smooth_from = '(' if not self.use_const and self.smooth_from else '['
+		smooth_to = ')' if not self.use_const and self.smooth_to else ']'
+		return '{0}{1}{2}'.format(smooth_from, shown_values, smooth_to)
+
+
+class LinSpaceConfig(object):
 	"""
-	A linear space variable.
+	Linear space variable configuration.
 	"""
 
-	def __init__(self, initial=0.0, final=0.0, steps=1, *args, **kwargs):
-		OutputVariable.__init__(self, *args, **kwargs)
-
-		# Linear space parameters.
+	def __init__(self, initial=0.0, final=0.0, steps=1):
 		self.initial = initial
 		self.final = final
-		self._steps = steps
+		self.steps = steps
 
 	@property
 	def steps(self):
@@ -139,7 +167,4 @@ class LinSpaceVariable(OutputVariable):
 		self._steps = value
 
 	def to_iterator(self):
-		if self.use_const:
-			return [self.const]
-		else:
-			return numpy.linspace(self.initial, self.final, self.steps)
+		return numpy.linspace(self.initial, self.final, self.steps)

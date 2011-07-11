@@ -24,8 +24,8 @@ class ChangeIndicatorTest(unittest.TestCase):
 
 
 class CombineVariablesTest(unittest.TestCase):
-	@classmethod
-	def extract(cls, values):
+	@staticmethod
+	def extract(values):
 		"""
 		Given a tuple of (value, change indicator, ...) pairs, extract the values.
 		"""
@@ -45,9 +45,8 @@ class CombineVariablesTest(unittest.TestCase):
 		Use no variables.
 		"""
 
-		iterator, last, num_items, sorted_variables = variables.combine_variables([])
+		iterator, num_items, sorted_variables = variables.combine_variables([])
 		eq_(self.list_extract(list(iterator)), [])
-		eq_(self.extract(last), ())
 		eq_(num_items, 0)
 		eq_(sorted_variables, [])
 
@@ -56,14 +55,13 @@ class CombineVariablesTest(unittest.TestCase):
 		Use a single variable.
 		"""
 
-		var = variables.LinSpaceVariable(-5.0, 5.0, 11,
+		var = variables.OutputVariable(config=variables.LinSpaceConfig(-5.0, 5.0, 11),
 				name='Name', order=0, enabled=True, const=60.0)
 
 		expected = [(x,) for x in range(-5, 6)]
 
-		iterator, last, num_items, sorted_variables = variables.combine_variables([var])
+		iterator, num_items, sorted_variables = variables.combine_variables([var])
 		eq_(self.list_extract(list(iterator)), expected)
-		eq_(self.extract(last), (60.0,))
 		eq_(num_items, len(expected))
 		eq_([x.name for x in sorted_variables], ['Name'])
 
@@ -73,15 +71,15 @@ class CombineVariablesTest(unittest.TestCase):
 		"""
 
 		vars = [
-			variables.LinSpaceVariable(1.0, 5.0, 3,
+			variables.OutputVariable(config=variables.LinSpaceConfig(1.0, 5.0, 3),
 					name='A', order=3, enabled=True),
-			variables.LinSpaceVariable(11.0, 12.0, 2,
+			variables.OutputVariable(config=variables.LinSpaceConfig(11.0, 12.0, 2),
 					name='B', order=2, enabled=True, const=10.0),
-			variables.LinSpaceVariable(-99.0, 0.0,
+			variables.OutputVariable(config=variables.LinSpaceConfig(-99.0, 0.0),
 					name='D', order=1, enabled=True, const=9.0, use_const=True),
-			variables.LinSpaceVariable(21.0, 25.0, 2,
+			variables.OutputVariable(config=variables.LinSpaceConfig(21.0, 25.0, 2),
 					name='C', order=2, enabled=True),
-			variables.LinSpaceVariable(0.0, 0.0, 1,
+			variables.OutputVariable(config=variables.LinSpaceConfig(0.0, 0.0, 1),
 					name='E', order=4),
 		]
 
@@ -94,46 +92,29 @@ class CombineVariablesTest(unittest.TestCase):
 			(5.0, 12.0, 25.0, 9.0),
 		]
 
-		iterator, last, num_items, sorted_variables = variables.combine_variables(vars)
+		iterator, num_items, sorted_variables = variables.combine_variables(vars)
 		eq_(self.list_extract(list(iterator)), expected)
-		eq_(self.extract(last), (0.0, 10.0, 0.0, 9.0))
 		eq_(num_items, len(expected))
 
 		for var, name in zip(sorted_variables, 'ABCD'):
 			eq_(var.name, name)
 
 
-class LinSpaceVariableTest(unittest.TestCase):
-	def testIterator(self):
-		"""
-		Create an iterator from a variable.
-		"""
-
-		var = variables.LinSpaceVariable(-1.0, -3.0, 5,
-				name='Name', order=1, enabled=True, const=10.0)
-
-		# Non-const.
-		it1 = var.to_iterator()
-		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
-
-		# Const.
-		var.use_const = True
-
-		it2 = var.to_iterator()
-		eq_(list(it2), [10.0])
-
+class OutputVariableTest(unittest.TestCase):
 	def testAdjust(self):
 		"""
 		Try to adjust the values after initialization.
 		"""
 
-		var = variables.LinSpaceVariable(name='Name', order=1)
+		var = variables.OutputVariable(name='Name', order=1)
 
-		var.steps = 1000
-		eq_(var.steps, 1000)
+		var.config = variables.LinSpaceConfig()
+
+		var.config.steps = 1000
+		eq_(var.config.steps, 1000)
 
 		try:
-			var.steps = -1
+			var.config.steps = -1
 		except ValueError:
 			pass
 		else:
@@ -148,6 +129,53 @@ class LinSpaceVariableTest(unittest.TestCase):
 			pass
 		else:
 			assert False, 'Expected IncompatibleDimensions.'
+
+	def testStr(self):
+		"""
+		Ensure the variable looks right.
+		"""
+
+		var = variables.OutputVariable(name='Name', order=1)
+
+		# Very short.
+		var.config = variables.LinSpaceConfig(0.0, 5.0, 3)
+		eq_(str(var), '[0, 2.5, 5]')
+
+		# Short enough.
+		var.config = variables.LinSpaceConfig(-200.0, 200.0, 401)
+		eq_(str(var), '[-200, -199, -198, -197, ..., 200]')
+
+		# Far too long.
+		var.config = variables.LinSpaceConfig(0.0, 100000.0, 100001)
+		eq_(str(var), '[0, 1, 2, 3, ...]')
+
+		# Smooth from constant.
+		var.smooth_from = True
+		eq_(str(var), '(0, 1, 2, 3, ...]')
+
+		# And to.
+		var.smooth_to = True
+		eq_(str(var), '(0, 1, 2, 3, ...)')
+
+
+class LinSpaceConfigTest(unittest.TestCase):
+	def testIterator(self):
+		"""
+		Create an iterator from a linear space variable.
+		"""
+
+		var = variables.OutputVariable(config=variables.LinSpaceConfig(-1.0, -3.0, 5),
+				name='Name', order=1, enabled=True, const=10.0)
+
+		# Non-const.
+		it1 = var.iterator
+		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
+
+		# Const.
+		var.use_const = True
+
+		it2 = var.iterator
+		eq_(list(it2), [10.0])
 
 
 if __name__ == '__main__':

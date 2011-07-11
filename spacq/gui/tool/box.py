@@ -150,10 +150,12 @@ class MessageDialog(Dialog):
 	A simple error message dialog.
 	"""
 
-	def __init__(self, parent, message, title='', *args, **kwargs):
-		Dialog.__init__(self, parent=parent, title=title,
-				style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER,
-				*args, **kwargs)
+	def __init__(self, parent, message, title='', unclosable=False, *args, **kwargs):
+		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
+		if unclosable:
+			kwargs['style'] &= ~wx.CLOSE_BOX
+
+		Dialog.__init__(self, parent=parent, title=title, *args, **kwargs)
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
@@ -164,8 +166,9 @@ class MessageDialog(Dialog):
 		dialog_box.Add(message_text, proportion=1, flag=wx.EXPAND|wx.ALL, border=20)
 
 		## OK button.
-		ok_button = wx.Button(self, wx.ID_OK)
-		dialog_box.Add(ok_button, flag=wx.EXPAND)
+		if not unclosable:
+			ok_button = wx.Button(self, wx.ID_OK)
+			dialog_box.Add(ok_button, flag=wx.EXPAND)
 
 		self.SetSizerAndFit(dialog_box)
 

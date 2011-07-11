@@ -9,6 +9,15 @@ Control a fake DPO's settings and input waveforms.
 """
 
 
+class MockChannel(object):
+	"""
+	A mock channel for a mock DPO.
+	"""
+
+	def __init__(self):
+		self.enabled = False
+
+
 class MockDPO7104(MockAbstractDevice, DPO7104):
 	"""
 	Mock interface for Tektronix DPO7104 DPO.
@@ -30,6 +39,12 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 
 		self.mock_state['data_start'] = 1
 		self.mock_state['data_stop'] = self.record_length
+		self.mock_state['data_source'] = 1
+
+		self.mock_state['channels'] = [None] # There is no channel 0.
+		for _ in xrange(1, 5):
+			self.mock_state['channels'].append(MockChannel())
+		self.mock_state['channels'][1].enabled = True
 
 	@property
 	def record_length(self):
@@ -85,6 +100,12 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 					else:
 						self.mock_state['data_stop'] = int(args)
 					done = True
+				elif cmd[1] == 'source':
+					if query:
+						result = 'ch{0}'.format(self.mock_state['data_source'])
+					else:
+						self.mock_state['data_source'] = int(args[2])
+					done = True
 			elif cmd[0] == 'curve' and query:
 				result = BlockData.to_block_data('x' * self.record_length * self.mock_state['waveform_bytes'])
 				done = True
@@ -94,6 +115,15 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 						result = self.mock_state['waveform_bytes']
 					else:
 						self.mock_state['waveform_bytes'] = int(args)
+					done = True
+			elif cmd[0] == 'select':
+				if cmd[1].startswith('ch'):
+					channel = int(cmd[1][2])
+
+					if query:
+						result = str(int(self.mock_state['channels'][channel].enabled))
+					else:
+						self.mock_state['channels'][channel].enabled = (args == 'on')
 					done = True
 
 		MockAbstractDevice.write(self, message, result, done)

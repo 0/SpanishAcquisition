@@ -7,14 +7,90 @@ import struct
 from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
-from ..abstract_device import AbstractDevice
-from ..tools import BlockData
+from ..abstract_device import AbstractDevice, AbstractSubdevice
+from ..tools import BlockData, str_to_bool
 
 """
 Tektronix DPO7104 Digital Phosphor Oscilloscope
 
 Control the DPO's settings and input waveforms.
 """
+
+
+class Channel(AbstractSubdevice):
+	"""
+	Input channel of the DPO.
+	"""
+
+	def _setup(self):
+		AbstractSubdevice._setup(self)
+
+		# Resources.
+		read_only = ['waveform']
+		for name in read_only:
+			self.resources[name] = Resource(self, name, name)
+
+		read_write = ['enabled']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
+
+		self.resources['enabled'].converter = str_to_bool
+
+	def __init__(self, device, channel, *args, **kwargs):
+		self.channel = channel
+
+		AbstractSubdevice.__init__(self, device, *args, **kwargs)
+
+	def normalize_waveform(self, waveform):
+		"""
+		Transform some curve data onto the amplitude interval [-1.0, 1.0].
+		"""
+
+		value_min, value_max = self.device.value_range
+		value_diff = value_max - value_min
+
+		return [2 * float(x - value_min) / value_diff - 1.0 for x in waveform]
+
+	@property
+	def enabled(self):
+		"""
+		The input state (on/off) of the channel.
+		"""
+
+		result = self.device.ask('select:ch{0}?'.format(self.channel))
+		return bool(int(result))
+
+	@enabled.setter
+	def enabled(self, value):
+		self.device.write('select:ch{0} {1}'.format(self.channel, 'on' if value else 'off'))
+
+	@property
+	@Synchronized()
+	def waveform(self):
+		"""
+		A waveform acquired by the scope.
+		"""
+
+		self.device.data_source = self.channel
+
+		# Receive in chunks.
+		num_data_points = self.device.record_length
+		num_transmissions = int(ceil(num_data_points / self.device.max_receive_samples))
+
+		curve = []
+		for i in xrange(num_transmissions):
+			self.device.data_start = int(i * self.device.max_receive_samples) + 1
+			self.device.data_stop = int((i + 1) * self.device.max_receive_samples)
+
+			curve_raw = self.device.ask_raw('curve?')
+			curve.append(BlockData.from_block_data(curve_raw))
+
+		curve = ''.join(curve)
+
+		format_code = self.device.byte_format_letters[self.device.waveform_bytes]
+		curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
+
+		return self.normalize_waveform(curve_data)
 
 
 class DPO7104(AbstractDevice):
@@ -33,12 +109,18 @@ class DPO7104(AbstractDevice):
 	def _setup(self):
 		AbstractDevice._setup(self)
 
+		self.channels = [None] # There is no channel 0.
+		for chan in xrange(1, 5):
+			channel = Channel(self, chan)
+			self.channels.append(channel)
+			self.subdevices['channel{0}'.format(chan)] = channel
+
 		# Resources.
-		read_only = ['value_range', 'waveform']
+		read_only = ['value_range']
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
-		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'horizontal_scale']
+		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'horizontal_scale', 'acquiring']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -47,6 +129,7 @@ class DPO7104(AbstractDevice):
 		self.resources['waveform_bytes'].converter = int
 		self.resources['sample_rate'].converter = float
 		self.resources['horizontal_scale'].converter = float
+		self.resources['acquiring'].converter = str_to_bool
 
 	def _connected(self):
 		AbstractDevice._connected(self)
@@ -117,6 +200,19 @@ class DPO7104(AbstractDevice):
 		return (-max_val, max_val - 1)
 
 	@property
+	def acquiring(self):
+		"""
+		Whether the device is currently acquiring data.
+		"""
+
+		result = self.ask('acquire:state?')
+		return bool(int(result))
+
+	@acquiring.setter
+	def acquiring(self, value):
+		self.write('acquire:state {0}'.format(str(int(value))))
+
+	@property
 	def sample_rate(self):
 		"""
 		The sample rate in s-1.
@@ -142,15 +238,20 @@ class DPO7104(AbstractDevice):
 	def horizontal_scale(self, value):
 		self.write('horizontal:mode:scale {0}'.format(value))
 
-	def normalize_waveform(self, waveform):
+	@property
+	def data_source(self):
 		"""
-		Transform some curve data onto the amplitude interval [-1.0, 1.0].
+		The source from which to transfer data.
 		"""
 
-		value_min, value_max = self.value_range
-		value_diff = value_max - value_min
+		result = self.ask('data:source?')
+		assert len(result) == 3 and result.startswith('CH')
 
-		return [2 * float(x - value_min) / value_diff - 1.0 for x in waveform]
+		return int(result[2])
+
+	@data_source.setter
+	def data_source(self, value):
+		self.write('data:source ch{0}'.format(value))
 
 	@property
 	def data_start(self):
@@ -184,34 +285,14 @@ class DPO7104(AbstractDevice):
 
 		return int(self.ask('horizontal:mode:recordlength?'))
 
-	@property
 	@Synchronized()
-	def waveform(self):
+	def acquire(self):
 		"""
-		A waveform acquired from the scope.
+		Cause the DPO to acquire a single waveform.
 		"""
 
-		self.write('acquire:state run')
+		self.acquiring = True
 		self.opc
-
-		# Receive in chunks.
-		num_data_points = self.record_length
-		num_transmissions = int(ceil(num_data_points / self.max_receive_samples))
-
-		curve = []
-		for i in xrange(num_transmissions):
-			self.data_start = int(i * self.max_receive_samples) + 1
-			self.data_stop = int((i + 1) * self.max_receive_samples)
-
-			curve_raw = self.ask_raw('curve?')
-			curve.append(BlockData.from_block_data(curve_raw))
-
-		curve = ''.join(curve)
-
-		format_code = self.byte_format_letters[self.waveform_bytes]
-		curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
-
-		return self.normalize_waveform(curve_data)
 
 
 name = 'DPO7104'

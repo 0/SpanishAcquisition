@@ -34,26 +34,45 @@ class DPO7104Test(unittest.TestCase):
 
 		dpo = self.__obtain_device()
 
+		ws = []
+
+		# 1 is enabled by default.
+		# 2 and 3 are disabled by default.
+		dpo.channels[4].enabled = True
+
 		# Many records.
 		dpo.horizontal_scale = 1e-7
 		dpo.sample_rate = 4e10
 		eq_(dpo.record_length, 4e4)
 
-		w1 = dpo.waveform
+		dpo.acquire()
+		ws.append(dpo.channels[1].waveform)
+		ws.append(dpo.channels[4].waveform)
 
 		eq_(dpo.horizontal_scale, 1e-7)
 		eq_(dpo.sample_rate, 4e10)
-		eq_(len(w1), 4e4)
-		assert all(x >= -1.0 and x <= 1.0 for x in w1)
+
+		eq_(len(ws[0]), 4e4)
+		eq_(len(ws[1]), 4e4)
 
 		# Long sample.
 		dpo.horizontal_scale = 1e0
 		dpo.sample_rate = 1e2
 		eq_(dpo.record_length, 1e3)
 
-		w2 = dpo.waveform
+		dpo.acquire()
+		ws.append(dpo.channels[1].waveform)
+		ws.append(dpo.channels[4].waveform)
 
 		eq_(dpo.horizontal_scale, 1e0)
 		eq_(dpo.sample_rate, 1e2)
-		eq_(len(w2), 1e3)
-		assert all(x >= -1.0 and x <= 1.0 for x in w2)
+		eq_(len(ws[2]), 1e3)
+		eq_(len(ws[3]), 1e3)
+
+		# Check the channels.
+		assert     dpo.channels[1].enabled
+		assert not dpo.channels[2].enabled
+		assert not dpo.channels[3].enabled
+		assert     dpo.channels[4].enabled
+		# Check the data.
+		assert all(x >= -1.0 and x <= 1.0 for w in ws for x in w)

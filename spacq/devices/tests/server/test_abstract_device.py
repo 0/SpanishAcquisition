@@ -52,17 +52,16 @@ class AbstractDeviceTest(unittest.TestCase):
 			except:
 				continue
 
-			# Some values to check against.
+			# Value to check against.
 			id = dev.idn
-			ver = dev.ask('system:version?')
 
-			expected = [ver, ver, id]
+			expected = ['1'] * 3 + [id]
 
 			dev.multi_command_start()
-			dev.ask('system:version?')
-			dev.write('*opc')
-			dev.ask('system:version?')
-			dev.ask('*idn?')
+			dev.opc
+			dev.opc
+			dev.opc
+			dev.idn
 			responses = dev.multi_command_stop()
 
 			eq_(responses, expected)

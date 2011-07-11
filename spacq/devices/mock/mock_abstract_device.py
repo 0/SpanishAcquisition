@@ -101,6 +101,9 @@ class MockAbstractDevice(AbstractDevice):
 			if message == '*idn?':
 				result = self.name
 				done = True
+			elif message == '*opc?':
+				result = 1
+				done = True
 			elif message in ['*rst', 'system:preset']:
 				self._reset()
 				done = True
@@ -143,3 +146,11 @@ class MockAbstractDevice(AbstractDevice):
 		"""
 
 		log.debug('Closing device: {0}'.format(self.name))
+
+	@property
+	def idn(self):
+		self.ask('*idn?')
+
+	@property
+	def opc(self):
+		self.ask('*opc?')

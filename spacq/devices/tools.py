@@ -94,7 +94,8 @@ class BlockData(object):
 			if data_end > len(block_data):
 				raise BlockDataError('Not enough data.')
 			elif data_end < len(block_data):
-				log.warning('Extra data ignored: {0}'.format(repr(block_data[data_end:])))
+				if block_data[data_end:] != '\n':
+					log.warning('Extra data ignored: {0}'.format(repr(block_data[data_end:])))
 
 			return block_data[data_start:data_end]
 

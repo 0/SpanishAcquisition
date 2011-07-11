@@ -229,7 +229,7 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 
 				if cmd[1] == 'state':
 					if query:
-						result = '1' if channel.enabled else '0'
+						result = str(int(channel.enabled))
 					else:
 						state = args
 						channel.enabled = (state == '1')

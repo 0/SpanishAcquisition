@@ -1,9 +1,10 @@
+import logging
+log = logging.getLogger(__name__)
+
 import csv
 from datetime import timedelta
 from functools import partial
 from itertools import cycle, izip_longest
-# FIXME: Python 2.7 provides collections.OrderedDict()
-from ordereddict import OrderedDict
 import os
 from pubsub import pub
 from threading import Lock, Thread
@@ -22,9 +23,10 @@ class DataCaptureDialog(Dialog):
 	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
 	"""
 
-	modes = Enum(['init', 'end', 'ramp_up', 'ramp_down', 'write', 'read', 'dwell'])
+	modes = Enum(['init', 'end', 'ramp_up', 'ramp_down', 'write', 'read', 'dwell', 'stall'])
 
 	timer_delay = 50 # ms
+	stall_time = 2 # s
 
 	def __init__(self, parent, resources, variables, iterator, num_items, measurement_resources,
 			measurement_variables, continuous=False, *args, **kwargs):
@@ -59,6 +61,7 @@ class DataCaptureDialog(Dialog):
 		self.kept_values = False
 
 		self.cancelling = False
+		self.done = False
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
@@ -286,10 +289,12 @@ class DataCaptureDialog(Dialog):
 		values = self.next(keep=True)
 
 		data = [(var, resource, value) for var, resource, value in
-				zip(self.variables, self.resources.items(), values[::2]) if var.smooth_from]
+				zip(self.variables, self.resources, values[::2]) if var.smooth_from]
 		vars, resources, values = [[x[y] for x in data] for y in [0, 1, 2]]
 
 		self.ramp(vars, resources, [var.const for var in vars], values)
+
+		self.sweep_start_time = time.time()
 
 	def ramp_down(self):
 		"""
@@ -300,7 +305,7 @@ class DataCaptureDialog(Dialog):
 			return
 
 		data = [(var, resource, value) for var, resource, value in
-				zip(self.variables, self.resources.items(), self.current_values[::2]) if var.smooth_to]
+				zip(self.variables, self.resources, self.current_values[::2]) if var.smooth_to]
 		vars, resources, values = [[x[y] for x in data] for y in [0, 1, 2]]
 
 		self.ramp(vars, resources, values, [var.const for var in vars])
@@ -314,8 +319,7 @@ class DataCaptureDialog(Dialog):
 		self.changed = self.changed_indices
 
 		thrs = []
-		for i, ((name, resource), value, output) in enumerate(zip(self.resources.items(),
-				values[::2], self.value_outputs)):
+		for i, ((name, resource), value, output) in enumerate(zip(self.resources, values[::2], self.value_outputs)):
 			# Only set resources for updated values.
 			if (i not in self.changed or
 					(len(self.last_values) > 2 * i and self.last_values[2 * i] == value)):
@@ -342,7 +346,7 @@ class DataCaptureDialog(Dialog):
 		measurements = [None] * len(self.measurement_resources)
 
 		thrs = []
-		for i, ((name, resource), input) in enumerate(zip(self.measurement_resources.items(), self.value_inputs)):
+		for i, ((name, resource), input) in enumerate(zip(self.measurement_resources, self.value_inputs)):
 			if resource is not None:
 				def save_callback(value, i=i, input=input):
 					measurements[i] = value
@@ -374,21 +378,31 @@ class DataCaptureDialog(Dialog):
 
 		time.sleep(delay)
 
+	def stall(self):
+		"""
+		In case the sweep is too fast, ensure that the user has some time to see the capture dialog.
+		"""
+
+		span = time.time() - self.sweep_start_time
+
+		if span < self.stall_time:
+			time.sleep(self.stall_time - span)
+
 	def end(self):
 		"""
 		The sweep is over.
 		"""
 
-		if self.timer is None:
+		if self.done:
 			return
 
-		self.timer.Stop()
-		self.timer = None
+		self.done = True
 
 		if self.close_callback is not None:
 			self.close_callback(self)
 
-		self.Destroy()
+		wx.CallAfter(self.timer.Stop)
+		wx.CallAfter(self.Destroy)
 
 	def abort(self, fatal=False):
 		"""
@@ -409,6 +423,8 @@ class DataCaptureDialog(Dialog):
 		self.cancelling = True
 
 	def OnTimer(self, evt=None):
+		log.debug('On timer, mode {0} is {1}'.format(self.mode, 'active' if self.in_mode else 'inactive'))
+
 		# Update progress.
 		if self.num_items > 0 and self.item >= 0:
 			amount_done = float(self.item) / self.num_items
@@ -450,9 +466,9 @@ class DataCaptureDialog(Dialog):
 
 		# Switch to the next mode:
 		#
-		# init --> ramp_up --> write --> dwell --> read --> ramp_down --> end
-		#   ^                    ^___________________|          |
-		#   |___________________________________________________|
+		# init -> ramp_up -> write -> dwell -> read -> stall -> ramp_down -> end
+		#   ^                  ^_________________|                  |
+		#   |_______________________________________________________|
 		if not self.in_mode:
 			if self.mode == self.modes.init:
 				self.mode = self.modes.ramp_up
@@ -477,9 +493,11 @@ class DataCaptureDialog(Dialog):
 				if self.item == self.num_items - 1:
 					self.item += 1
 
-					self.mode = self.modes.ramp_down
+					self.mode = self.modes.stall
 				else:
 					self.mode = self.modes.write
+			elif self.mode == self.modes.stall:
+				self.mode = self.modes.ramp_down
 			else:
 				raise ValueError(self.mode)
 
@@ -489,6 +507,8 @@ class DataCapturePanel(wx.Panel):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
 		self.global_store = global_store
+
+		self.capture_dialogs = 0
 
 		# Panel.
 		panel_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -538,6 +558,15 @@ class DataCapturePanel(wx.Panel):
 		self.SetSizer(panel_box)
 
 	def OnBeginCapture(self, evt=None):
+		# Prevent accidental double-clicking.
+		self.start_button.Disable()
+		def enable_button():
+			time.sleep(1)
+			wx.CallAfter(self.start_button.Enable)
+		thr = Thread(target=enable_button)
+		thr.daemon = True
+		thr.start()
+
 		all_variables = [var for var in self.global_store.variables.values() if var.enabled]
 		output_variables = sift(all_variables, OutputVariable)
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
@@ -559,25 +588,21 @@ class DataCapturePanel(wx.Panel):
 		unreadable_resources = []
 		unwritable_resources = []
 
-		resources = OrderedDict()
+		resources = []
 		for name in resource_names:
 			if name == '':
-				# Make a placeholder.
-				num = 0
-				while num in resources:
-					num += 1
-				resources[num] = None
+				resources.append((str(len(resources)), None))
 			elif name not in self.global_store.resources:
 				missing_resources.append(name)
 			else:
 				resource = self.global_store.resources[name]
 
 				if resource.writable:
-					resources[name] = resource
+					resources.append((name, resource))
 				else:
 					unwritable_resources.append(name)
 
-		measurement_resources = OrderedDict()
+		measurement_resources = []
 		for name in measurement_resource_names:
 			if name not in self.global_store.resources:
 				missing_resources.append(name)
@@ -585,7 +610,7 @@ class DataCapturePanel(wx.Panel):
 				resource = self.global_store.resources[name]
 
 				if resource.readable:
-					measurement_resources[name] = resource
+					measurement_resources.append((name, resource))
 				else:
 					unreadable_resources.append(name)
 
@@ -629,6 +654,8 @@ class DataCapturePanel(wx.Panel):
 			export_csv.writerow(['__time__'] + [var.name for var in output_variables] +
 					[var.name for var in input_variables])
 
+		self.capture_dialogs += 1
+
 		dlg = DataCaptureDialog(self, resources, output_variables, iterator, num_items,	measurement_resources,
 				input_variables, continuous)
 
@@ -656,6 +683,8 @@ class DataCapturePanel(wx.Panel):
 							buf.pop()
 
 		def close_callback(dlg):
+			self.capture_dialogs -= 1
+
 			if exporting:
 				with buf_lock:
 					export_csv.writerows(buf)

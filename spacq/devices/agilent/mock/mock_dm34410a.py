@@ -16,10 +16,6 @@ class MockDM34410A(MockAbstractDevice, DM34410A):
 	"""
 
 	def __init__(self, *args, **kwargs):
-		"""
-		Pretend to connect to the DM.
-		"""
-
 		self.mocking = DM34410A
 
 		MockAbstractDevice.__init__(self, *args, **kwargs)

@@ -1,4 +1,5 @@
 from nose.plugins.skip import SkipTest
+from nose.tools import assert_raises
 import unittest
 
 from testconfig import config as tc
@@ -8,18 +9,26 @@ from ... import config
 
 
 class DeviceConfigTest(unittest.TestCase):
-	def __obtain_device(self):
+	def obtain_device(self):
 		"""
 		Get a real device with which to test.
 		"""
 
 		for name, device in tc['devices'].items():
-			if 'address' in device and 'implementation_path' in device:
+			valid = True
+
+			for item in ['address', 'manufacturer', 'model']:
+				if item not in device:
+					valid = False
+					break
+
+			if valid:
+				# FIXME: The device returned may be disconnected.
 				return device
 
 		raise SkipTest('No suitable device found.')
 
-	def __populate_config(self, cfg, addr):
+	def populate_config(self, cfg, addr):
 		"""
 		Given an address dictionary, populate the DeviceConfig.
 		"""
@@ -47,12 +56,13 @@ class DeviceConfigTest(unittest.TestCase):
 		Connect normally.
 		"""
 
-		dev = self.__obtain_device()
+		dev = self.obtain_device()
 
 		cfg = config.DeviceConfig()
-		self.__populate_config(cfg, dev['address'])
+		self.populate_config(cfg, dev['address'])
 
-		cfg.implementation_path = dev['implementation_path']
+		cfg.manufacturer = dev['manufacturer']
+		cfg.model = dev['model']
 
 		cfg.connect()
 
@@ -63,35 +73,26 @@ class DeviceConfigTest(unittest.TestCase):
 		Try to connect without an implementation.
 		"""
 
-		dev = self.__obtain_device()
+		dev = self.obtain_device()
 
 		cfg = config.DeviceConfig()
-		self.__populate_config(cfg, dev['address'])
+		self.populate_config(cfg, dev['address'])
 
-		try:
-			cfg.connect()
-		except config.ConnectionError:
-			pass
-		else:
-			assert False, 'Expected ConnectionError.'
+		assert_raises(config.ConnectionError, cfg.connect)
 
 	def testConnectNoAddress(self):
 		"""
 		Try to connect without an address.
 		"""
 
-		dev = self.__obtain_device()
+		dev = self.obtain_device()
 
 		cfg = config.DeviceConfig()
 
-		cfg.implementation_path = dev['implementation_path']
+		cfg.manufacturer = dev['manufacturer']
+		cfg.model = dev['model']
 
-		try:
-			cfg.connect()
-		except config.ConnectionError:
-			pass
-		else:
-			assert False, 'Expected ConnectionError.'
+		assert_raises(config.ConnectionError, cfg.connect)
 
 
 if __name__ == '__main__':

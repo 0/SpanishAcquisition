@@ -1,39 +1,24 @@
 import logging
 log = logging.getLogger(__name__)
 
-from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
 
-from spacq.tests.tool.box import AssertHandler
-from testconfig import config as tc
+from spacq.tests.tool.box import AssertHandler, DeviceServerTestCase
 
 from ... import awg5014b
 
 
-class AWG5014BTest(unittest.TestCase):
-	def __obtain_device(self):
-		"""
-		Try to get a handle for a physical device.
-		"""
-
-		all_devices = tc['devices'].items()
-		potential_devices = [a for (n, a) in all_devices if n.startswith('AWG5014B.')]
-
-		for device in potential_devices:
-			try:
-				return awg5014b.AWG5014B(**device['address'])
-			except Exception as e:
-				log.info('Could not connect to device at "{0}": {1}'.format(device['address'], e))
-
-		raise SkipTest('Could not connect to device.')
+class AWG5014BTest(DeviceServerTestCase):
+	def obtain_device(self):
+		return DeviceServerTestCase.obtain_device(self, awg5014b.AWG5014B, 'AWG5014B')
 
 	def testMarkerValues(self):
 		"""
 		Set the various marker values.
 		"""
 
-		awg = self.__obtain_device()
+		awg = self.obtain_device()
 
 		awg.channels[1].markers[1].delay = 1e-9 # s
 		awg.channels[1].markers[1].high = 0.5 # V
@@ -64,7 +49,7 @@ class AWG5014BTest(unittest.TestCase):
 
 		log = AssertHandler()
 
-		awg = self.__obtain_device()
+		awg = self.obtain_device()
 
 		# Setup
 		min_val, max_val = awg.value_range

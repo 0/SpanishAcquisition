@@ -398,6 +398,10 @@ class AbstractDevice(SuperDevice):
 
 
 class AbstractSubdevice(SuperDevice):
+	"""
+	A subdevice (eg. channel) of a hardware device.
+	"""
+
 	def _setup(self):
 		SuperDevice._setup(self)
 

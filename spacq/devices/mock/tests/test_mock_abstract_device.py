@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_raises, eq_
 import unittest
 
 from .. import mock_abstract_device
@@ -21,12 +21,7 @@ class MockAbstractDeviceTest(unittest.TestCase):
 
 		dev = mock_abstract_device.MockAbstractDevice()
 
-		try:
-			dev.ask_raw('This isn\'t right.')
-		except NotImplementedError:
-			pass
-		else:
-			assert False, "Expected NotImplementedError."
+		assert_raises(NotImplementedError, dev.ask_raw, 'This isn\'t right.')
 
 	def testAskRaw(self):
 		"""

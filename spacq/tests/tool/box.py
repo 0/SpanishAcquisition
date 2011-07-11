@@ -1,5 +1,11 @@
 import logging
+log = logging.getLogger(__name__)
+
+from nose.plugins.skip import SkipTest
 import re
+from unittest import TestCase
+
+from testconfig import config as tc
 
 
 class AssertHandler(logging.handlers.BufferingHandler):
@@ -32,3 +38,25 @@ class AssertHandler(logging.handlers.BufferingHandler):
 				return
 
 		assert False, 'Log message not found at level "{0}": {1}'.format(level, msg)
+
+
+class DeviceServerTestCase(TestCase):
+	"""
+	Class for a device server test.
+	"""
+
+	def obtain_device(self, implementation, model_name):
+		"""
+		Try to get a handle for a physical device.
+		"""
+
+		all_devices = tc['devices'].items()
+		potential_devices = (a for (n, a) in all_devices if n.startswith('{0}.'.format(model_name)))
+
+		for device in potential_devices:
+			try:
+				return implementation(**device['address'])
+			except Exception as e:
+				log.info('Could not connect to device at "{0}": {1}'.format(device['address'], e))
+
+		raise SkipTest('Could not connect to device.')

@@ -40,7 +40,7 @@ class DeviceTreeTest(unittest.TestCase):
 
 
 class DeviceConfigTest(unittest.TestCase):
-	def __obtain_device(self):
+	def obtain_device(self):
 		"""
 		Get a mock device with which to test.
 		"""
@@ -56,7 +56,7 @@ class DeviceConfigTest(unittest.TestCase):
 		Connect to a mock device.
 		"""
 
-		dev = self.__obtain_device()
+		dev = self.obtain_device()
 
 		cfg = config.DeviceConfig()
 

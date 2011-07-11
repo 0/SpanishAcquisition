@@ -45,6 +45,7 @@ class DM34410A(AbstractDevice):
 
 		self.reset()
 
+		# TODO: Allow for measurements other than DC voltage.
 		self.write('configure:voltage:dc')
 
 	@Synchronized()
@@ -98,9 +99,9 @@ class DM34410A(AbstractDevice):
 		The value measured by the device.
 		"""
 
-		log.debug('Getting DC voltage.')
+		log.debug('Getting reading.')
 		result = float(self.ask('read?'))
-		log.debug('Got DC voltage: {0}'.format(result))
+		log.debug('Got reading: {0}'.format(result))
 
 		return result
 

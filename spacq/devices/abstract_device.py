@@ -1,7 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
-import threading
+from threading import RLock
 
 from spacq.tool.box import Enum, Synchronized
 
@@ -109,7 +109,7 @@ class AbstractDevice(SuperDevice):
 
 		SuperDevice._setup(self)
 
-		self.lock = threading.RLock()
+		self.lock = RLock()
 
 	def __init__(self, ip_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
 			usb_resource=None, autoconnect=True):
@@ -174,6 +174,9 @@ class AbstractDevice(SuperDevice):
 
 		if autoconnect:
 			self.connect()
+
+	def __repr__(self):
+		return '<{0}>'.format(self.__class__.__name__)
 
 	def connect(self):
 		"""

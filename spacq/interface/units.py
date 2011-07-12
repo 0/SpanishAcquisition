@@ -218,7 +218,10 @@ class Quantity(object):
 		return '{0}(\'{1}\')'.format(self.__class__.__name__, str(self))
 
 	def __str__(self):
-		value = self.value / (10 ** self.original_multiplier)
+		value = self._q.magnitude / (10 ** self.original_multiplier)
 		symbol = self.original_units
 
-		return '{0:.10g} {1}'.format(value, symbol)
+		if isinstance(value, float):
+			return '{0:.10g} {1}'.format(value, symbol)
+		else:
+			return '{0} {1}'.format(value, symbol)

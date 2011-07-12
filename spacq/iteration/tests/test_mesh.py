@@ -59,3 +59,7 @@ class TriplesToMeshTest(unittest.TestCase):
 		eq_(x_bounds, (0, 999))
 		eq_(y_bounds, (0, 99))
 		eq_(z_bounds, (0, 99999))
+
+
+if __name__ == '__main__':
+	unittest.main()

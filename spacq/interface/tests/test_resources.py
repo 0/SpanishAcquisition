@@ -315,7 +315,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		thr = resources.AcquisitionThread(delay, buf.append)
 
 		thr.start()
-		time.sleep(delay.value * 5)
+		time.sleep(delay.value * 4.5)
 		thr.done = True
 
 		eq_(buf, [])
@@ -336,7 +336,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		thr = resources.AcquisitionThread(delay, buf.append, res)
 
 		thr.start()
-		time.sleep(delay.value * 5)
+		time.sleep(delay.value * 4.5)
 		thr.done = True
 
 		eq_(buf, expected)
@@ -358,11 +358,11 @@ class AcquisitionThreadTest(unittest.TestCase):
 		thr = resources.AcquisitionThread(delay, buf.append, res, running_lock=lock)
 
 		thr.start()
-		time.sleep(delay.value * 2)
+		time.sleep(delay.value * 1.5)
 		lock.acquire()
-		time.sleep(delay.value * 2)
+		time.sleep(delay.value * 5)
 		lock.release()
-		time.sleep(delay.value * 2)
+		time.sleep(delay.value * 1.5)
 		thr.done = True
 
 		eq_(buf, expected)
@@ -382,7 +382,7 @@ class AcquisitionThreadTest(unittest.TestCase):
 		log = AssertHandler()
 
 		thr.start()
-		time.sleep(delay.value * 5)
+		time.sleep(delay.value * 4.5)
 		thr.done = True
 
 		log.assert_logged('error', 'not readable')

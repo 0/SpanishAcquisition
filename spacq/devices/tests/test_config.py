@@ -1,8 +1,7 @@
-from nose.plugins.skip import SkipTest
 from nose.tools import eq_
 import unittest
 
-from testconfig import config as tc
+from spacq.tests.tool.box import DeviceServerTestCase
 from ..mock.mock_abstract_device import MockAbstractDevice
 
 from .. import config
@@ -39,17 +38,13 @@ class DeviceTreeTest(unittest.TestCase):
 		eq_(awg['mock'], MockAWG5014B)
 
 
-class DeviceConfigTest(unittest.TestCase):
+class DeviceConfigTest(DeviceServerTestCase):
 	def obtain_device(self):
 		"""
 		Get a mock device with which to test.
 		"""
 
-		for name, device in tc['devices'].items():
-			if 'has_mock' in device and device['has_mock']:
-				return device
-
-		raise SkipTest('No suitable device found.')
+		return DeviceServerTestCase.obtain_device(self, required_keys=['has_mock'])
 
 	def testMockConnect(self):
 		"""

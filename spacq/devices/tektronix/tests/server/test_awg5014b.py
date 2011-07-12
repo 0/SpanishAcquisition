@@ -11,7 +11,7 @@ from ... import awg5014b
 
 class AWG5014BTest(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, awg5014b.AWG5014B, 'AWG5014B')
+		return DeviceServerTestCase.obtain_device(self, impl=awg5014b.AWG5014B, model_name='AWG5014B')
 
 	def testMarkerValues(self):
 		"""

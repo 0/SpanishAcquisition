@@ -11,7 +11,7 @@ from ... import dpo7104
 
 class DPO7104Test(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, dpo7104.DPO7104, 'DPO7104')
+		return DeviceServerTestCase.obtain_device(self, impl=dpo7104.DPO7104, model_name='DPO7104')
 
 	def testAcquire(self):
 		"""

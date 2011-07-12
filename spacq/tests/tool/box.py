@@ -47,17 +47,35 @@ class DeviceServerTestCase(TestCase):
 	Class for a device server test.
 	"""
 
-	def obtain_device(self, implementation, model_name):
+	def obtain_device(self, impl=None, model_name=None, required_keys=None):
 		"""
 		Try to get a handle for a physical device.
 		"""
 
 		all_devices = tc['devices'].items()
-		potential_devices = (a for (n, a) in all_devices if n.startswith('{0}.'.format(model_name)))
+
+		if model_name is not None:
+			potential_devices = (a for (n, a) in all_devices if n.startswith('{0}.'.format(model_name)))
+		else:
+			potential_devices = (a for (n, a) in all_devices)
 
 		for device in potential_devices:
+			valid = True
+
+			if required_keys is not None:
+				for required_key in required_keys:
+					if required_key not in device:
+						valid = False
+						break
+
+			if not valid:
+				continue
+
 			try:
-				return implementation(**device['address'])
+				if impl is not None:
+					return impl(**device['address'])
+				else:
+					return device
 			except Exception as e:
 				log.info('Could not connect to device at "{0}": {1}'.format(device['address'], e))
 

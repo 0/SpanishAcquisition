@@ -1,32 +1,19 @@
-from nose.plugins.skip import SkipTest
 from nose.tools import assert_raises
 import unittest
 
-from testconfig import config as tc
+from spacq.tests.tool.box import DeviceServerTestCase
 from ...abstract_device import AbstractDevice
 
 from ... import config
 
 
-class DeviceConfigTest(unittest.TestCase):
+class DeviceConfigTest(DeviceServerTestCase):
 	def obtain_device(self):
 		"""
 		Get a real device with which to test.
 		"""
 
-		for name, device in tc['devices'].items():
-			valid = True
-
-			for item in ['address', 'manufacturer', 'model']:
-				if item not in device:
-					valid = False
-					break
-
-			if valid:
-				# FIXME: The device returned may be disconnected.
-				return device
-
-		raise SkipTest('No suitable device found.')
+		return DeviceServerTestCase.obtain_device(self, required_keys=['address', 'manufacturer', 'model'])
 
 	def populate_config(self, cfg, addr):
 		"""

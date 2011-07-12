@@ -10,7 +10,7 @@ from ... import voltage_source
 
 class VoltageSourceTest(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, voltage_source.VoltageSource, 'VoltageSource')
+		return DeviceServerTestCase.obtain_device(self, impl=voltage_source.VoltageSource, model_name='VoltageSource')
 
 	def testCalibrate(self):
 		"""

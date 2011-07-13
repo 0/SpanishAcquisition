@@ -1,10 +1,11 @@
+*******
 Devices
-=======
+*******
 
 Interfaces for various hardware devices.
 
 Class hierarchy
----------------
+===============
 
 All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractDevice`, with their subdevices inheriting from :class:`~spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
 
@@ -14,7 +15,7 @@ All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractD
    abstract_device
 
 Adding a device
----------------
+===============
 
 To add a device:
 

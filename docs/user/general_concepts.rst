@@ -12,7 +12,7 @@ A device typically refers to a physical piece of hardware, but can be, for examp
 Resources
 =========
 
-Resources provide a way of interacting with devices in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW).
+Resources provide a way of interacting with devices in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW). RO and RW resources are considered *readable*; WO and RW resources are considered *writable*.
 
 In the typical case, a device (eg. a multimeter) will provide several resources; there may be some RW resources (eg. integration time, auto-zero setting), and some RO ones (eg. measurement reading). WO resources are possible, but atypical.
 
@@ -20,7 +20,7 @@ These provided resources can be given arbitrary labels, and these labels are use
 
 .. note::
 
-   Resources linked to variables must be of the correct type: output variables can only be used with WO and RW resources; input variables can only be used with RO and RW resources.
+   Resources linked to variables must be of the correct type: output variables can only be used with writable resources; input variables can only be used with readable resources.
 
 Variables
 =========

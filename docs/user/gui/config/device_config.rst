@@ -48,7 +48,7 @@ Resources
    3. The unique label used to identify the resource. The label can be changed by double-clicking the appropriate field.
    4. The value of the resource.
 
-      * If the resource is RO or RW, the latest received value is displayed.
-      * If the resource is WO or RW, the value can be changed by double-clicking the appropriate field.
+      * If the resource is readable, the latest received value is displayed.
+      * If the resource is writable, the value can be changed by double-clicking the appropriate field.
 
    5. A subdevice with resources.

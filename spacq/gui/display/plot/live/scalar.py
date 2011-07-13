@@ -183,6 +183,9 @@ class ScalarLiveViewPanel(wx.Panel):
 		# Defaults.
 		self.plot_settings = PlotSettings()
 		self.unit_conversion = 0
+
+		self.enabled = False
+		self.capturing_data = False
 		self.restart_live_view = False
 		self.resource_backup = None
 
@@ -392,6 +395,13 @@ class ScalarLiveViewPanel(wx.Panel):
 		Perform cleanup.
 		"""
 
+		# Unsubscriptions.
+		pub.unsubscribe(self.msg_resource, 'resource.added')
+		pub.unsubscribe(self.msg_resource, 'resource.removed')
+		pub.unsubscribe(self.msg_data_capture_start, 'data_capture.start')
+		pub.unsubscribe(self.msg_data_capture_data, 'data_capture.data')
+		pub.unsubscribe(self.msg_data_capture_stop, 'data_capture.stop')
+
 		# Ensure the thread exits.
 		self.acq_thread.resource = None
 		self.acq_thread.done = True
@@ -480,22 +490,29 @@ class ScalarLiveViewPanel(wx.Panel):
 
 	def msg_data_capture_start(self, name):
 		if name == self.measurement_resource_name:
-			# Keep track of whether to restart the capture afterwards.
-			self.restart_live_view = self.running
+			if self.enabled:
+				self.capturing_data = True
 
-			# Disable live view.
-			self.resource_backup = self.resource
-			self.resource = None
+				# Keep track of whether to restart the capture afterwards.
+				self.restart_live_view = self.running
+
+				# Disable live view.
+				self.resource_backup = self.resource
+				self.resource = None
 
 	def msg_data_capture_data(self, name, value):
 		if name == self.measurement_resource_name:
-			self.add_value(value)
+			if self.capturing_data:
+				self.add_value(value)
 
 	def msg_data_capture_stop(self, name):
 		if name == self.measurement_resource_name:
-			# Re-enable live view.
-			self.resource = self.resource_backup
-			self.resource_backup = None
+			if self.capturing_data:
+				self.capturing_data = False
 
-			if self.restart_live_view:
-				self.OnRun()
+				# Re-enable live view.
+				self.resource = self.resource_backup
+				self.resource_backup = None
+
+				if self.restart_live_view:
+					self.OnRun()

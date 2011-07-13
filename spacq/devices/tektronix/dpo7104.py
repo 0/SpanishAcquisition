@@ -161,11 +161,11 @@ class DPO7104(AbstractDevice):
 		The acqusition mode.
 		"""
 
-		value = self.ask('acquire:stopafter?')
+		value = self.ask('acquire:stopafter?').lower()
 
-		if value == 'RUNST':
+		if value.startswith('runst'):
 			return 'runstop'
-		elif value == 'SEQ':
+		elif value.startswith('seq'):
 			return 'sequence'
 
 	@stopafter.setter

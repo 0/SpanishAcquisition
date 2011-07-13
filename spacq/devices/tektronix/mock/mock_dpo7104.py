@@ -30,7 +30,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 
 	def _reset(self):
 		self.mock_state['stopafter'] = 'runstop'
-		self.mock_state['acquire_state'] = 'run'
+		self.mock_state['acquire_state'] = True
 
 		self.mock_state['samplerate'] = 1e10 # Hz
 		self.mock_state['horizontal_scale'] = 1e-8 # s
@@ -66,9 +66,9 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 					done = True
 				elif cmd[1] == 'state':
 					if query:
-						result = self.mock_state['acquire_state']
+						result = str(int(self.mock_state['acquire_state']))
 					else:
-						self.mock_state['acquire_state'] = args
+						self.mock_state['acquire_state'] = bool(int(args))
 					done = True
 			elif cmd[0] == 'horizontal':
 				if cmd[1] == 'mode':

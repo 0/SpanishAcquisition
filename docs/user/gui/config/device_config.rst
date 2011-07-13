@@ -3,8 +3,10 @@ Device configuration
 
 The device configuration dialog is used to configure devices for use with an application.
 
-Connection
-----------
+.. _device_config_connection:
+
+Device connection
+-----------------
 
 .. figure:: device_config_01.*
    :alt: Device configuration.
@@ -35,8 +37,10 @@ Connection
    Disconnecting from a device does not actually take place until the dialog is confirmed (by pressing "OK"). Thus, pressing "Disconnect" and then "Cancel" will retain the connection to the device.
 
 
-Resources
----------
+.. _device_config_resources:
+
+Device resources
+----------------
 
 .. figure:: device_config_02.*
    :alt: Resource configuration.

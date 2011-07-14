@@ -1,8 +1,17 @@
-import functools
+from functools import wraps
+from itertools import chain
 
 """
 Generic tools.
 """
+
+
+def flatten(iterable):
+	"""
+	Flatten an iterable by one level.
+	"""
+
+	return chain.from_iterable(iterable)
 
 
 def sift(items, cls):
@@ -80,7 +89,7 @@ class Synchronized(object):
 
 	@staticmethod
 	def __call__(f):
-		@functools.wraps(f)
+		@wraps(f)
 		def decorated(self, *args, **kwargs):
 			with self.lock:
 				return f(self, *args, **kwargs)

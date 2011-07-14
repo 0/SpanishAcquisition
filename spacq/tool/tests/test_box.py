@@ -7,6 +7,28 @@ import unittest
 from .. import box
 
 
+class FlattenTest(unittest.TestCase):
+	def testEmpty(self):
+		"""
+		Flatten nothing.
+		"""
+
+		eq_(list(box.flatten([])), [])
+
+	def testSingle(self):
+		"""
+		Flatten one thing.
+		"""
+
+		eq_(list(box.flatten([(1, 2, 3, 4, 5, 6, 7)])), [1, 2, 3, 4, 5, 6, 7])
+
+	def testMany(self):
+		"""
+		Flatten all the things.
+		"""
+
+		eq_(list(box.flatten([(1, 2, 3), [4, 5, 6], {7: 8}])), [1, 2, 3, 4, 5, 6, 7])
+
 class SiftTest(unittest.TestCase):
 	def testEmpty(self):
 		"""

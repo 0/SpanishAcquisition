@@ -6,5 +6,6 @@ Spanish Acquisition is a Python package for interfacing with test & measurement 
 .. toctree::
    :maxdepth: 2
 
+   installation
    user/index
    dev/index

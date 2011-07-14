@@ -168,11 +168,15 @@ class LinSpaceConfigTest(unittest.TestCase):
 				name='Name', order=1, enabled=True, const=10.0)
 
 		# Non-const.
+		eq_(len(var), 5)
+
 		it1 = var.iterator
 		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
 
 		# Const.
 		var.use_const = True
+
+		eq_(len(var), 1)
 
 		it2 = var.iterator
 		eq_(list(it2), [10.0])

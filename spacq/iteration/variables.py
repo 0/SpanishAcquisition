@@ -129,6 +129,12 @@ class OutputVariable(Variable):
 		else:
 			return self.config.to_iterator()
 
+	def __len__(self):
+		if self.use_const:
+			return 1
+		else:
+			return len(self.config)
+
 	def __str__(self):
 		found_values = list(islice(self.iterator, 0, self.search_values + 1))
 
@@ -168,3 +174,6 @@ class LinSpaceConfig(object):
 
 	def to_iterator(self):
 		return numpy.linspace(self.initial, self.final, self.steps)
+
+	def __len__(self):
+		return self.steps

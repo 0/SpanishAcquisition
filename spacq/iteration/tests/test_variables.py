@@ -1,4 +1,3 @@
-import itertools
 from nose.tools import eq_
 import unittest
 
@@ -7,48 +6,16 @@ from spacq.interface.units import IncompatibleDimensions
 from .. import variables
 
 
-class ChangeIndicatorTest(unittest.TestCase):
-	def testSample(self):
-		"""
-		Ensure that the first few values differ from their neighbours.
-		"""
-
-		indicator = variables.change_indicator()
-		last = None
-
-		for i in itertools.izip(indicator, xrange(1000)):
-			if last is not None:
-				assert i != last, 'Values are equal: {0}, {1}'.format(i, last)
-
-			last = i
-
-
-class CombineVariablesTest(unittest.TestCase):
-	@staticmethod
-	def extract(values):
-		"""
-		Given a tuple of (value, change indicator, ...) pairs, extract the values.
-		"""
-
-		return tuple(values[::2])
-
-	@classmethod
-	def list_extract(cls, values):
-		"""
-		Run extract over the list.
-		"""
-
-		return [cls.extract(x) for x in values]
-
+class SortVariablesTest(unittest.TestCase):
 	def testEmpty(self):
 		"""
 		Use no variables.
 		"""
 
-		iterator, num_items, sorted_variables = variables.combine_variables([])
-		eq_(self.list_extract(list(iterator)), [])
-		eq_(num_items, 0)
+		sorted_variables, num_items = variables.sort_variables([])
+
 		eq_(sorted_variables, [])
+		eq_(num_items, 0)
 
 	def testSingle(self):
 		"""
@@ -58,12 +25,10 @@ class CombineVariablesTest(unittest.TestCase):
 		var = variables.OutputVariable(config=variables.LinSpaceConfig(-5.0, 5.0, 11),
 				name='Name', order=0, enabled=True, const=60.0)
 
-		expected = [(x,) for x in range(-5, 6)]
+		sorted_variables, num_items = variables.sort_variables([var])
 
-		iterator, num_items, sorted_variables = variables.combine_variables([var])
-		eq_(self.list_extract(list(iterator)), expected)
-		eq_(num_items, len(expected))
-		eq_([x.name for x in sorted_variables], ['Name'])
+		eq_(sorted_variables, [(var,)])
+		eq_(num_items, 11)
 
 	def testMultiple(self):
 		"""
@@ -77,27 +42,16 @@ class CombineVariablesTest(unittest.TestCase):
 					name='B', order=2, enabled=True, const=10.0),
 			variables.OutputVariable(config=variables.LinSpaceConfig(-99.0, 0.0),
 					name='D', order=1, enabled=True, const=9.0, use_const=True),
-			variables.OutputVariable(config=variables.LinSpaceConfig(21.0, 25.0, 2),
+			variables.OutputVariable(config=variables.LinSpaceConfig(21.0, 25.0, 20),
 					name='C', order=2, enabled=True),
 			variables.OutputVariable(config=variables.LinSpaceConfig(0.0, 0.0, 1),
 					name='E', order=4),
 		]
 
-		expected = [
-			(1.0, 11.0, 21.0, 9.0),
-			(1.0, 12.0, 25.0, 9.0),
-			(3.0, 11.0, 21.0, 9.0),
-			(3.0, 12.0, 25.0, 9.0),
-			(5.0, 11.0, 21.0, 9.0),
-			(5.0, 12.0, 25.0, 9.0),
-		]
+		sorted_variables, num_items = variables.sort_variables(vars)
 
-		iterator, num_items, sorted_variables = variables.combine_variables(vars)
-		eq_(self.list_extract(list(iterator)), expected)
-		eq_(num_items, len(expected))
-
-		for var, name in zip(sorted_variables, 'ABCD'):
-			eq_(var.name, name)
+		eq_(sorted_variables, [(vars[0],), (vars[1], vars[3]), (vars[2],)])
+		eq_(num_items, 6)
 
 
 class OutputVariableTest(unittest.TestCase):

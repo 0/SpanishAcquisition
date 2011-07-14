@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
 import csv
 from datetime import timedelta
 from functools import partial
-from itertools import cycle, izip_longest
+from itertools import izip
 import os
 from pubsub import pub
 from threading import Lock, Thread
@@ -12,8 +12,8 @@ import time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
-from spacq.iteration.variables import combine_variables, InputVariable, OutputVariable
-from spacq.tool.box import sift, Enum
+from spacq.iteration.variables import sort_variables, InputVariable, OutputVariable
+from spacq.tool.box import flatten, sift, Enum
 
 from ..tool.box import Dialog, MessageDialog, YesNoQuestionDialog
 
@@ -23,12 +23,12 @@ class DataCaptureDialog(Dialog):
 	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
 	"""
 
-	modes = Enum(['init', 'end', 'ramp_up', 'ramp_down', 'write', 'read', 'dwell', 'stall'])
+	modes = Enum(['init', 'next', 'transition', 'write', 'dwell', 'read', 'stall', 'ramp_down', 'end'])
 
 	timer_delay = 50 # ms
 	stall_time = 2 # s
 
-	def __init__(self, parent, resources, variables, iterator, num_items, measurement_resources,
+	def __init__(self, parent, resources, variables, num_items, measurement_resources,
 			measurement_variables, continuous=False, *args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
 
@@ -37,7 +37,6 @@ class DataCaptureDialog(Dialog):
 		self.parent = parent
 		self.resources = resources
 		self.variables = variables
-		self.iterator = iter(iterator)
 		self.num_items = num_items
 		self.measurement_resources = measurement_resources
 		self.measurement_variables = measurement_variables
@@ -56,9 +55,8 @@ class DataCaptureDialog(Dialog):
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
 
+		# Map the modes to methods.
 		self.mode_actions = dict((mode, getattr(self, mode)) for mode in self.modes)
-
-		self.kept_values = False
 
 		self.cancelling = False
 		self.done = False
@@ -85,14 +83,20 @@ class DataCaptureDialog(Dialog):
 		dialog_box.Add(self.values_box, flag=wx.EXPAND|wx.ALL, border=5)
 
 		self.value_outputs = []
-		for var in self.variables:
-			output = wx.TextCtrl(self, style=wx.TE_READONLY)
-			output.BackgroundColour = wx.LIGHT_GREY
-			self.value_outputs.append(output)
+		for group in self.variables:
+			group_outputs = []
 
-			self.values_box.Add(wx.StaticText(self, label=var.name),
-					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-			self.values_box.Add(output, flag=wx.EXPAND)
+			for var in group:
+				output = wx.TextCtrl(self, style=wx.TE_READONLY)
+				output.BackgroundColour = wx.LIGHT_GREY
+				group_outputs.append(output)
+
+				self.values_box.Add(wx.StaticText(self, label=var.name),
+						flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+				self.values_box.Add(output, flag=wx.EXPAND)
+
+			self.value_outputs.append(group_outputs)
+
 
 		for _ in xrange(2):
 			self.values_box.Add(wx.StaticLine(self), flag=wx.EXPAND|wx.ALL, border=5)
@@ -135,6 +139,13 @@ class DataCaptureDialog(Dialog):
 		# Try to cancel cleanly instead of giving up.
 		self.Bind(wx.EVT_CLOSE, self.OnCancel)
 
+	def create_iterator(self, pos):
+		"""
+		Create an iterator for an order of variables.
+		"""
+
+		return izip(*(var.iterator for var in self.variables[pos]))
+
 	@property
 	def in_mode(self):
 		"""
@@ -142,19 +153,6 @@ class DataCaptureDialog(Dialog):
 		"""
 
 		return self.mode_thread is not None and self.mode_thread.is_alive()
-
-	@property
-	def changed_indices(self):
-		"""
-		Find the indices of the values which differ in their change indicators.
-		"""
-
-		# Extract the change indicators.
-		old, new = self.last_values[1::2], self.current_values[1::2]
-
-		for i, (o, n) in enumerate(izip_longest(old, new)):
-			if o != n:
-				return range(i, max(len(old), len(new)))
 
 	@property
 	def mode(self):
@@ -172,39 +170,9 @@ class DataCaptureDialog(Dialog):
 
 		self._mode = value
 
-		if self._mode in [self.modes.ramp_up, self.modes.ramp_down]:
-			self.cancel_button.Disable()
-
-			dir = 'from' if self._mode == self.modes.ramp_up else 'to'
-			self.ramp_dlg = MessageDialog(self, 'Smooth setting {0} constant values.'.format(dir),
-					'Smooth set', unclosable=True)
-			self.ramp_dlg.Show()
-
 		self.mode_thread = Thread(target=self.mode_actions[self._mode])
 		self.mode_thread.daemon = True
 		self.mode_thread.start()
-
-	def next(self, keep=False):
-		"""
-		Get the next set of values from the iterator, or None if none remain.
-
-		If keep is True, then the subsequent call will return the same values.
-		"""
-
-		if self.kept_values:
-			result = self.current_values
-		else:
-			self.item += 1
-
-			#try:
-			result = self.iterator.next()
-			#except StopIteration:
-				#result = None
-
-		self.current_values = result
-		self.kept_values = keep
-
-		return result
 
 	def start(self):
 		"""
@@ -226,18 +194,18 @@ class DataCaptureDialog(Dialog):
 
 		self.abort(fatal=write)
 
-	def ramp(self, variables, resources, values_from, values_to):
+	def ramp(self, resources, values_from, values_to, steps):
 		"""
-		Slowly sweep the variables.
+		Slowly sweep the resources.
 		"""
 
 		thrs = []
-		for var, (name, resource), value_from, value_to in zip(variables, resources,
-				values_from, values_to):
+		for (name, resource), value_from, value_to, resource_steps in zip(resources,
+				values_from, values_to, steps):
 			if resource is None:
 				continue
 
-			thr = Thread(target=resource.sweep, args=(value_from, value_to, var.smooth_steps),
+			thr = Thread(target=resource.sweep, args=(value_from, value_to, resource_steps),
 					kwargs={'exception_callback': partial(wx.CallAfter, self.resource_exception_handler, name)})
 			thrs.append(thr)
 			thr.daemon = True
@@ -275,68 +243,122 @@ class DataCaptureDialog(Dialog):
 		Initialize values.
 		"""
 
-		self.last_values = ()
-		self.current_values = ()
-		self.changed = ()
+		self.iterators = None
+		self.current_values = None
+		self.last_values = None
 
 		self.item = -1
 
-	def ramp_up(self):
-		"""
-		Sweep from const to the next values.
-		"""
-
-		values = self.next(keep=True)
-
-		data = [(var, resource, value) for var, resource, value in
-				zip(self.variables, self.resources, values[::2]) if var.smooth_from]
-		vars, resources, values = [[x[y] for x in data] for y in [0, 1, 2]]
-
-		self.ramp(vars, resources, [var.const for var in vars], values)
-
 		self.sweep_start_time = time.time()
 
-	def ramp_down(self):
+	def next(self):
 		"""
-		Sweep from current_values to const.
+		Get the next set of values from the iterators.
 		"""
 
-		if not self.current_values:
-			return
+		self.item += 1
+		if self.current_values is not None:
+			self.last_values = self.current_values[:]
 
-		data = [(var, resource, value) for var, resource, value in
-				zip(self.variables, self.resources, self.current_values[::2]) if var.smooth_to]
-		vars, resources, values = [[x[y] for x in data] for y in [0, 1, 2]]
+		if self.iterators is None:
+			# First time around.
+			self.iterators = []
+			for pos in xrange(len(self.variables)):
+				self.iterators.append(self.create_iterator(pos))
 
-		self.ramp(vars, resources, values, [var.const for var in vars])
+			self.current_values = [it.next() for it in self.iterators]
+			self.changed_indices = range(len(self.variables))
+		else:
+			pos = len(self.variables) - 1
+			while pos >= 0:
+				try:
+					self.current_values[pos] = self.iterators[pos].next()
+					break
+				except StopIteration:
+					self.iterators[pos] = self.create_iterator(pos)
+					self.current_values[pos] = self.iterators[pos].next()
+
+					pos -= 1
+
+			self.changed_indices = range(pos, len(self.variables))
+
+	def transition(self):
+		"""
+		Perform a transition for variables, as required.
+		"""
+
+		if self.last_values is None:
+			# Smooth set from const.
+			steps, resources, from_values, to_values = [], [], [], []
+
+			for pos in xrange(len(self.variables)):
+				# Extract values for this group.
+				group_vars, group_resources, current_values = (self.variables[pos],
+						self.resources[pos], self.current_values[pos])
+
+				for var, resource, current_value in zip(group_vars, group_resources,
+						current_values):
+					if var.use_const or not var.smooth_from:
+						continue
+
+					steps.append(var.smooth_steps)
+					resources.append(resource)
+					from_values.append(var.const)
+					to_values.append(current_value)
+
+			self.ramp(resources, from_values, to_values, steps)
+		else:
+			# The first changed group is simply stepping; all others rolled over.
+			affected_groups = self.changed_indices[1:]
+
+			steps, resources, from_values, to_values = [], [], [], []
+
+			for pos in affected_groups:
+				# Extract values for this group.
+				group_vars, group_resources, current_values, last_values = (self.variables[pos],
+						self.resources[pos], self.current_values[pos], self.last_values[pos])
+
+				for var, resource, current_value, last_value in zip(group_vars, group_resources,
+						current_values, last_values):
+					if var.use_const or not var.smooth_transition:
+						continue
+
+					steps.append(var.smooth_steps)
+					resources.append(resource)
+					from_values.append(last_value)
+					to_values.append(current_value)
+
+			self.ramp(resources, from_values, to_values, steps)
 
 	def write(self):
 		"""
 		Write the next values to their resources.
 		"""
 
-		values = self.next()
-		self.changed = self.changed_indices
-
 		thrs = []
-		for i, ((name, resource), value, output) in enumerate(zip(self.resources, values[::2], self.value_outputs)):
-			# Only set resources for updated values.
-			if (i not in self.changed or
-					(len(self.last_values) > 2 * i and self.last_values[2 * i] == value)):
-				continue
+		for pos in self.changed_indices:
+			for i, ((name, resource), value, output) in enumerate(zip(self.resources[pos],
+					self.current_values[pos], self.value_outputs[pos])):
 
-			if resource is not None:
-				thr = Thread(target=self.write_resource, args=(name, resource, value, output))
-				thrs.append(thr)
-				thr.daemon = True
-				thr.start()
+				if resource is not None:
+					thr = Thread(target=self.write_resource, args=(name, resource, value, output))
+					thrs.append(thr)
+					thr.daemon = True
+					thr.start()
 
-			output.Value = str(value)
+				output.Value = str(value)
 
 		for thr in thrs:
 			thr.join()
 
-		self.last_values = values
+	def dwell(self):
+		"""
+		Wait for all changed variables.
+		"""
+
+		delay = max(var._wait.value for pos in self.changed_indices for var in self.variables[pos])
+
+		time.sleep(delay)
 
 	def read(self):
 		"""
@@ -361,22 +383,7 @@ class DataCaptureDialog(Dialog):
 			thr.join()
 
 		if self.data_callback is not None:
-			# Ignoring all the change markers.
-			real_values = list(self.current_values[::2])
-
-			self.data_callback([time.time()] + real_values, measurements)
-
-	def dwell(self):
-		"""
-		Wait for all changed variables.
-		"""
-
-		if self.changed:
-			delay = max(self.variables[i]._wait.value for i in self.changed)
-		else:
-			delay = 0
-
-		time.sleep(delay)
+			self.data_callback([time.time()] + list(flatten(self.current_values)), measurements)
 
 	def stall(self):
 		"""
@@ -387,6 +394,34 @@ class DataCaptureDialog(Dialog):
 
 		if span < self.stall_time:
 			time.sleep(self.stall_time - span)
+
+	def ramp_down(self):
+		"""
+		Sweep from the last values to const.
+		"""
+
+		if not self.current_values:
+			return
+
+		# Smooth set to const.
+		steps, resources, from_values, to_values = [], [], [], []
+
+		for pos in xrange(len(self.variables)):
+			# Extract values for this group.
+			group_vars, group_resources, current_values = (self.variables[pos],
+					self.resources[pos], self.current_values[pos])
+
+			for var, resource, current_value in zip(group_vars, group_resources,
+					current_values):
+				if var.use_const or not var.smooth_to:
+					continue
+
+				steps.append(var.smooth_steps)
+				resources.append(resource)
+				from_values.append(current_value)
+				to_values.append(var.const)
+
+		self.ramp(resources, from_values, to_values, steps)
 
 	def end(self):
 		"""
@@ -423,7 +458,7 @@ class DataCaptureDialog(Dialog):
 		self.cancelling = True
 
 	def OnTimer(self, evt=None):
-		log.debug('On timer, mode {0} is {1}'.format(self.mode, 'active' if self.in_mode else 'inactive'))
+		log.debug('On timer, mode {0} is {1}active'.format(self.mode, '' if self.in_mode else 'in'))
 
 		# Update progress.
 		if self.num_items > 0 and self.item >= 0:
@@ -466,25 +501,16 @@ class DataCaptureDialog(Dialog):
 
 		# Switch to the next mode:
 		#
-		# init -> ramp_up -> write -> dwell -> read -> stall -> ramp_down -> end
-		#   ^                  ^_________________|                  |
-		#   |_______________________________________________________|
+		# init -> next -> transition -> write -> dwell -> read -> stall -> ramp_down -> end
+		#   ^      ^________________________________________|                  |
+		#   |__________________________________________________________________|
 		if not self.in_mode:
 			if self.mode == self.modes.init:
-				self.mode = self.modes.ramp_up
-			elif self.mode == self.modes.ramp_up:
-				wx.CallAfter(self.cancel_button.Enable)
-				wx.CallAfter(self.ramp_dlg.Destroy)
-
+				self.mode = self.modes.next
+			elif self.mode == self.modes.next:
+				self.mode = self.modes.transition
+			elif self.mode == self.modes.transition:
 				self.mode = self.modes.write
-			elif self.mode == self.modes.ramp_down:
-				wx.CallAfter(self.cancel_button.Enable)
-				wx.CallAfter(self.ramp_dlg.Destroy)
-
-				if self.continuous:
-					self.mode = self.modes.init
-				else:
-					self.mode = self.modes.end
 			elif self.mode == self.modes.write:
 				self.mode = self.modes.dwell
 			elif self.mode == self.modes.dwell:
@@ -495,9 +521,14 @@ class DataCaptureDialog(Dialog):
 
 					self.mode = self.modes.stall
 				else:
-					self.mode = self.modes.write
+					self.mode = self.modes.next
 			elif self.mode == self.modes.stall:
 				self.mode = self.modes.ramp_down
+			elif self.mode == self.modes.ramp_down:
+				if self.continuous:
+					self.mode = self.modes.init
+				else:
+					self.mode = self.modes.end
 			else:
 				raise ValueError(self.mode)
 
@@ -575,32 +606,35 @@ class DataCapturePanel(wx.Panel):
 			MessageDialog(self, 'No output variables defined', 'No variables').Show()
 			return
 
-		iterator, num_items, output_variables = combine_variables(output_variables)
-		resource_names = [var.resource_name for var in output_variables]
+		output_variables, num_items = sort_variables(output_variables)
+
+		resource_names = [tuple(var.resource_name for var in group) for group in output_variables]
 		measurement_resource_names = [var.resource_name for var in input_variables]
 
 		continuous = self.continuous_checkbox.Value
-		if continuous:
-			# Cycle forever.
-			iterator = cycle(iterator)
 
 		missing_resources = []
 		unreadable_resources = []
 		unwritable_resources = []
 
 		resources = []
-		for name in resource_names:
-			if name == '':
-				resources.append((str(len(resources)), None))
-			elif name not in self.global_store.resources:
-				missing_resources.append(name)
-			else:
-				resource = self.global_store.resources[name]
+		for group in resource_names:
+			group_resources = []
 
-				if resource.writable:
-					resources.append((name, resource))
+			for name in group:
+				if name == '':
+					group_resources.append((str(len(resources)), None))
+				elif name not in self.global_store.resources:
+					missing_resources.append(name)
 				else:
-					unwritable_resources.append(name)
+					resource = self.global_store.resources[name]
+
+					if resource.writable:
+						group_resources.append((name, resource))
+					else:
+						unwritable_resources.append(name)
+
+			resources.append(tuple(group_resources))
 
 		measurement_resources = []
 		for name in measurement_resource_names:
@@ -651,12 +685,12 @@ class DataCapturePanel(wx.Panel):
 			self.last_file_name.Value = file_path
 
 			# Write the header.
-			export_csv.writerow(['__time__'] + [var.name for var in output_variables] +
+			export_csv.writerow(['__time__'] + [var.name for var in flatten(output_variables)] +
 					[var.name for var in input_variables])
 
 		self.capture_dialogs += 1
 
-		dlg = DataCaptureDialog(self, resources, output_variables, iterator, num_items,	measurement_resources,
+		dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources,
 				input_variables, continuous)
 
 		for name in measurement_resource_names:
@@ -667,6 +701,13 @@ class DataCapturePanel(wx.Panel):
 		buf = []
 		buf_lock = Lock()
 
+		def flush():
+			export_csv.writerows(buf)
+			export_file.flush()
+
+			while buf:
+				buf.pop()
+
 		def data_callback(values, measurement_values):
 			for name, value in zip(measurement_resource_names, measurement_values):
 				pub.sendMessage('data_capture.data', name=name, value=value)
@@ -676,18 +717,14 @@ class DataCapturePanel(wx.Panel):
 					buf.append(values + measurement_values)
 
 					if len(buf) >= max_buf_size:
-						export_csv.writerows(buf)
-						export_file.flush()
-
-						while buf:
-							buf.pop()
+						flush()
 
 		def close_callback(dlg):
 			self.capture_dialogs -= 1
 
 			if exporting:
 				with buf_lock:
-					export_csv.writerows(buf)
+					flush()
 					export_file.close()
 
 			for name in measurement_resource_names:

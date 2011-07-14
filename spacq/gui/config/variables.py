@@ -113,6 +113,9 @@ class VariableEditor(Dialog):
 		self.smooth_to_checkbox = wx.CheckBox(self, label='To const')
 		smooth_box.Add(self.smooth_to_checkbox, flag=wx.CENTER|wx.ALL, border=5)
 
+		self.smooth_transition_checkbox = wx.CheckBox(self, label='Transition')
+		smooth_box.Add(self.smooth_transition_checkbox, flag=wx.CENTER|wx.ALL, border=5)
+
 		## End buttons.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)
 		dialog_box.Add(button_box, flag=wx.CENTER|wx.ALL, border=5)
@@ -128,15 +131,17 @@ class VariableEditor(Dialog):
 
 	def GetValue(self):
 		return (self.config_notebook.CurrentPage.GetValue(), self.smooth_steps_input.Value,
-				self.smooth_from_checkbox.Value, self.smooth_to_checkbox.Value)
+				self.smooth_from_checkbox.Value, self.smooth_to_checkbox.Value,
+				self.smooth_transition_checkbox.Value)
 
-	def SetValue(self, config, smooth_steps, smooth_from, smooth_to):
+	def SetValue(self, config, smooth_steps, smooth_from, smooth_to, smooth_transition):
 		type = self.config_panel_types.index(config.__class__)
 		self.config_notebook.ChangeSelection(type)
 		self.config_notebook.CurrentPage.SetValue(config)
 
 		(self.smooth_steps_input.Value, self.smooth_from_checkbox.Value,
-				self.smooth_to_checkbox.Value) = smooth_steps, smooth_from, smooth_to
+				self.smooth_to_checkbox.Value,
+				self.smooth_transition_checkbox.Value) = smooth_steps, smooth_from, smooth_to, smooth_transition
 
 	def OnOk(self, evt=None):
 		if self.ok_callback(self):
@@ -233,12 +238,13 @@ class VariablesPanel(wx.Panel):
 					MessageDialog(self, str(e), 'Invalid value').Show()
 					return False
 
-				var.config, var.smooth_steps, var.smooth_from, var.smooth_to = values
+				(var.config, var.smooth_steps, var.smooth_from, var.smooth_to,
+						var.smooth_transition) = values
 
 				return True
 
 			dlg = VariableEditor(self, ok_callback)
-			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to)
+			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to, var.smooth_transition)
 			dlg.Show()
 
 			# No need to use the default editor.

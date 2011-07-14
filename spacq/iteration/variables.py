@@ -4,60 +4,39 @@ import operator
 
 from spacq.interface.units import Quantity
 
-from .group_iterators import ParallelIterator, ProductIterator
 
-
-def change_indicator():
+def sort_variables(variables):
 	"""
-	A generator that flip-flops between 0 and 1.
-	"""
-
-	state = 0
-
-	while True:
-		state = 0 if state else 1
-
-		yield state
-
-
-def combine_variables(variables):
-	"""
-	Create a GroupIterator out of some OutputVariable instances.
+	Sort and group the variables based on their order.
 
 	The returned values are:
-		iterator
-		number of items in the iterator
-		variables sorted by their order in the tuples
+		variables sorted and grouped by their order
+		number of items in the Cartesian product of the orders
 	"""
 
 	# Ignore disabled variables entirely!
 	variables = [var for var in variables if var.enabled]
 
 	if not variables:
-		return ([], 0, [])
+		return [], 0
 
 	order_attr = operator.attrgetter('order')
 	ordered = sorted(variables, key=order_attr, reverse=True)
-	grouped = ((order, list(vars)) for order, vars in groupby(ordered, order_attr))
+	grouped = [tuple(vars) for order, vars in groupby(ordered, order_attr)]
 
-	iterators = []
 	num_items = 1
-	sorted_variables = []
-	# Treat each order to its own parallel iterator.
-	for _, vars in grouped:
-		# Each variable also gets its own parallel iterator with a change indicator.
-		with_indicators = [ParallelIterator([x.iterator, change_indicator()]) for x in vars]
+	for group in grouped:
+		num_in_group = None
 
-		var_iter = ParallelIterator(with_indicators)
-		var_items = sum(1 for _ in var_iter)
+		for var in group:
+			num_in_var = len(var)
 
-		iterators.append(var_iter)
-		num_items *= var_items
-		sorted_variables.extend(vars)
+			if num_in_group is None or num_in_var < num_in_group:
+				num_in_group = num_in_var
 
-	iterator = ProductIterator(iterators)
+		num_items *= num_in_group
 
-	return (iterator, num_items, sorted_variables)
+	return grouped, num_items
 
 
 class Variable(object):
@@ -110,6 +89,7 @@ class OutputVariable(Variable):
 		self.smooth_steps = 10
 		self.smooth_from = False
 		self.smooth_to = False
+		self.smooth_transition = False
 
 	@property
 	def wait(self):

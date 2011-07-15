@@ -1,29 +1,24 @@
-import logging
-log = logging.getLogger(__name__)
-
 import csv
 from datetime import timedelta
 from functools import partial
-from itertools import izip
 import os
 from pubsub import pub
 from threading import Lock, Thread
-import time
+from time import localtime, sleep, time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
+from spacq.iteration.sweep import SweepController
 from spacq.iteration.variables import sort_variables, InputVariable, OutputVariable
-from spacq.tool.box import flatten, sift, Enum
+from spacq.tool.box import flatten, sift
 
 from ..tool.box import Dialog, MessageDialog, YesNoQuestionDialog
 
 
-class DataCaptureDialog(Dialog):
+class DataCaptureDialog(Dialog, SweepController):
 	"""
-	A progress dialog which runs over an iterator, sets the corresponding resources, and captures the measured data.
+	A progress dialog which runs over iterators, sets the corresponding resources, and captures the measured data.
 	"""
-
-	modes = Enum(['init', 'next', 'transition', 'write', 'dwell', 'read', 'stall', 'ramp_down', 'end'])
 
 	timer_delay = 50 # ms
 	stall_time = 2 # s
@@ -33,21 +28,13 @@ class DataCaptureDialog(Dialog):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
 
 		Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
+		SweepController.__init__(self, resources, variables, num_items, measurement_resources,
+				measurement_variables, continuous=continuous)
 
 		self.parent = parent
-		self.resources = resources
-		self.variables = variables
-		self.num_items = num_items
-		self.measurement_resources = measurement_resources
-		self.measurement_variables = measurement_variables
-		self.continuous = continuous
 
-		# Only show elapsed time in continuous mode.
+		# Show only elapsed time in continuous mode.
 		self.show_remaining_time = not self.continuous
-
-		# The callbacks should be set before calling start(), if necessary.
-		self.data_callback = None
-		self.close_callback = None
 
 		self.last_checked_time = -1
 		self.elapsed_time = 0 # us
@@ -55,11 +42,15 @@ class DataCaptureDialog(Dialog):
 		self.timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
 
-		# Map the modes to methods.
-		self.mode_actions = dict((mode, getattr(self, mode)) for mode in self.modes)
-
 		self.cancelling = False
-		self.done = False
+
+		def write_callback(pos, i, value):
+			self.value_outputs[pos][i].Value = str(value)
+		self.write_callback = partial(wx.CallAfter, write_callback)
+
+		def read_callback(i, value):
+			self.value_inputs[i].Value = str(value)
+		self.read_callback = partial(wx.CallAfter, read_callback)
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
@@ -139,50 +130,6 @@ class DataCaptureDialog(Dialog):
 		# Try to cancel cleanly instead of giving up.
 		self.Bind(wx.EVT_CLOSE, self.OnCancel)
 
-	def create_iterator(self, pos):
-		"""
-		Create an iterator for an order of variables.
-		"""
-
-		return izip(*(var.iterator for var in self.variables[pos]))
-
-	@property
-	def in_mode(self):
-		"""
-		Are we currently executing a mode?
-		"""
-
-		return self.mode_thread is not None and self.mode_thread.is_alive()
-
-	@property
-	def mode(self):
-		"""
-		The current mode.
-		"""
-
-		return self._mode
-
-	@mode.setter
-	def mode(self, value):
-		"""
-		Note: Does not check that the current thread has stopped.
-		"""
-
-		self._mode = value
-
-		self.mode_thread = Thread(target=self.mode_actions[self._mode])
-		self.mode_thread.daemon = True
-		self.mode_thread.start()
-
-	def start(self):
-		"""
-		Begin the sweep.
-		"""
-
-		self.mode = self.modes.init
-
-		self.timer.Start(self.timer_delay)
-
 	def resource_exception_handler(self, resource_name, e, write=True):
 		"""
 		Called when a write to or read from a Resource raises e.
@@ -194,261 +141,26 @@ class DataCaptureDialog(Dialog):
 
 		self.abort(fatal=write)
 
-	def ramp(self, resources, values_from, values_to, steps):
-		"""
-		Slowly sweep the resources.
-		"""
+	def start(self):
+		thr = Thread(target=SweepController.run, args=(self,))
+		thr.daemon = True
+		thr.start()
 
-		thrs = []
-		for (name, resource), value_from, value_to, resource_steps in zip(resources,
-				values_from, values_to, steps):
-			if resource is None:
-				continue
-
-			thr = Thread(target=resource.sweep, args=(value_from, value_to, resource_steps),
-					kwargs={'exception_callback': partial(wx.CallAfter, self.resource_exception_handler, name)})
-			thrs.append(thr)
-			thr.daemon = True
-			thr.start()
-
-		for thr in thrs:
-			thr.join()
-
-	def write_resource(self, name, resource, value, output):
-		"""
-		Write a value to a resource and handle exceptions.
-		"""
-
-		try:
-			resource.value = value
-		except Exception as e:
-			wx.CallAfter(self.resource_exception_handler, name, e)
-			return
-
-	def read_resource(self, name, resource, input, save_callback):
-		"""
-		Read a value from a resource and handle exceptions.
-		"""
-
-		try:
-			value = resource.value
-		except Exception as e:
-			wx.CallAfter(self.resource_exception_handler, name, e, write=False)
-			return
-
-		save_callback(value)
-
-	def init(self):
-		"""
-		Initialize values.
-		"""
-
-		self.iterators = None
-		self.current_values = None
-		self.last_values = None
-
-		self.item = -1
-
-		self.sweep_start_time = time.time()
-
-	def next(self):
-		"""
-		Get the next set of values from the iterators.
-		"""
-
-		self.item += 1
-		if self.current_values is not None:
-			self.last_values = self.current_values[:]
-
-		if self.iterators is None:
-			# First time around.
-			self.iterators = []
-			for pos in xrange(len(self.variables)):
-				self.iterators.append(self.create_iterator(pos))
-
-			self.current_values = [it.next() for it in self.iterators]
-			self.changed_indices = range(len(self.variables))
-		else:
-			pos = len(self.variables) - 1
-			while pos >= 0:
-				try:
-					self.current_values[pos] = self.iterators[pos].next()
-					break
-				except StopIteration:
-					self.iterators[pos] = self.create_iterator(pos)
-					self.current_values[pos] = self.iterators[pos].next()
-
-					pos -= 1
-
-			self.changed_indices = range(pos, len(self.variables))
-
-	def transition(self):
-		"""
-		Perform a transition for variables, as required.
-		"""
-
-		if self.last_values is None:
-			# Smooth set from const.
-			steps, resources, from_values, to_values = [], [], [], []
-
-			for pos in xrange(len(self.variables)):
-				# Extract values for this group.
-				group_vars, group_resources, current_values = (self.variables[pos],
-						self.resources[pos], self.current_values[pos])
-
-				for var, resource, current_value in zip(group_vars, group_resources,
-						current_values):
-					if var.use_const or not var.smooth_from:
-						continue
-
-					steps.append(var.smooth_steps)
-					resources.append(resource)
-					from_values.append(var.const)
-					to_values.append(current_value)
-
-			self.ramp(resources, from_values, to_values, steps)
-		else:
-			# The first changed group is simply stepping; all others rolled over.
-			affected_groups = self.changed_indices[1:]
-
-			steps, resources, from_values, to_values = [], [], [], []
-
-			for pos in affected_groups:
-				# Extract values for this group.
-				group_vars, group_resources, current_values, last_values = (self.variables[pos],
-						self.resources[pos], self.current_values[pos], self.last_values[pos])
-
-				for var, resource, current_value, last_value in zip(group_vars, group_resources,
-						current_values, last_values):
-					if var.use_const or not var.smooth_transition:
-						continue
-
-					steps.append(var.smooth_steps)
-					resources.append(resource)
-					from_values.append(last_value)
-					to_values.append(current_value)
-
-			self.ramp(resources, from_values, to_values, steps)
-
-	def write(self):
-		"""
-		Write the next values to their resources.
-		"""
-
-		thrs = []
-		for pos in self.changed_indices:
-			for i, ((name, resource), value, output) in enumerate(zip(self.resources[pos],
-					self.current_values[pos], self.value_outputs[pos])):
-
-				if resource is not None:
-					thr = Thread(target=self.write_resource, args=(name, resource, value, output))
-					thrs.append(thr)
-					thr.daemon = True
-					thr.start()
-
-				output.Value = str(value)
-
-		for thr in thrs:
-			thr.join()
-
-	def dwell(self):
-		"""
-		Wait for all changed variables.
-		"""
-
-		delay = max(var._wait.value for pos in self.changed_indices for var in self.variables[pos])
-
-		time.sleep(delay)
-
-	def read(self):
-		"""
-		Take measurements.
-		"""
-
-		measurements = [None] * len(self.measurement_resources)
-
-		thrs = []
-		for i, ((name, resource), input) in enumerate(zip(self.measurement_resources, self.value_inputs)):
-			if resource is not None:
-				def save_callback(value, i=i, input=input):
-					measurements[i] = value
-					wx.CallAfter(input.SetValue, str(value))
-
-				thr = Thread(target=self.read_resource, args=(name, resource, input, save_callback))
-				thrs.append(thr)
-				thr.daemon = True
-				thr.start()
-
-		for thr in thrs:
-			thr.join()
-
-		if self.data_callback is not None:
-			self.data_callback([time.time()] + list(flatten(self.current_values)), measurements)
-
-	def stall(self):
-		"""
-		In case the sweep is too fast, ensure that the user has some time to see the capture dialog.
-		"""
-
-		span = time.time() - self.sweep_start_time
-
-		if span < self.stall_time:
-			time.sleep(self.stall_time - span)
-
-	def ramp_down(self):
-		"""
-		Sweep from the last values to const.
-		"""
-
-		if not self.current_values:
-			return
-
-		# Smooth set to const.
-		steps, resources, from_values, to_values = [], [], [], []
-
-		for pos in xrange(len(self.variables)):
-			# Extract values for this group.
-			group_vars, group_resources, current_values = (self.variables[pos],
-					self.resources[pos], self.current_values[pos])
-
-			for var, resource, current_value in zip(group_vars, group_resources,
-					current_values):
-				if var.use_const or not var.smooth_to:
-					continue
-
-				steps.append(var.smooth_steps)
-				resources.append(resource)
-				from_values.append(current_value)
-				to_values.append(var.const)
-
-		self.ramp(resources, from_values, to_values, steps)
+		self.timer.Start(self.timer_delay)
 
 	def end(self):
-		"""
-		The sweep is over.
-		"""
-
-		if self.done:
+		try:
+			SweepController.end(self)
+		except AssertionError:
 			return
 
-		self.done = True
-
-		if self.close_callback is not None:
-			self.close_callback(self)
+		# In case the sweep is too fast, ensure that the user has some time to see the dialog.
+		span = time() - self.sweep_start_time
+		if span < self.stall_time:
+			sleep(self.stall_time - span)
 
 		wx.CallAfter(self.timer.Stop)
 		wx.CallAfter(self.Destroy)
-
-	def abort(self, fatal=False):
-		"""
-		Ending abruptly for any reason.
-		"""
-
-		if not fatal:
-			self.continuous = False
-			self.mode = self.modes.ramp_down
-		else:
-			self.mode = self.modes.end
 
 	def OnCancel(self, evt=None):
 		if not self.cancel_button.Enabled:
@@ -458,8 +170,6 @@ class DataCaptureDialog(Dialog):
 		self.cancelling = True
 
 	def OnTimer(self, evt=None):
-		log.debug('On timer, mode {0} is {1}active'.format(self.mode, '' if self.in_mode else 'in'))
-
 		# Update progress.
 		if self.num_items > 0 and self.item >= 0:
 			amount_done = float(self.item) / self.num_items
@@ -468,10 +178,10 @@ class DataCaptureDialog(Dialog):
 			self.progress_percent.Label = '{0}%'.format(int(100 * amount_done))
 
 			if self.last_checked_time > 0:
-				self.elapsed_time += int((time.time() - self.last_checked_time) * 1e6)
+				self.elapsed_time += int((time() - self.last_checked_time) * 1e6)
 				self.elapsed_time_output.Label = str(timedelta(seconds=self.elapsed_time//1e6))
 
-			self.last_checked_time = time.time()
+			self.last_checked_time = time()
 
 			if self.show_remaining_time and amount_done > 0:
 				total_time = self.elapsed_time / amount_done
@@ -482,15 +192,25 @@ class DataCaptureDialog(Dialog):
 		if self.cancelling:
 			def abort():
 				self.cancelling = False
-				self.abort()
+
+				thr = Thread(target=self.abort)
+				thr.daemon = True
+				thr.start()
 
 				self.timer.Start(self.timer_delay)
 
 			def resume():
 				self.cancelling = False
+
+				with self.pause_lock:
+					self.paused = False
+					self.pause_lock.notify()
+
 				self.cancel_button.Enable()
 
 				self.timer.Start(self.timer_delay)
+
+			self.paused = True
 
 			self.last_checked_time = -1
 			self.timer.Stop()
@@ -498,39 +218,6 @@ class DataCaptureDialog(Dialog):
 			YesNoQuestionDialog(self, 'Abort processing?', abort, resume).Show()
 
 			return
-
-		# Switch to the next mode:
-		#
-		# init -> next -> transition -> write -> dwell -> read -> stall -> ramp_down -> end
-		#   ^      ^________________________________________|                  |
-		#   |__________________________________________________________________|
-		if not self.in_mode:
-			if self.mode == self.modes.init:
-				self.mode = self.modes.next
-			elif self.mode == self.modes.next:
-				self.mode = self.modes.transition
-			elif self.mode == self.modes.transition:
-				self.mode = self.modes.write
-			elif self.mode == self.modes.write:
-				self.mode = self.modes.dwell
-			elif self.mode == self.modes.dwell:
-				self.mode = self.modes.read
-			elif self.mode == self.modes.read:
-				if self.item == self.num_items - 1:
-					self.item += 1
-
-					self.mode = self.modes.stall
-				else:
-					self.mode = self.modes.next
-			elif self.mode == self.modes.stall:
-				self.mode = self.modes.ramp_down
-			elif self.mode == self.modes.ramp_down:
-				if self.continuous:
-					self.mode = self.modes.init
-				else:
-					self.mode = self.modes.end
-			else:
-				raise ValueError(self.mode)
 
 
 class DataCapturePanel(wx.Panel):
@@ -592,7 +279,7 @@ class DataCapturePanel(wx.Panel):
 		# Prevent accidental double-clicking.
 		self.start_button.Disable()
 		def enable_button():
-			time.sleep(1)
+			sleep(1)
 			wx.CallAfter(self.start_button.Enable)
 		thr = Thread(target=enable_button)
 		thr.daemon = True
@@ -661,7 +348,7 @@ class DataCapturePanel(wx.Panel):
 		if self.export_enabled.Value:
 			dir = self.directory_browse_button.GetValue()
 			# YYYY-MM-DD_HH-MM-SS.csv
-			name = '{0:04}-{1:02}-{2:02}_{3:02}-{4:02}-{5:02}.csv'.format(*time.localtime())
+			name = '{0:04}-{1:02}-{2:02}_{3:02}-{4:02}-{5:02}.csv'.format(*localtime())
 
 			if not dir:
 				MessageDialog(self, 'No directory selected.', 'Export path').Show()
@@ -708,18 +395,18 @@ class DataCapturePanel(wx.Panel):
 			while buf:
 				buf.pop()
 
-		def data_callback(values, measurement_values):
+		def data_callback(cur_time, values, measurement_values):
 			for name, value in zip(measurement_resource_names, measurement_values):
 				pub.sendMessage('data_capture.data', name=name, value=value)
 
 			if exporting:
 				with buf_lock:
-					buf.append(values + measurement_values)
+					buf.append((cur_time,) + values + measurement_values)
 
 					if len(buf) >= max_buf_size:
 						flush()
 
-		def close_callback(dlg):
+		def close_callback():
 			self.capture_dialogs -= 1
 
 			if exporting:

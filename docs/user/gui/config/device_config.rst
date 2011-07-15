@@ -17,7 +17,7 @@ Device connection
 
       * Ethernet: The IPv4 address (eg. ``1.2.3.4``).
       * GPIB: The board number, PAD, and SAD.
-      * USB: The full USB resource (eg. ``USB::0x1234::0x5678::0x9abc::RAW``).
+      * USB: The full USB resource (eg. ``USB::0x1234::0x5678::01234567::RAW``).
 
    2. Implementation configuration.
 

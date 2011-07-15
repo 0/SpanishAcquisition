@@ -44,14 +44,8 @@ Tests which have external dependencies can be found with:
 
 and run with, for example:
 
-    ./runtests ./devices/tektronix/tests/server/test_awg5014b.py
+    ./runtests --no-skip ./spacq/devices/tektronix/tests/server/test_awg5014b.py
 
-## Miscellaneous
+Configuration of external resources should be done by copying and editing the example file:
 
-A formatted listing of all relevant files can be shown with:
-
-    tree -I '*.pyc|__init__.py' --noreport -F --dirsfirst -C
-
-And only the directories with:
-
-    tree --noreport -F --dirsfirst -C -d
+    cp test-config.py ~/.spacq-test-config.py

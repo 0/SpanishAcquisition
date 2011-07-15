@@ -5,4 +5,4 @@ if (( $# == 0 )); then
 	EXCLUDE="--exclude=server"
 fi
 
-nosetests --config=spacq/tests/resources/nose.cfg $EXCLUDE $@
+nosetests --tc-file ~/.spacq-test-config.py --tc-format python --exclude=test-config.py $EXCLUDE $@

@@ -33,12 +33,14 @@ class IPS120_10(AbstractDevice):
 	def _setup(self):
 		AbstractDevice._setup(self)
 
+		self._perma_hot = True
+
 		# Resources.
-		read_write = ['heater_on', 'sweep_rate', 'field']
+		read_write = ['perma_hot', 'sweep_rate', 'field']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
-		self.resources['heater_on'].converter = str_to_bool
+		self.resources['perma_hot'].converter = str_to_bool
 		self.resources['sweep_rate'].converter = float
 		self.resources['field'].converter = float
 
@@ -57,9 +59,6 @@ class IPS120_10(AbstractDevice):
 
 		# Ensure some initial sanity.
 		assert self.status.activity == 0, 'Not on hold.'
-		assert not self.heater_on, 'Heater is on.'
-		assert self.persistent_field == 0.0, 'Persistent field is {0}, not zero.'.format(self.persistent_field)
-		assert self.output_field == 0.0, 'Output field is {0}, not zero.'.format(self.output_field)
 
 	def write(self, message):
 		"""
@@ -114,6 +113,18 @@ class IPS120_10(AbstractDevice):
 		# Allow the heater to go to the correct setting.
 		log.debug('Waiting for heater for {0} s.'.format(self.heater_delay))
 		sleep(self.heater_delay)
+
+	@property
+	def perma_hot(self):
+		"""
+		Whether the heater should always remain on.
+		"""
+
+		return self._perma_hot
+
+	@perma_hot.setter
+	def perma_hot(self, value):
+		self._perma_hot = value
 
 	@property
 	def sweep_rate(self):
@@ -176,12 +187,8 @@ class IPS120_10(AbstractDevice):
 
 		set_delay = 60.0 * abs(value - self.output_field) / self.sweep_rate # s
 
-		if value == 0:
-			self.activity = 'to_zero'
-		else:
-			self.set_point = value
-
-			self.activity = 'to_set'
+		self.set_point = value
+		self.activity = 'to_set'
 
 		# If the heater is on, the sweep rate is used, so wait.
 		if self.heater_on:
@@ -194,8 +201,6 @@ class IPS120_10(AbstractDevice):
 
 		self.activity = 'hold'
 
-		eq_(self.output_field, value)
-
 	@field.setter
 	@Synchronized()
 	def field(self, value):
@@ -205,19 +210,17 @@ class IPS120_10(AbstractDevice):
 		eq_(status.mode_sweep, 0)
 
 		eq_(self.activity, 'hold')
-		assert not self.heater_on
-		eq_(self.field, 0.0)
 
 		# Return to the last field.
-		self.set_field(self.persistent_field)
+		if not self.heater_on:
+			self.set_field(self.persistent_field)
+			self.heater_on = True
 
 		# Change to the new field.
-		self.heater_on = True
 		self.set_field(value)
-		self.heater_on = False
 
-		# Back to zero.
-		self.set_field(0.0)
+		if not self.perma_hot:
+			self.heater_on = False
 
 	@property
 	def idn(self):

@@ -1,2 +1,2 @@
-from . import agilent, custom, tektronix
-manufacturers = [agilent, custom, tektronix]
+from . import agilent, custom, oxford, tektronix
+manufacturers = [agilent, custom, oxford, tektronix]

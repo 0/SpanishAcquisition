@@ -8,4 +8,4 @@ Spanish Acquisition is a Python package for interfacing with test & measurement 
 
    installation
    user/index
-   dev/index
+   devel/index

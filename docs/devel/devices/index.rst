@@ -14,21 +14,68 @@ All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractD
 
    abstract_device
 
-Adding a device
-===============
+.. _devices_testing:
 
-To add a device:
+Testing
+=======
 
-#. In its manufacturer directory [#manuf_dir]_ , add a Python file for its model, named ``model.py`` (eg. ``awg5014b.py``).
+All the device interfaces can be tested against real hardware as long as the hardware is present and configured.
 
-   * If no manufacturer directory exists for this manufacturer, create one.
+Configuration of external resources should be done by copying and editing the example file::
 
-#. In the ``mock`` subdirectory for the manufacturer, add a Python file for the mock implementation, named ``mock_model.py`` (eg. ``mock_awg5014b.py``).
+   cp test-config.py ~/.spacq-test-config.py
 
-#. Add the new model module and mock model module to the :data:`models` and :data:`mock_models` lists, respectively, in the manufacturer directory ``__init__.py``.
+File structure
+==============
 
-   * Ensure that both lists have the same length. ``None`` is an acceptable value in either list if that implementation is not available.
+Each manufacturer has its own directory in ``spacq/devices/`` (eg. ``agilent`` for Agilent, ``tektronix`` for Tektronix, etc), and each of these directories may contain any number of devices. There should be at least four files [#four_files]_ per device:
+
+#. The device interface (eg. ``dm34410a.py``).
+#. Tests for the device interface (eg. ``test_dm34410a.py``).
+#. A mock implementation of the device (eg. ``mock_dm34410a.py``).
+#. A wrapper to run the device tests against the mock (eg. ``test_mock_dm34410a.py``).
 
 .. rubric:: Footnotes
 
-.. [#manuf_dir] The manufacturer directories are located in ``spacq/devices/``.
+.. [#four_files] Most devices will have four files, but, for example, the custom voltage source (``custom/voltage_source.py``) includes a non-server test file as a fifth file.
+
+Adding a manufacturer
+---------------------
+
+To add a manufacturer:
+
+#. Copy the sample manufacturer directory (``spacq/devices/sample/``) to a new directory in ``spacq/devices/`` corresponding to the manufacturer. The name of this directory will be the *package name*; it should include only lowercase letters, but may also include digits and underscores starting with the second character.
+#. In the ``spacq/devices/<manufacturer>/__init__.py`` file, replace the name with the name of the manufacturer as you would like it to appear in the user interface.
+#. Add the new package name to both lines of ``spacq/devices/__init__.py``.
+
+For example, to add Oxford Instruments as a manufacturer::
+
+   cp -r spacq/devices/sample spacq/devices/oxford
+   vim spacq/devices/oxford/__init__.py # Change the name to "Oxford Instruments".
+   vim spacq/devices/__init__.py # Add "oxford".
+
+Adding a device
+---------------
+
+The sample manufacturer comes with a sample device in the form of files ending in ``abc1234.py``. If the manufacturer is newly added, you should modify this sample device; otherwise, copy the four sample device files over from ``spacq/devices/sample/``.
+
+#. Rename all the ``abc1234.py`` files to something suitable for the device. The chosen name (excluding the ``.py`` extension) will be the *module name*; it should include only lowercase letters, but can also include digits and underscores starting with the second character.
+
+   .. note::
+
+      Due to the constraint that the initial character of the module name may not be a digit, some model names cannot be used directly either in the module name or in the class name. For example, in the case of the Agilent 34410A, the module name is ``dm34410a`` and the class name is ``DM34410A`` where the letters "DM" are arbitrarily chosen and stand for "digital multimeter".
+
+#. Add the configuration details for the physical device to your :ref:`test configuration <devices_testing>`.
+#. Edit the mock tests (``spacq/devices/<manufacturer>/mock/tests/test_mock_<model>.py``) to refer to the correct tests.
+#. Edit the server [#server_tests]_ tests (``spacq/devices/<manufacturer>/tests/server/test_<model>.py``) to use *all* the functionality the interface will include.
+#. Edit the device interface (``spacq/devices/<manufacturer>/<model>.py``) until all the server tests pass.
+#. Edit the mock implementation (``spacq/devices/<manufacturer>/<model>.py``) until all the mock tests pass.
+#. Add the new model module and mock model module to the :data:`models` and :data:`mock_models` lists, respectively, in the manufacturer directory ``__init__.py``, as well as to the import lines.
+
+   .. warning::
+
+      Ensure that both lists have the same length. ``None`` is an acceptable value in either list if that implementation is not available.
+
+.. rubric:: Footnotes
+
+.. [#server_tests] They are referred to as "server" tests because they have an external dependency (the hardware device) which acts roughly as a server to which the tests connect.

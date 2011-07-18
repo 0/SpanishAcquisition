@@ -121,7 +121,8 @@ class OutputVariable(Variable):
 		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
 
 		if len(found_values) > self.display_values:
-			shown_values += ', ...'
+			if len(found_values) > self.display_values + 1:
+				shown_values += ', ...'
 
 			if len(found_values) <= self.search_values:
 				shown_values += ', {0:g}'.format(found_values[-1])

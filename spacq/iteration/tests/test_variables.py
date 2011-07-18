@@ -95,6 +95,10 @@ class OutputVariableTest(unittest.TestCase):
 		var.config = variables.LinSpaceConfig(0.0, 5.0, 3)
 		eq_(str(var), '[0, 2.5, 5]')
 
+		# Borderline.
+		var.config = variables.LinSpaceConfig(1.0, 5.0, 5)
+		eq_(str(var), '[1, 2, 3, 4, 5]')
+
 		# Short enough.
 		var.config = variables.LinSpaceConfig(-200.0, 200.0, 401)
 		eq_(str(var), '[-200, -199, -198, -197, ..., 200]')

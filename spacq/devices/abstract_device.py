@@ -91,6 +91,18 @@ class SuperDevice(object):
 		Post-connection setup.
 		"""
 
+		if hasattr(self, 'driver') and self.driver == drivers.lgpib:
+			# Some devices don't assert the EOI line, so look for their EOS character instead.
+			if hasattr(self, 'eos_char'):
+				self.device.config(gpib.IbcEOSchar, ord(self.eos_char))
+				self.device.config(gpib.IbcEOSrd, 1)
+
+			# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
+			try:
+				log.debug('GPIB device IDN: {0}'.format(repr(self.idn)))
+			except gpib.GpibError as e:
+				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
+
 		# Recursively.
 		for name, subdev in self.subdevices.items():
 			log.debug('Post-connection for subdevice "{0}".'.format(name))
@@ -193,8 +205,6 @@ class AbstractDevice(SuperDevice):
 		elif self.driver == drivers.lgpib:
 			try:
 				self.device = Gpib.Gpib(**self.connection_resource)
-				# Gpib.Gpib doesn't complain if the device at the PAD doesn't actually exist.
-				log.debug('GPIB device IDN: {0}'.format(repr(self.idn)))
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.pyvisa_usb:
@@ -203,7 +213,10 @@ class AbstractDevice(SuperDevice):
 			except visa.VisaIOError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 
-		self._connected()
+		try:
+			self._connected()
+		except Exception as e:
+			raise DeviceNotFoundError('Could finish connection to device at "{0}".'.format(self.connection_resource), e)
 
 	def multi_command_start(self):
 		"""

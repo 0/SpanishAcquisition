@@ -1,7 +1,7 @@
 Device configuration
 ====================
 
-The device configuration dialog is used to configure devices for use with an application.
+The device configuration dialog is used to configure :ref:`devices <general_concepts_devices>` for use with an application.
 
 .. _device_config_connection:
 

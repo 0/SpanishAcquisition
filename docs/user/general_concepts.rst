@@ -61,6 +61,12 @@ Output variables provide a way to sweep over a range of values on a :ref:`resour
 
    The unqualified term "variable" typically refers to output variables.
 
+.. TODO: Variable order.
+   TODO: Smooth setting, transitions.
+   TODO: Constant.
+
+.. seealso:: :ref:`variable_config`
+
 .. _general_concepts_input_variables:
 
 Input variables

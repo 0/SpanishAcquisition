@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-name = 'Custom'
+name = 'IQC'
 
 from . import voltage_source
 models = [voltage_source]

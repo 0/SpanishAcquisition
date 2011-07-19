@@ -15,6 +15,6 @@ config['devices']['DM34410A.gpib'] = {
 }
 config['devices']['VoltageSource.usb'] = {
 	'address': {'usb_resource': 'USB::0x1234::0x5678::01234567::RAW'},
-	'manufacturer': 'Custom',
+	'manufacturer': 'IQC',
 	'model': 'Voltage source',
 }

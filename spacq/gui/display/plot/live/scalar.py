@@ -24,8 +24,8 @@ class PlotSettings(object):
 	"""
 
 	def __init__(self):
-		self.num_points = 100
-		self.delay = Quantity(0.5, 's')
+		self.num_points = 500
+		self.delay = Quantity(0.2, 's')
 		self.update_x = True
 		self.time_value = 0
 		self.time_mode = 0

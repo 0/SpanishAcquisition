@@ -150,10 +150,10 @@ class VariableEditor(Dialog):
 
 class VariablesPanel(wx.Panel):
 	col_name = VariableColumnDefn(checkStateGetter='enabled', title='Name', valueGetter='name',
-			isSpaceFilling=True, align='left')
+			width=150, align='left')
 	col_order = VariableColumnDefn(title='#', valueGetter='order', width=40)
 	col_resource = VariableColumnDefn(title='Resource', valueGetter='resource_name',
-			isSpaceFilling=True, align='left')
+			width=150, align='left')
 	col_values = VariableColumnDefn(title='Values', valueGetter=lambda x: str(x),
 			isSpaceFilling=True, align='left')
 	col_wait = VariableColumnDefn(title='Wait time', valueGetter='wait')

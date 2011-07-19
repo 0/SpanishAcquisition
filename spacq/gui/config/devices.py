@@ -44,6 +44,7 @@ class DevicesPanel(wx.Panel):
 		panel_box.Add(self.olv, proportion=1, flag=wx.ALL|wx.EXPAND)
 
 		self.olv.SetColumns([self.col_name, self.col_connection, self.col_setup])
+		self.olv.SetSortColumn(self.col_name)
 
 		self.olv.cellEditMode = self.olv.CELLEDIT_DOUBLECLICK
 		self.olv.Bind(ObjectListView.EVT_CELL_EDIT_STARTING, self.OnCellEditStarting)

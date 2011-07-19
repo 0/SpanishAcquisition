@@ -76,7 +76,7 @@ class SweepControllerTest(unittest.TestCase):
 			dwell time
 		"""
 
-		res_bufs = [[], [], []]
+		res_bufs = [[], [], [], []]
 		measurement_counts = [0] * 2
 
 		def setter(i, value):
@@ -93,6 +93,7 @@ class SweepControllerTest(unittest.TestCase):
 		res0 = Resource(setter=partial(setter, 0))
 		res1 = Resource(setter=partial(setter, 1))
 		res2 = Resource(setter=partial(setter, 2))
+		res3 = Resource(setter=partial(setter, 3))
 
 		var0 = OutputVariable(name='Var 0', order=2, enabled=True, const=0.0)
 		var0.config = LinSpaceConfig(-1.0, -2.0, 2)
@@ -104,20 +105,22 @@ class SweepControllerTest(unittest.TestCase):
 		var1.smooth_steps = 3
 		var1.smooth_from, var1.smooth_to, var1.smooth_transition = [True] * 3
 
-		var2 = OutputVariable(name='Var 2', order=1, enabled=True, const=-9.0, wait=str(dwell_time))
-		var2.config = LinSpaceConfig(-1.0, 2.0, 4)
-		var2.smooth_steps = 2
-		var2.smooth_from, var2.smooth_to, var2.smooth_transition = [True] * 3
+		var2 = OutputVariable(name='Var 2', order=1, enabled=True, const=1.23, use_const=True)
+
+		var3 = OutputVariable(name='Var 3', order=1, enabled=True, const=-9.0, wait=str(dwell_time))
+		var3.config = LinSpaceConfig(-1.0, 2.0, 4)
+		var3.smooth_steps = 2
+		var3.smooth_from, var3.smooth_to, var3.smooth_transition = [True] * 3
 
 		# Input.
 		meas_res0 = Resource(getter=partial(getter, 0))
 		meas_res1 = Resource(getter=partial(getter, 1))
 
 		meas0 = InputVariable(name='Meas 0')
-		meas1 = InputVariable(name='Meas 0')
+		meas1 = InputVariable(name='Meas 1')
 
-		vars, num_items = sort_variables([var0, var1, var2])
-		ctrl = sweep.SweepController([(('Res 0', res0),), (('Res 1', res1), ('Res 2', res2))],
+		vars, num_items = sort_variables([var0, var1, var2, var3])
+		ctrl = sweep.SweepController([(('Res 2', res2),), (('Res 0', res0),), (('Res 1', res1), ('Res 3', res3))],
 				vars, num_items, [('Meas res 0', meas_res0), ('Meas res 1', meas_res1)], [meas0, meas1])
 
 		# Callback verification buffers.
@@ -156,16 +159,17 @@ class SweepControllerTest(unittest.TestCase):
 		expected_res1 = [1.0, 2.0, 3.0, 4.0]
 		expected_res2 = [-1.0, 0.0, 1.0, 2.0]
 
-		expected_inner_writes = list(flatten(((1, 0, x), (1, 1, x - 2.0)) for x in [1.0, 2.0, 3.0, 4.0]))
-		expected_writes = list(flatten([(0, 0, x)] + expected_inner_writes for x in [-1.0, -2.0]))
+		expected_inner_writes = list(flatten(((2, 0, x), (2, 1, x - 2.0)) for x in [1.0, 2.0, 3.0, 4.0]))
+		expected_writes = [(0, 0, 1.23)] + list(flatten([(1, 0, x)] + expected_inner_writes for x in [-1.0, -2.0]))
 
 		eq_(res_bufs, [
 			[0.0, -1.0, -1.0, -2.0, -2.0, 0.0],
 			[-1.0, 0.0, 1.0] + expected_res1 + [4.0, 2.5, 1.0] + expected_res1 + [4.0, 1.5, -1.0],
+			[1.23],
 			[-9.0, -1.0] + expected_res2 + [2.0, -1.0] + expected_res2 + [2.0, -9.0],
 		])
 		eq_(measurement_counts, [8, -8])
-		eq_(actual_values, [(x, y, y - 2.0) for x in [-1.0, -2.0] for y in [1.0, 2.0, 3.0, 4.0]])
+		eq_(actual_values, [(1.23, x, y, y - 2.0) for x in [-1.0, -2.0] for y in [1.0, 2.0, 3.0, 4.0]])
 		eq_(actual_measurement_values, [(x, -x) for x in xrange(1, 9)])
 		eq_(actual_writes, expected_writes)
 		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in xrange(1, 9))))

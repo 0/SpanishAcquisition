@@ -46,11 +46,13 @@ class SortVariablesTest(unittest.TestCase):
 					name='C', order=2, enabled=True),
 			variables.OutputVariable(config=variables.LinSpaceConfig(0.0, 0.0, 1),
 					name='E', order=4),
+			variables.OutputVariable(
+					name='F', order=5, enabled=True, const=5.5, use_const=True),
 		]
 
 		sorted_variables, num_items = variables.sort_variables(vars)
 
-		eq_(sorted_variables, [(vars[0],), (vars[1], vars[3]), (vars[2],)])
+		eq_(sorted_variables, [(vars[2], vars[5]), (vars[0],), (vars[1], vars[3])])
 		eq_(num_items, 6)
 
 

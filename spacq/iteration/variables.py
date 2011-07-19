@@ -20,8 +20,10 @@ def sort_variables(variables):
 	if not variables:
 		return [], 0
 
+	const_vars = tuple([var for var in variables if var.use_const])
+
 	order_attr = operator.attrgetter('order')
-	ordered = sorted(variables, key=order_attr, reverse=True)
+	ordered = sorted((var for var in variables if not var.use_const), key=order_attr, reverse=True)
 	grouped = [tuple(vars) for order, vars in groupby(ordered, order_attr)]
 
 	num_items = 1
@@ -35,6 +37,9 @@ def sort_variables(variables):
 				num_in_group = num_in_var
 
 		num_items *= num_in_group
+
+	if const_vars:
+		grouped.insert(0, const_vars)
 
 	return grouped, num_items
 

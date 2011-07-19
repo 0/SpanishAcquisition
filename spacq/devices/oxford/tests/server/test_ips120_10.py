@@ -25,8 +25,10 @@ class IPS120_10Test(DeviceServerTestCase):
 		ips.heater_on = False
 		assert not ips.heater_on
 
+		start_field = ips.field
+
 		# Sweep slowly.
-		ips.sweep_rate = 0.05
+		ips.sweep_rate = 0.1
 
 		start_time = time()
 		ips.field = 0.005
@@ -34,7 +36,7 @@ class IPS120_10Test(DeviceServerTestCase):
 
 		eq_(ips.field, 0.005)
 
-		expected_time = 60 * (0.005 - 0.0) / 0.05
+		expected_time = 60 * abs(0.005 - start_field) / 0.1
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 		# Make sure it stayed on.
@@ -52,7 +54,7 @@ class IPS120_10Test(DeviceServerTestCase):
 
 		eq_(ips.field, -0.015)
 
-		expected_time = 60 * (-0.015 - 0.005) / 0.5
+		expected_time = 60 * abs(-0.015 - 0.005) / 0.5
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 		# Make sure it turned off.
@@ -67,7 +69,7 @@ class IPS120_10Test(DeviceServerTestCase):
 
 		eq_(ips.field, 0.0)
 
-		expected_time = 60 * (0.0 - (-0.015)) / 0.5
+		expected_time = 60 * abs(0.0 - (-0.015)) / 0.5
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 

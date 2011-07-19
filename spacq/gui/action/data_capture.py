@@ -134,6 +134,11 @@ class DataCaptureDialog(Dialog, SweepController):
 			self.remaining_time_output = wx.StaticText(self, label='---:--:--')
 			times_box.Add(self.remaining_time_output)
 
+		## Last continuous.
+		if self.continuous:
+			self.last_continuous_input = wx.CheckBox(self, label='Last loop of continuous sweep')
+			dialog_box.Add(self.last_continuous_input, flag=wx.CENTER)
+
 		## End button.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)
 		dialog_box.Add(button_box, flag=wx.CENTER)
@@ -187,8 +192,9 @@ class DataCaptureDialog(Dialog, SweepController):
 		self.cancelling = True
 
 	def OnTimer(self, evt=None):
-		# Update status.
 		self.status_message_output.Value = self.status_messages[self.current_f]
+		if self.continuous:
+			self.last_continuous = self.last_continuous_input.Value
 
 		# Update progress.
 		if self.num_items > 0 and self.item >= 0:

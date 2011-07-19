@@ -47,6 +47,7 @@ class SweepController(object):
 		self.paused = False
 		self.pause_lock = Condition()
 
+		self.last_continuous = False
 		self.aborting = False
 		self.done = False
 
@@ -335,7 +336,7 @@ class SweepController(object):
 
 		self.ramp(resources, from_values, to_values, steps)
 
-		if self.continuous:
+		if self.continuous and not self.last_continuous:
 			return self.init
 		else:
 			return self.end

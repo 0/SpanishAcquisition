@@ -23,6 +23,18 @@ class DataCaptureDialog(Dialog, SweepController):
 	timer_delay = 50 # ms
 	stall_time = 2 # s
 
+	status_messages = {
+		None: 'Starting up',
+		'init': 'Initializing',
+		'next': 'Getting next values',
+		'transition': 'Smooth setting',
+		'write': 'Writing to devices',
+		'dwell': 'Waiting for devices to settle',
+		'read': 'Taking measurements',
+		'ramp_down': 'Smooth setting',
+		'end': 'Finishing',
+	}
+
 	def __init__(self, parent, resources, variables, num_items, measurement_resources,
 			measurement_variables, continuous=False, *args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
@@ -67,6 +79,11 @@ class DataCaptureDialog(Dialog, SweepController):
 		### Bar.
 		self.progress_bar = wx.Gauge(self, range=num_items, style=wx.GA_HORIZONTAL)
 		progress_box.Add(self.progress_bar, proportion=1)
+
+		## Status.
+		self.status_message_output = wx.TextCtrl(self, style=wx.TE_READONLY)
+		self.status_message_output.BackgroundColour = wx.LIGHT_GREY
+		dialog_box.Add(self.status_message_output, flag=wx.EXPAND)
 
 		## Values.
 		self.values_box = wx.FlexGridSizer(rows=len(self.variables), cols=2, hgap=20)
@@ -170,6 +187,9 @@ class DataCaptureDialog(Dialog, SweepController):
 		self.cancelling = True
 
 	def OnTimer(self, evt=None):
+		# Update status.
+		self.status_message_output.Value = self.status_messages[self.current_f]
+
 		# Update progress.
 		if self.num_items > 0 and self.item >= 0:
 			amount_done = float(self.item) / self.num_items

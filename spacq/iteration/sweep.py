@@ -1,13 +1,22 @@
 import logging
 log = logging.getLogger(__name__)
 
-from functools import partial
+from functools import partial, wraps
 from itertools import izip
 from threading import Condition, Thread
 from time import sleep, time
 
 from spacq.tool.box import flatten
 
+
+def update_current_f(f):
+	@wraps(f)
+	def wrapped(self):
+		self.current_f = f.__name__
+
+		return f(self)
+
+	return wrapped
 
 class SweepController(object):
 	"""
@@ -30,6 +39,8 @@ class SweepController(object):
 		# The callbacks should be set before calling run(), if necessary.
 		self.data_callback, self.close_callback, self.write_callback, self.read_callback = [None] * 4
 		self.resource_exception_handler = None
+
+		self.current_f = None
 
 		self.item = -1
 
@@ -125,6 +136,7 @@ class SweepController(object):
 			except Exception:
 				next_f = None
 
+	@update_current_f
 	def init(self):
 		"""
 		Initialize values.
@@ -140,6 +152,7 @@ class SweepController(object):
 
 		return self.next
 
+	@update_current_f
 	def next(self):
 		"""
 		Get the next set of values from the iterators.
@@ -173,6 +186,7 @@ class SweepController(object):
 
 		return self.transition
 
+	@update_current_f
 	def transition(self):
 		"""
 		Perform a transition for variables, as required.
@@ -223,6 +237,7 @@ class SweepController(object):
 
 		return self.write
 
+	@update_current_f
 	def write(self):
 		"""
 		Write the next values to their resources.
@@ -246,17 +261,18 @@ class SweepController(object):
 
 		return self.dwell
 
+	@update_current_f
 	def dwell(self):
 		"""
 		Wait for all changed variables.
 		"""
 
 		delay = max(var._wait.value for pos in self.changed_indices for var in self.variables[pos])
-
 		sleep(delay)
 
 		return self.read
 
+	@update_current_f
 	def read(self):
 		"""
 		Take measurements.
@@ -290,6 +306,7 @@ class SweepController(object):
 		else:
 			return self.next
 
+	@update_current_f
 	def ramp_down(self):
 		"""
 		Sweep from the last values to const.
@@ -323,6 +340,7 @@ class SweepController(object):
 		else:
 			return self.end
 
+	@update_current_f
 	def end(self):
 		"""
 		The sweep is over.

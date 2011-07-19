@@ -14,9 +14,12 @@ def update_current_f(f):
 	def wrapped(self):
 		self.current_f = f.__name__
 
+		log.debug('Entering function: {0}'.format(self.current_f))
+
 		return f(self)
 
 	return wrapped
+
 
 class SweepController(object):
 	"""
@@ -48,8 +51,9 @@ class SweepController(object):
 		self.pause_lock = Condition()
 
 		self.last_continuous = False
-		self.aborting = False
 		self.done = False
+		self.aborting = False
+		self.abort_fatal = False
 
 	def create_iterator(self, pos):
 		"""
@@ -112,30 +116,37 @@ class SweepController(object):
 		Run the sweep.
 		"""
 
-		if next_f is None:
-			next_f = self.init
+		try:
+			if next_f is None:
+				next_f = self.init
 
-		# Trampoline.
-		while next_f is not None:
-			f_name = next_f.__name__
+			# Trampoline.
+			while next_f is not None:
+				f_name = next_f.__name__
 
-			if self.aborting:
-				log.debug('Aborting before function: {0}'.format(f_name))
+				if self.paused:
+					log.debug('Paused before function: {0}'.format(f_name))
 
-				return
+					self.pause_lock.acquire()
+					self.pause_lock.wait()
 
-			if self.paused:
-				log.debug('Paused before function: {0}'.format(f_name))
+				if self.aborting:
+					log.debug('Aborting before function: {0}'.format(f_name))
 
-				self.pause_lock.acquire()
-				self.pause_lock.wait()
+					if not self.abort_fatal:
+						self.continuous = False
+						self.ramp_down()
 
-			log.debug('Starting function: {0}'.format(f_name))
+					return
 
-			try:
-				next_f = next_f()
-			except Exception:
-				next_f = None
+				log.debug('Starting function: {0}'.format(f_name))
+
+				try:
+					next_f = next_f()
+				except Exception:
+					next_f = None
+		finally:
+			self.end()
 
 	@update_current_f
 	def init(self):
@@ -338,8 +349,6 @@ class SweepController(object):
 
 		if self.continuous and not self.last_continuous:
 			return self.init
-		else:
-			return self.end
 
 	@update_current_f
 	def end(self):
@@ -353,15 +362,17 @@ class SweepController(object):
 		if self.close_callback is not None:
 			self.close_callback()
 
+	def unpause(self):
+		with self.pause_lock:
+			self.paused = False
+			self.pause_lock.notify()
+
 	def abort(self, fatal=False):
 		"""
 		Ending abruptly for any reason.
 		"""
 
 		self.aborting = True
+		self.abort_fatal = fatal
 
-		if not fatal:
-			self.continuous = False
-			self.ramp_down()
-
-		self.end()
+		self.unpause()

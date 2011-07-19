@@ -227,12 +227,9 @@ class DataCaptureDialog(Dialog, SweepController):
 
 			def resume():
 				self.cancelling = False
-
-				with self.pause_lock:
-					self.paused = False
-					self.pause_lock.notify()
-
 				self.cancel_button.Enable()
+
+				self.unpause()
 
 				self.timer.Start(self.timer_delay)
 

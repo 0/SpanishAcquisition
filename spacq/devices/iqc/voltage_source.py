@@ -257,6 +257,17 @@ class VoltageSource(AbstractDevice):
 	It uses several TI DAC1220 chips and an NI USB-8451 to interface with them over SPI.
 	"""
 
+	@property
+	def _gui_setup(self):
+		try:
+			from .gui.voltage_source import VoltageSourceSettingsDialog
+
+			return VoltageSourceSettingsDialog
+		except ImportError as e:
+			log.debug('Could not load GUI setup for device "{0}": {1}'.format(self.name, str(e)))
+
+			return None
+
 	def _setup(self):
 		AbstractDevice._setup(self)
 

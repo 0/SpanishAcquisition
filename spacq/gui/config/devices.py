@@ -27,11 +27,14 @@ class DevicesPanel(wx.Panel):
 	col_name = DeviceColumnDefn(title='Name', valueGetter='name', isSpaceFilling=True)
 	col_connection = DeviceColumnDefn(title='Connection', width=110,
 			valueGetter=lambda x: '{0}onnected'.format('C' if x.device is not None else 'Disc'))
+	col_setup = DeviceColumnDefn(title='Setup', width=70,
+			valueGetter=lambda x: 'Setup...' if x.gui_setup is not None else '')
 
-	def __init__(self, parent, global_store, *args, **kwargs):
+	def __init__(self, parent, global_store, dialog_owner, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
 		self.global_store = global_store
+		self.dialog_owner = dialog_owner
 
 		# Panel.
 		panel_box = wx.BoxSizer(wx.VERTICAL)
@@ -40,7 +43,7 @@ class DevicesPanel(wx.Panel):
 		self.olv = ObjectListView.FastObjectListView(self)
 		panel_box.Add(self.olv, proportion=1, flag=wx.ALL|wx.EXPAND)
 
-		self.olv.SetColumns([self.col_name, self.col_connection])
+		self.olv.SetColumns([self.col_name, self.col_connection, self.col_setup])
 
 		self.olv.cellEditMode = self.olv.CELLEDIT_DOUBLECLICK
 		self.olv.Bind(ObjectListView.EVT_CELL_EDIT_STARTING, self.OnCellEditStarting)
@@ -99,6 +102,8 @@ class DevicesPanel(wx.Panel):
 			evt.Veto()
 			return
 
+		veto = False
+
 		if col == self.col_connection:
 			def ok_callback(dlg):
 				dev_new = dlg.GetValue()
@@ -126,6 +131,14 @@ class DevicesPanel(wx.Panel):
 			dlg.SetValue(dev)
 			dlg.Show()
 
+			veto = True
+		elif col == self.col_setup:
+			if dev.gui_setup is not None:
+				dev.gui_setup(self.dialog_owner, self.global_store, dev.name).Show()
+
+			veto = True
+
+		if veto:
 			# No need to use the default editor.
 			evt.Veto()
 

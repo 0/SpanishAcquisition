@@ -81,11 +81,14 @@ class DeviceConfig(object):
 		self.model = None
 		self.mock = False
 
+		# Device-specific GUI setup.
+		self.gui_setup = None
+
 		# Resource path to label mappings.
 		self.resource_labels = {}
 
 		# The connected device object.
-		self.device = None
+		self._device = None
 
 		# Label to resource object mappings.
 		self.resources = {}
@@ -113,6 +116,25 @@ class DeviceConfig(object):
 		# Set missing values to defaults.
 		self.device = None
 		self.resources = {}
+
+	@property
+	def device(self):
+		"""
+		The connected device object.
+		"""
+
+		return self._device
+
+	@device.setter
+	def device(self, value):
+		self._device = value
+
+		self.gui_setup = None
+		try:
+			self.gui_setup = self._device._gui_setup
+		except AttributeError:
+			# No device or no GUI setup available.
+			pass
 
 	def diff_resources(self, new):
 		"""
@@ -168,22 +190,22 @@ class DeviceConfig(object):
 
 		tree = device_tree()
 
-		if self.manufacturer not in tree:
-			raise ConnectionError('Unknown manufacturer: {0}'.format(self.manufacturer))
-		else:
+		try:
 			subtree = tree[self.manufacturer]
+		except KeyError:
+			raise ConnectionError('Unknown manufacturer: {0}'.format(self.manufacturer))
 
-		if self.model not in subtree:
-			raise ConnectionError('Unknown model: {0}'.format(self.model))
-		else:
+		try:
 			subtree = subtree[self.model]
+		except KeyError:
+			raise ConnectionError('Unknown model: {0}'.format(self.model))
 
 		kind = 'mock' if self.mock else 'real'
 
-		if kind not in subtree:
-			raise ConnectionError('Unknown kind: {0}'.format(kind))
-		else:
+		try:
 			implementation = subtree[kind]
+		except KeyError:
+			raise ConnectionError('Unknown kind: {0}'.format(kind))
 
 		try:
 			device = implementation(autoconnect=False, **address)

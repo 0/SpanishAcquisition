@@ -5,7 +5,7 @@ from time import sleep
 import wx
 from wx.lib.agw.floatspin import FloatSpin
 
-from ...tool.box import load_csv, save_csv, Dialog, MessageDialog
+from spacq.gui.tool.box import load_csv, save_csv, Dialog, MessageDialog
 
 """
 Configuration for a VoltageSource.
@@ -162,13 +162,11 @@ class VoltageSourceSettingsPanel(wx.Panel):
 	All the settings for a voltage source.
 	"""
 
-	def __init__(self, parent, global_store, vsrc_name, *args, **kwargs):
+	def __init__(self, parent, global_store, vsrc, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
 		self.global_store = global_store
-		self.vsrc_name = vsrc_name
-
-		self.vsrc = None
+		self.vsrc = vsrc
 
 		self.port_value_inputs = []
 		self.port_buttons = []
@@ -205,9 +203,9 @@ class VoltageSourceSettingsPanel(wx.Panel):
 		panel_box.Add(button_box, flag=wx.CENTER)
 
 		### Zero.
-		self.zero_all_button = wx.Button(self, label='Zero')
-		self.Bind(wx.EVT_BUTTON, self.OnZeroAll, self.zero_all_button)
-		button_box.Add(self.zero_all_button, flag=wx.CENTER)
+		zero_all_button = wx.Button(self, label='Zero')
+		self.Bind(wx.EVT_BUTTON, self.OnZeroAll, zero_all_button)
+		button_box.Add(zero_all_button, flag=wx.CENTER)
 
 		### Self-calibrate.
 		self.calibrate_all_button = wx.Button(self, label='Self-calibrate')
@@ -220,38 +218,16 @@ class VoltageSourceSettingsPanel(wx.Panel):
 		button_box.Add(tuning_data_box)
 
 		#### Save.
-		self.tuning_data_save_button = wx.Button(self, label='Save...')
-		self.Bind(wx.EVT_BUTTON, self.OnSave, self.tuning_data_save_button)
-		tuning_data_box.Add(self.tuning_data_save_button)
+		tuning_data_save_button = wx.Button(self, label='Save...')
+		self.Bind(wx.EVT_BUTTON, self.OnSave, tuning_data_save_button)
+		tuning_data_box.Add(tuning_data_save_button)
 
 		#### Load.
-		self.tuning_data_load_button = wx.Button(self, label='Load...')
-		self.Bind(wx.EVT_BUTTON, self.OnLoad, self.tuning_data_load_button)
-		tuning_data_box.Add(self.tuning_data_load_button)
+		tuning_data_load_button = wx.Button(self, label='Load...')
+		self.Bind(wx.EVT_BUTTON, self.OnLoad, tuning_data_load_button)
+		tuning_data_box.Add(tuning_data_load_button)
 
 		self.SetSizer(panel_box)
-
-		try:
-			self.set_vsrc(self.global_store.devices[self.vsrc_name])
-		except KeyError:
-			pass
-
-		# Subscriptions.
-		pub.subscribe(self.msg_device, 'device.added')
-		pub.subscribe(self.msg_device, 'device.removed')
-
-	def set_vsrc(self, vsrc):
-		self.vsrc = vsrc
-		status = vsrc is not None
-
-		for buttons in self.port_buttons:
-			for button in buttons:
-				button.Enable(status)
-
-		self.zero_all_button.Enable(status)
-		self.calibrate_all_button.Enable(status)
-		self.tuning_data_save_button.Enable(status)
-		self.tuning_data_load_button.Enable(status)
 
 	def self_calbrate_all(self):
 		delay = 0 # s
@@ -341,10 +317,6 @@ class VoltageSourceSettingsPanel(wx.Panel):
 			port.gain = float(values[0])
 			port.offset = float(values[1])
 
-	def msg_device(self, name, value=None):
-		if name == self.vsrc_name:
-			self.set_vsrc(value)
-
 
 class VoltageSourceSettingsDialog(Dialog):
 	"""
@@ -352,13 +324,34 @@ class VoltageSourceSettingsDialog(Dialog):
 	"""
 
 	def __init__(self, parent, global_store, vsrc_name, *args, **kwargs):
+		# If the device doesn't exist, give up.
+		try:
+			vsrc = global_store.devices[vsrc_name].device
+		except (KeyError, AttributeError):
+			self.Destroy()
+
+			return
+
 		Dialog.__init__(self, parent, title='Voltage source settings', *args, **kwargs)
+
+		self.vsrc_name = vsrc_name
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Settings panel.
-		self.panel = VoltageSourceSettingsPanel(self, global_store,	vsrc_name)
+		self.panel = VoltageSourceSettingsPanel(self, global_store, vsrc)
 		dialog_box.Add(self.panel)
 
 		self.SetSizerAndFit(dialog_box)
+
+		# Subscriptions.
+		pub.subscribe(self.msg_device, 'device.added')
+		pub.subscribe(self.msg_device, 'device.removed')
+
+	def msg_device(self, name, value=None):
+		if name == self.vsrc_name:
+			# Device has changed, so we can't trust it anymore.
+			self.Destroy()
+
+			return

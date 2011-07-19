@@ -45,7 +45,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 		dev = self.obtain_device()
 
-		cfg = config.DeviceConfig()
+		cfg = config.DeviceConfig(name='Test')
 		self.populate_config(cfg, dev['address'])
 
 		cfg.manufacturer = dev['manufacturer']
@@ -62,7 +62,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 		dev = self.obtain_device()
 
-		cfg = config.DeviceConfig()
+		cfg = config.DeviceConfig(name='Test')
 		self.populate_config(cfg, dev['address'])
 
 		assert_raises(config.ConnectionError, cfg.connect)
@@ -74,7 +74,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 		dev = self.obtain_device()
 
-		cfg = config.DeviceConfig()
+		cfg = config.DeviceConfig(name='Test')
 
 		cfg.manufacturer = dev['manufacturer']
 		cfg.model = dev['model']

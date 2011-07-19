@@ -65,7 +65,9 @@ class DeviceConfig(object):
 		'usb',
 	])
 
-	def __init__(self):
+	def __init__(self, name):
+		self.name = name
+
 		# Connection configuration.
 		self.address_mode = None
 		self.ip_address = None

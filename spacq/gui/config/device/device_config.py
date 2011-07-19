@@ -138,7 +138,7 @@ class DeviceConfigPanel(wx.Panel):
 			return DeviceConfig.address_modes.usb
 
 	def GetValue(self):
-		dev_cfg = DeviceConfig()
+		dev_cfg = DeviceConfig(name=self.name)
 
 		# Address mode.
 		dev_cfg.address_mode = self.get_address_mode()
@@ -176,6 +176,8 @@ class DeviceConfigPanel(wx.Panel):
 		return dev_cfg
 
 	def SetValue(self, dev_cfg):
+		self.name = dev_cfg.name
+
 		# Address mode.
 		if dev_cfg.address_mode == DeviceConfig.address_modes.ethernet:
 			self.address_mode_eth.Value = True
@@ -346,9 +348,8 @@ class DeviceConfigDialog(Dialog):
 		self.resources_panel.SetValue(dev_cfg.resource_labels, dev_cfg.resources)
 
 	def OnOk(self, evt=None):
-		self.ok_callback(self)
-
-		self.Destroy()
+		if self.ok_callback(self):
+			self.Destroy()
 
 	def OnSave(self, evt=None):
 		try:

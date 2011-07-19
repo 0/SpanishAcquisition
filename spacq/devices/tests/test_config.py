@@ -53,7 +53,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 		dev = self.obtain_device()
 
-		cfg = config.DeviceConfig()
+		cfg = config.DeviceConfig(name='Test')
 
 		# These values don't matter.
 		cfg.address_mode = cfg.address_modes.ethernet
@@ -72,7 +72,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 		Fail to connect to a non-existing device.
 		"""
 
-		cfg = config.DeviceConfig()
+		cfg = config.DeviceConfig(name='Test')
 
 		# These values don't matter.
 		cfg.address_mode = cfg.address_modes.ethernet
@@ -101,8 +101,8 @@ class DeviceConfigTest(DeviceServerTestCase):
 		Try changing up some resources.
 		"""
 
-		cfg1 = config.DeviceConfig()
-		cfg2 = config.DeviceConfig()
+		cfg1 = config.DeviceConfig(name='Test 1')
+		cfg2 = config.DeviceConfig(name='Test 2')
 		eq_(cfg1.diff_resources(cfg2), (set(), set(), set()))
 
 		cfg2.resources['something'] = 'new'

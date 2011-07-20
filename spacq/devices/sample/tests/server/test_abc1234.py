@@ -1,6 +1,6 @@
 from nose.tools import eq_
 from numbers import Real
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
 
@@ -41,4 +41,4 @@ class ABC1234Test(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

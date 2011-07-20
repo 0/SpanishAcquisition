@@ -1,4 +1,4 @@
-import unittest
+from unittest import main
 
 from ... import voltage_source
 from .. import mock_voltage_source
@@ -21,4 +21,4 @@ def teardown():
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

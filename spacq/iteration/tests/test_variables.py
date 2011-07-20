@@ -1,12 +1,12 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from spacq.interface.units import IncompatibleDimensions
 
 from .. import variables
 
 
-class SortVariablesTest(unittest.TestCase):
+class SortVariablesTest(TestCase):
 	def testEmpty(self):
 		"""
 		Use no variables.
@@ -56,7 +56,7 @@ class SortVariablesTest(unittest.TestCase):
 		eq_(num_items, 6)
 
 
-class OutputVariableTest(unittest.TestCase):
+class OutputVariableTest(TestCase):
 	def testAdjust(self):
 		"""
 		Try to adjust the values after initialization.
@@ -118,7 +118,7 @@ class OutputVariableTest(unittest.TestCase):
 		eq_(str(var), '(0, 1, 2, 3, ...)')
 
 
-class LinSpaceConfigTest(unittest.TestCase):
+class LinSpaceConfigTest(TestCase):
 	def testIterator(self):
 		"""
 		Create an iterator from a linear space variable.
@@ -143,4 +143,4 @@ class LinSpaceConfigTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

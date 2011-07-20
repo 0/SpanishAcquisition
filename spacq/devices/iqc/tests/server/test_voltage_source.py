@@ -1,7 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
 
@@ -38,4 +38,4 @@ class VoltageSourceTest(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

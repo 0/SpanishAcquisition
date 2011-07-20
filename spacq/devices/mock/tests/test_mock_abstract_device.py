@@ -1,10 +1,10 @@
 from nose.tools import assert_raises, eq_
-import unittest
+from unittest import main, TestCase
 
 from .. import mock_abstract_device
 
 
-class MockAbstractDeviceTest(unittest.TestCase):
+class MockAbstractDeviceTest(TestCase):
 	def testInit(self):
 		"""
 		Should always succeed.
@@ -54,4 +54,4 @@ class MockAbstractDeviceTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

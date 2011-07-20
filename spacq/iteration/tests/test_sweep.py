@@ -2,7 +2,7 @@ from functools import partial
 from nose.tools import eq_
 from threading import Thread
 from time import sleep, time
-import unittest
+from unittest import main, TestCase
 
 from spacq.interface.resources import Resource
 from spacq.interface.units import Quantity
@@ -13,7 +13,7 @@ from ..variables import sort_variables, InputVariable, OutputVariable, LinSpaceC
 from .. import sweep
 
 
-class SweepControllerTest(unittest.TestCase):
+class SweepControllerTest(TestCase):
 	def testSingle(self):
 		"""
 		Iterate over a single thing without any measurements.
@@ -262,3 +262,7 @@ class SweepControllerTest(unittest.TestCase):
 		ctrl.run()
 
 		eq_(exceptions, [('Meas res', e)] * 4)
+
+
+if __name__ == '__main__':
+	main()

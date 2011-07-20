@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from nose.tools import eq_
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import AssertHandler, DeviceServerTestCase
 
@@ -125,4 +125,4 @@ class AWG5014BTest(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

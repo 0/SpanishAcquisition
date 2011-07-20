@@ -1,4 +1,4 @@
-import unittest
+from unittest import main
 
 from ... import awg5014b
 from .. import mock_awg5014b
@@ -21,4 +21,4 @@ def teardown():
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

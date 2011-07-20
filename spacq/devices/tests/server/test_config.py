@@ -1,5 +1,5 @@
 from nose.tools import assert_raises
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
 from ...abstract_device import AbstractDevice
@@ -83,4 +83,4 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

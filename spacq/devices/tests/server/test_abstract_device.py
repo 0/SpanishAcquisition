@@ -1,13 +1,13 @@
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from testconfig import config as tc
 
 from ... import abstract_device
 
 
-class AbstractDeviceTest(unittest.TestCase):
+class AbstractDeviceTest(TestCase):
 	def testAskRaw(self):
 		"""
 		Converse briefly with real devices.
@@ -72,4 +72,4 @@ class AbstractDeviceTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

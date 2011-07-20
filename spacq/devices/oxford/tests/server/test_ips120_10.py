@@ -1,6 +1,6 @@
 from nose.tools import eq_
 from time import time
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
 
@@ -74,4 +74,4 @@ class IPS120_10Test(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

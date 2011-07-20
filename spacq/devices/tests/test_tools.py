@@ -1,12 +1,12 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from spacq.tests.tool.box import AssertHandler
 
 from .. import tools
 
 
-class StrToBoolTest(unittest.TestCase):
+class StrToBoolTest(TestCase):
 	def testConversion(self):
 		"""
 		Try some simple cases.
@@ -22,7 +22,7 @@ class StrToBoolTest(unittest.TestCase):
 		eq_(tools.str_to_bool('else!'), True)
 
 
-class BlockDataTest(unittest.TestCase):
+class BlockDataTest(TestCase):
 	def testToAndFromBlockData(self):
 		"""
 		Routine conversions.
@@ -91,7 +91,7 @@ class BlockDataTest(unittest.TestCase):
 				assert False, 'Expected BlockDataError.'
 
 
-class BinaryBinaryEncoderTest(unittest.TestCase):
+class BinaryBinaryEncoderTest(TestCase):
 	def testEncodeDecode(self):
 		"""
 		Routine conversions.
@@ -132,4 +132,4 @@ class BinaryBinaryEncoderTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

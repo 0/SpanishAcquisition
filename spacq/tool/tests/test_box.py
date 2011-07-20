@@ -2,12 +2,12 @@ from nose.tools import eq_
 from pubsub import pub
 from threading import RLock, Thread
 import time
-import unittest
+from unittest import main, TestCase
 
 from .. import box
 
 
-class FlattenTest(unittest.TestCase):
+class FlattenTest(TestCase):
 	def testEmpty(self):
 		"""
 		Flatten nothing.
@@ -29,7 +29,7 @@ class FlattenTest(unittest.TestCase):
 
 		eq_(list(box.flatten([(1, 2, 3), [4, 5, 6], {7: 8}])), [1, 2, 3, 4, 5, 6, 7])
 
-class SiftTest(unittest.TestCase):
+class SiftTest(TestCase):
 	def testEmpty(self):
 		"""
 		Sift nothing.
@@ -60,7 +60,7 @@ class SiftTest(unittest.TestCase):
 		eq_(box.sift(items, ValueError), [items[0]])
 
 
-class EnumTest(unittest.TestCase):
+class EnumTest(TestCase):
 	def testEmpty(self):
 		"""
 		A useless object.
@@ -111,7 +111,7 @@ class EnumTest(unittest.TestCase):
 		eq_(e, f)
 
 
-class PubDictTest(unittest.TestCase):
+class PubDictTest(TestCase):
 	def testSimple(self):
 		"""
 		Run through some valid cases.
@@ -186,7 +186,7 @@ class PubDictTest(unittest.TestCase):
 			assert False, 'Expected KeyError.'
 
 
-class SynchronizedTest(unittest.TestCase):
+class SynchronizedTest(TestCase):
 	class SynchronizedObject(object):
 		def __init__(self):
 			self.buf = []
@@ -238,7 +238,7 @@ class SynchronizedTest(unittest.TestCase):
 		eq_(obj.buf, range(values) * times * num_threads)
 
 
-class WithoutTest(unittest.TestCase):
+class WithoutTest(TestCase):
 	def testWith(self):
 		"""
 		Use Without in with.
@@ -263,4 +263,4 @@ class WithoutTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

@@ -1,4 +1,4 @@
-import unittest
+from unittest import main
 
 from ... import ips120_10
 from .. import mock_ips120_10
@@ -21,4 +21,4 @@ def teardown():
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

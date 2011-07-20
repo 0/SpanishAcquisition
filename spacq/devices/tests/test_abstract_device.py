@@ -1,12 +1,12 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from spacq.interface.resources import Resource
 
 from .. import abstract_device
 
 
-class AbstractDeviceTest(unittest.TestCase):
+class AbstractDeviceTest(TestCase):
 	def testInitNoAddress(self):
 		"""
 		No address specified.
@@ -133,4 +133,4 @@ class AbstractDeviceTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

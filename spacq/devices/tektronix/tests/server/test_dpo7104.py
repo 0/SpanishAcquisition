@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from nose.tools import eq_
-import unittest
+from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
 
@@ -65,4 +65,4 @@ class DPO7104Test(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

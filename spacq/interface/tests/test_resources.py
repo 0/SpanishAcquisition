@@ -2,7 +2,7 @@ from nose.tools import eq_
 from numpy import linspace
 from threading import Lock
 import time
-import unittest
+from unittest import main, TestCase
 
 from spacq.tests.tool.box import AssertHandler
 
@@ -37,7 +37,7 @@ class WithProperty(object):
 		self._x = value
 
 
-class ResourceTest(unittest.TestCase):
+class ResourceTest(TestCase):
 	def testUseless(self):
 		"""
 		A resource with neither a getter nor a setter.
@@ -303,7 +303,7 @@ class ResourceTest(unittest.TestCase):
 		eq_(exceptions, [(11.0,), (-15.0,)])
 
 
-class AcquisitionThreadTest(unittest.TestCase):
+class AcquisitionThreadTest(TestCase):
 	def testWithoutResource(self):
 		"""
 		Let the thread run without a resource.
@@ -391,4 +391,4 @@ class AcquisitionThreadTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

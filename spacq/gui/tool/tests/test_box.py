@@ -1,10 +1,10 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from .. import box
 
 
-class DetermineWildcardTest(unittest.TestCase):
+class DetermineWildcardTest(TestCase):
 	def testDefault(self):
 		"""
 		Simply all files.
@@ -55,4 +55,4 @@ class DetermineWildcardTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

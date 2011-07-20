@@ -1,10 +1,10 @@
 from nose.tools import assert_raises, eq_
-import unittest
+from unittest import main, TestCase
 
 from .. import units
 
 
-class QuantityTest(unittest.TestCase):
+class QuantityTest(TestCase):
 	# String value, value, units, multiplier, proper string value.
 	data = [
 		# Straightforward.
@@ -145,4 +145,4 @@ class QuantityTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

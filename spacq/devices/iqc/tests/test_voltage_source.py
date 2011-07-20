@@ -1,10 +1,10 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from .. import voltage_source
 
 
-class PortTest(unittest.TestCase):
+class PortTest(TestCase):
 	def testCalculateVoltage(self):
 		"""
 		Trivial conversion.
@@ -95,4 +95,4 @@ class PortTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

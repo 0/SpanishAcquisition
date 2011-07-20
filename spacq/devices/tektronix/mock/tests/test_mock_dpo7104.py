@@ -1,4 +1,4 @@
-import unittest
+from unittest import main
 
 from ... import dpo7104
 from .. import mock_dpo7104
@@ -21,4 +21,4 @@ def teardown():
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

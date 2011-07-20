@@ -1,5 +1,5 @@
 from nose.tools import eq_
-import unittest
+from unittest import main, TestCase
 
 from spacq.tests.tool.box import DeviceServerTestCase
 from ..mock.mock_abstract_device import MockAbstractDevice
@@ -7,7 +7,7 @@ from ..mock.mock_abstract_device import MockAbstractDevice
 from .. import config
 
 
-class DeviceTreeTest(unittest.TestCase):
+class DeviceTreeTest(TestCase):
 	def testTree(self):
 		"""
 		Ensure the tree looks correct.
@@ -116,4 +116,4 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

@@ -1,12 +1,12 @@
 from nose.tools import eq_
 from numpy import arange, linspace, repeat
 from numpy.testing import assert_array_equal, assert_array_almost_equal
-import unittest
+from unittest import main, TestCase
 
 from .. import mesh
 
 
-class TriplesToMeshTest(unittest.TestCase):
+class TriplesToMeshTest(TestCase):
 	def testSimple(self):
 		"""
 		No interpolation required.
@@ -62,4 +62,4 @@ class TriplesToMeshTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-	unittest.main()
+	main()

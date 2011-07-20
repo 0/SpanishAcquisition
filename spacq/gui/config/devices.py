@@ -245,6 +245,6 @@ class DeviceConfigFrame(wx.Frame):
 			sleep(0.2)
 
 	def OnClose(self, evt):
-		self.close_callback(self)
+		self.close_callback()
 
 		evt.Skip()

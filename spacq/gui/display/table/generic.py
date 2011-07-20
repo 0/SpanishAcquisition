@@ -36,10 +36,9 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.headings = headings
 		self.data = data
 
-		num_items = len(data)
-		self.SetItemCount(num_items)
+		self.ItemCount = len(data)
 
-		if num_items > 0:
+		if self.ItemCount > 0:
 			width, height = self.GetSize()
 			# Give some room for the scrollbar.
 			col_width = (width - 50) / len(self.headings)
@@ -79,6 +78,42 @@ class TabularDisplayPanel(wx.Panel):
 		panel_box.Add(self.table, proportion=1, flag=wx.EXPAND)
 
 		self.SetSizer(panel_box)
+
+	def __len__(self):
+		return self.table.ItemCount
+
+	def from_csv_data(self, has_header, values):
+		"""
+		Import the given CSV data into the table.
+
+		If has_header is True, the first row is treated specially.
+		If the first header is "__time__", it is converted to relative values.
+		"""
+
+		if has_header:
+			headers, rows = values[0], array(values[1:])
+		else:
+			headers, rows = [''] * len(values[0]), array(values)
+
+		# Calculate relative times.
+		if headers[0] == '__time__':
+			try:
+				times = rows[:,0].astype(float)
+			except ValueError:
+				# Pretend we never tried.
+				pass
+			else:
+				min_time = min(times)
+
+				for i in xrange(len(times)):
+					rows[i,0] = times[i] - min_time
+
+		# Ensure that all columns have a header.
+		for i, header in enumerate(headers):
+			if not header:
+				headers[i] = 'Column {0}'.format(i + 1)
+
+		self.SetValue(headers, rows)
 
 	def GetValue(self):
 		return self.table.GetValue()

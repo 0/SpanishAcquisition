@@ -54,11 +54,11 @@ class IPS120_10(AbstractDevice):
 		self.write('$C3') # Remote & unlocked.
 		self.write('$M9') # Display in Tesla.
 
-		if self.status.activity == 4:
+		if self.device_status.activity == 4:
 			self.write('$A0') # Unclamp.
 
 		# Ensure some initial sanity.
-		assert self.status.activity == 0, 'Not on hold.'
+		assert self.device_status.activity == 0, 'Not on hold.'
 
 	def write(self, message):
 		"""
@@ -68,7 +68,7 @@ class IPS120_10(AbstractDevice):
 		AbstractDevice.write(self, message + '\r')
 
 	@property
-	def status(self):
+	def device_status(self):
 		"""
 		All the status information for the device.
 		"""
@@ -92,7 +92,7 @@ class IPS120_10(AbstractDevice):
 		What the device is currently up to.
 		"""
 
-		return self.activities[self.status.activity]
+		return self.activities[self.device_status.activity]
 
 	@activity.setter
 	def activity(self, value):
@@ -104,7 +104,7 @@ class IPS120_10(AbstractDevice):
 		Whether the heater is enabled.
 		"""
 
-		return bool(self.status.heater & 1)
+		return bool(self.device_status.heater & 1)
 
 	@heater_on.setter
 	def heater_on(self, value):
@@ -196,7 +196,7 @@ class IPS120_10(AbstractDevice):
 			sleep(set_delay)
 
 		# Ensure that the sweep is actually over.
-		while self.status.mode_sweep != 0:
+		while self.device_status.mode_sweep != 0:
 			sleep(0.1)
 
 		self.activity = 'hold'
@@ -204,7 +204,7 @@ class IPS120_10(AbstractDevice):
 	@field.setter
 	@Synchronized()
 	def field(self, value):
-		status = self.status
+		status = self.device_status
 		eq_(status.system_status, 0)
 		eq_(status.limits, 0)
 		eq_(status.mode_sweep, 0)

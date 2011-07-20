@@ -202,3 +202,26 @@ class DevicesPanel(wx.Panel):
 
 		for row in selected:
 			del self.global_store.devices[row.name]
+
+
+class DeviceConfigFrame(wx.Frame):
+	def __init__(self, parent, global_store, close_callback, *args, **kwargs):
+		wx.Frame.__init__(self, parent, title='Device Configuration', *args, **kwargs)
+
+		self.close_callback = close_callback
+
+		# Frame.
+		frame_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Devices.
+		self.devices_panel = DevicesPanel(self, global_store, parent)
+		frame_box.Add(self.devices_panel, proportion=1, flag=wx.EXPAND)
+
+		self.SetSizerAndFit(frame_box)
+
+		self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+	def OnClose(self, evt):
+		self.close_callback(self)
+
+		evt.Skip()

@@ -120,3 +120,17 @@ class TabularDisplayPanel(wx.Panel):
 
 	def SetValue(self, headings, values):
 		self.table.SetValue(headings, values)
+
+
+class TabularDisplayFrame(wx.Frame):
+	def __init__(self, parent, *args, **kwargs):
+		wx.Frame.__init__(self, parent, *args, **kwargs)
+
+		# Frame.
+		frame_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Display panel.
+		self.display_panel = TabularDisplayPanel(self)
+		frame_box.Add(self.display_panel, proportion=1, flag=wx.EXPAND)
+
+		self.SetSizer(frame_box)

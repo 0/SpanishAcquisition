@@ -1,0 +1,22 @@
+# Bring both markers up.
+marker 1, :high
+marker 2, :high
+
+# Start at the baseline for 50 nanoseconds.
+set 0.0
+delay 0.05 us
+
+# Lower marker 1.
+marker 1, :low
+
+# Climb to the maximum over the next 100 nanoseconds.
+sweep 0.0, 1.0, 100 ns
+
+# Drop to the minimum for 50 nanoseconds.
+square -1.0, 50e3 ps
+
+# Lower marker 2.
+marker 2, :low
+
+# Use external WAVE waveform with an amplitude parameter, and stretch it.
+include_wave "03.wav", wave_amplitude, 402 ns

@@ -13,6 +13,13 @@ The docs can be built with::
 
 This requires `Sphinx <http://sphinx.pocoo.org/>`_, and the result can be found at ``docs/_build/html/index.html``.
 
+Examples
+========
+
+Examples are found in ``examples/``. To run an example::
+
+   python -m examples.<name>
+
 Tests
 =====
 

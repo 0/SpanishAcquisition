@@ -123,6 +123,8 @@ class AbstractDevice(SuperDevice):
 
 		self.lock = RLock()
 
+		self.status = []
+
 	def __init__(self, ip_address=None, gpib_board=0, gpib_pad=None, gpib_sad=0,
 			usb_resource=None, autoconnect=True):
 		"""

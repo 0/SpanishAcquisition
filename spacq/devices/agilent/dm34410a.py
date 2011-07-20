@@ -99,11 +99,16 @@ class DM34410A(AbstractDevice):
 		The value measured by the device.
 		"""
 
-		log.debug('Getting reading.')
-		result = float(self.ask('read?'))
-		log.debug('Got reading: {0}'.format(result))
+		self.status.append('Taking reading')
 
-		return result
+		try:
+			log.debug('Getting reading.')
+			result = float(self.ask('read?'))
+			log.debug('Got reading: {0}'.format(result))
+
+			return result
+		finally:
+			self.status.pop()
 
 
 name = '34410A'

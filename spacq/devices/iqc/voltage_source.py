@@ -210,44 +210,49 @@ class Port(AbstractSubdevice):
 		set_result: Whether to apply the resulting gain and offset.
 		"""
 
-		if min_value is None:
-			min_value = self.min_value
-		if max_value is None:
-			max_value = self.max_value
+		self.device.status.append('Autotuning port {0}'.format(self.num))
 
-		# Test with raw values.
-		old_gain, old_offset = self.gain, self.offset
-		self.gain, self.offset = 1, 0
+		try:
+			if min_value is None:
+				min_value = self.min_value
+			if max_value is None:
+				max_value = self.max_value
 
-		if max_value < min_value:
-			raise ValueError('{0} > {1}'.format(min_value, max_value))
-		elif max_value == min_value:
-			num_points = 1
-		else:
-			num_points = 21
+			# Test with raw values.
+			old_gain, old_offset = self.gain, self.offset
+			self.gain, self.offset = 1, 0
 
-		# Obtain data.
-		real = numpy.linspace(min_value, max_value, num_points)
-		measured = []
+			if max_value < min_value:
+				raise ValueError('{0} > {1}'.format(min_value, max_value))
+			elif max_value == min_value:
+				num_points = 1
+			else:
+				num_points = 21
 
-		for x in real:
-			self.voltage = x
-			time.sleep(0.2)
-			measured.append(voltage_resource.value)
+			# Obtain data.
+			real = numpy.linspace(min_value, max_value, num_points)
+			measured = []
 
-		# Solve.
-		A = numpy.vstack([measured, numpy.ones(len(measured))]).T
-		gain, offset = numpy.linalg.lstsq(A, real)[0]
+			for x in real:
+				self.voltage = x
+				time.sleep(0.2)
+				measured.append(voltage_resource.value)
 
-		if set_result:
-			self.gain, self.offset = gain, offset
-		else:
-			self.gain, self.offset = old_gain, old_offset
+			# Solve.
+			A = numpy.vstack([measured, numpy.ones(len(measured))]).T
+			gain, offset = numpy.linalg.lstsq(A, real)[0]
 
-		# Set the voltage after the gain and offset, so that it is potentially more correct.
-		self.voltage = final_value
+			if set_result:
+				self.gain, self.offset = gain, offset
+			else:
+				self.gain, self.offset = old_gain, old_offset
 
-		return (gain, offset)
+			# Set the voltage after the gain and offset, so that it is potentially more correct.
+			self.voltage = final_value
+
+			return (gain, offset)
+		finally:
+			self.device.status.pop()
 
 
 class VoltageSource(AbstractDevice):

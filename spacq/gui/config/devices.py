@@ -1,4 +1,6 @@
 import ObjectListView
+from threading import Thread
+from time import sleep
 import wx
 
 from spacq.devices.config import DeviceConfig
@@ -24,11 +26,13 @@ class DeviceColumnDefn(ObjectListView.ColumnDefn):
 
 
 class DevicesPanel(wx.Panel):
-	col_name = DeviceColumnDefn(title='Name', valueGetter='name', isSpaceFilling=True)
+	col_name = DeviceColumnDefn(title='Name', valueGetter='name', width=200)
 	col_connection = DeviceColumnDefn(title='Connection', width=110,
 			valueGetter=lambda x: '{0}onnected'.format('C' if x.device is not None else 'Disc'))
 	col_setup = DeviceColumnDefn(title='Setup', width=70,
 			valueGetter=lambda x: 'Setup...' if x.gui_setup is not None else '')
+	col_status = DeviceColumnDefn(title='Status', isSpaceFilling=True, isEditable=False,
+			valueGetter=lambda x: (x.device.status[0] if x.device.status else 'Idle') if x.device is not None else '')
 
 	def __init__(self, parent, global_store, dialog_owner, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
@@ -43,7 +47,7 @@ class DevicesPanel(wx.Panel):
 		self.olv = ObjectListView.FastObjectListView(self)
 		panel_box.Add(self.olv, proportion=1, flag=wx.ALL|wx.EXPAND)
 
-		self.olv.SetColumns([self.col_name, self.col_connection, self.col_setup])
+		self.olv.SetColumns([self.col_name, self.col_connection, self.col_setup, self.col_status])
 		self.olv.SetSortColumn(self.col_name)
 
 		self.olv.cellEditMode = self.olv.CELLEDIT_DOUBLECLICK
@@ -66,6 +70,7 @@ class DevicesPanel(wx.Panel):
 		remove_button.Bind(wx.EVT_BUTTON, self.OnRemoveDevices)
 		row_box.Add(remove_button)
 
+		self.SetMinSize((600, 250))
 		self.SetSizer(panel_box)
 
 		with self.global_store.devices.lock:
@@ -220,6 +225,24 @@ class DeviceConfigFrame(wx.Frame):
 		self.SetSizerAndFit(frame_box)
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+		thr = Thread(target=self.status_poller)
+		thr.daemon = True
+		thr.start()
+
+	def status_poller(self):
+		"""
+		Keep updating the status as long as the frame is open.
+		"""
+
+		while True:
+			try:
+				self.devices_panel.olv.RefreshObjects()
+			except wx.PyDeadObjectError:
+				# The panel has left the building.
+				return
+
+			sleep(0.2)
 
 	def OnClose(self, evt):
 		self.close_callback(self)

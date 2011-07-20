@@ -108,11 +108,16 @@ class IPS120_10(AbstractDevice):
 
 	@heater_on.setter
 	def heater_on(self, value):
-		self.write('$H{0}'.format(int(value)))
+		self.status.append('Turning heater o{0}'.format('n' if value else 'ff'))
 
-		# Allow the heater to go to the correct setting.
-		log.debug('Waiting for heater for {0} s.'.format(self.heater_delay))
-		sleep(self.heater_delay)
+		try:
+			self.write('$H{0}'.format(int(value)))
+
+			# Allow the heater to go to the correct setting.
+			log.debug('Waiting for heater for {0} s.'.format(self.heater_delay))
+			sleep(self.heater_delay)
+		finally:
+			self.status.pop()
 
 	@property
 	def perma_hot(self):
@@ -185,21 +190,26 @@ class IPS120_10(AbstractDevice):
 		if self.output_field == value:
 			return
 
-		set_delay = 60.0 * abs(value - self.output_field) / self.sweep_rate # s
+		self.status.append('Setting field to {0} T'.format(value))
 
-		self.set_point = value
-		self.activity = 'to_set'
+		try:
+			set_delay = 60.0 * abs(value - self.output_field) / self.sweep_rate # s
 
-		# If the heater is on, the sweep rate is used, so wait.
-		if self.heater_on:
-			log.debug('Waiting for sweep for {0} s.'.format(set_delay))
-			sleep(set_delay)
+			self.set_point = value
+			self.activity = 'to_set'
 
-		# Ensure that the sweep is actually over.
-		while self.device_status.mode_sweep != 0:
-			sleep(0.1)
+			# If the heater is on, the sweep rate is used, so wait.
+			if self.heater_on:
+				log.debug('Waiting for sweep for {0} s.'.format(set_delay))
+				sleep(set_delay)
 
-		self.activity = 'hold'
+			# Ensure that the sweep is actually over.
+			while self.device_status.mode_sweep != 0:
+				sleep(0.1)
+
+			self.activity = 'hold'
+		finally:
+			self.status.pop()
 
 	@field.setter
 	@Synchronized()

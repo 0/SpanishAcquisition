@@ -71,26 +71,31 @@ class Channel(AbstractSubdevice):
 		A waveform acquired by the scope.
 		"""
 
-		self.device.data_source = self.channel
+		self.device.status.append('Getting waveform for channel {0}'.format(self.channel))
 
-		# Receive in chunks.
-		num_data_points = self.device.record_length
-		num_transmissions = int(ceil(num_data_points / self.device.max_receive_samples))
+		try:
+			self.device.data_source = self.channel
 
-		curve = []
-		for i in xrange(num_transmissions):
-			self.device.data_start = int(i * self.device.max_receive_samples) + 1
-			self.device.data_stop = int((i + 1) * self.device.max_receive_samples)
+			# Receive in chunks.
+			num_data_points = self.device.record_length
+			num_transmissions = int(ceil(num_data_points / self.device.max_receive_samples))
 
-			curve_raw = self.device.ask_raw('curve?')
-			curve.append(BlockData.from_block_data(curve_raw))
+			curve = []
+			for i in xrange(num_transmissions):
+				self.device.data_start = int(i * self.device.max_receive_samples) + 1
+				self.device.data_stop = int((i + 1) * self.device.max_receive_samples)
 
-		curve = ''.join(curve)
+				curve_raw = self.device.ask_raw('curve?')
+				curve.append(BlockData.from_block_data(curve_raw))
 
-		format_code = self.device.byte_format_letters[self.device.waveform_bytes]
-		curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
+			curve = ''.join(curve)
 
-		return self.normalize_waveform(curve_data)
+			format_code = self.device.byte_format_letters[self.device.waveform_bytes]
+			curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
+
+			return self.normalize_waveform(curve_data)
+		finally:
+			self.device.status.pop()
 
 
 class DPO7104(AbstractDevice):

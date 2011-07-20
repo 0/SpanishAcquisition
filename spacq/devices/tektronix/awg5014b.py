@@ -263,17 +263,22 @@ class AWG5014B(AbstractDevice):
 
 	@Synchronized()
 	def get_waveform(self, name):
-		log.debug('Getting waveform "{0}" from device "{1}".'.format(name, self.name))
+		self.status.append('Getting waveform "{0}"'.format(name))
 
-		block_data = self.ask_raw('wlist:waveform:data? "{0}"'.format(name))
-		packed_data = BlockData.from_block_data(block_data)
-		waveform_length = len(packed_data) / 2
-		data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
-		data = [x & 2 ** 14 - 1 for x in data] # Filter out marker data.
+		try:
+			log.debug('Getting waveform "{0}" from device "{1}".'.format(name, self.name))
 
-		log.debug('Got waveform "{0}" from device "{1}": {2}'.format(name, self.name, repr(data)))
+			block_data = self.ask_raw('wlist:waveform:data? "{0}"'.format(name))
+			packed_data = BlockData.from_block_data(block_data)
+			waveform_length = len(packed_data) / 2
+			data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
+			data = [x & 2 ** 14 - 1 for x in data] # Filter out marker data.
 
-		return list(data)
+			log.debug('Got waveform "{0}" from device "{1}": {2}'.format(name, self.name, repr(data)))
+
+			return list(data)
+		finally:
+			self.status.pop()
 
 	@Synchronized()
 	def create_waveform(self, name, data, markers=None):
@@ -281,36 +286,41 @@ class AWG5014B(AbstractDevice):
 		Create a new waveform on the AWG.
 		"""
 
-		log.debug('Creating waveform "{0}" on device "{1}" with data: {2}'.format(name, self.name, repr(data)))
+		self.status.append('Creating waveform "{0}"'.format(name))
 
-		data = list(data)
-		waveform_length = len(data)
-		self.write('wlist:waveform:new "{0}", {1}, integer'.format(name, waveform_length))
+		try:
+			log.debug('Creating waveform "{0}" on device "{1}" with data: {2}'.format(name, self.name, repr(data)))
 
-		if markers:
-			# The markers are in the top 2 bits.
-			for marker_num, marker_bit in zip([1, 2], [1 << 14, 1 << 15]):
-				try:
-					for i, marker_datum in enumerate(markers[marker_num]):
-						if marker_datum:
-							data[i] += marker_bit
-					log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num,
-							name, self.name, repr(markers[marker_num])))
-				except KeyError:
-					pass
+			data = list(data)
+			waveform_length = len(data)
+			self.write('wlist:waveform:new "{0}", {1}, integer'.format(name, waveform_length))
 
-			extra_markers = set(markers) - set([1, 2])
-			for extra in extra_markers:
-				log.warning('Marker {0} ignored: {1}'.format(extra, repr(markers[extra])))
+			if markers:
+				# The markers are in the top 2 bits.
+				for marker_num, marker_bit in zip([1, 2], [1 << 14, 1 << 15]):
+					try:
+						for i, marker_datum in enumerate(markers[marker_num]):
+							if marker_datum:
+								data[i] += marker_bit
+						log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num,
+								name, self.name, repr(markers[marker_num])))
+					except KeyError:
+						pass
 
-		# Always 16-bit, unsigned, little-endian.
-		packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
-		block_data = BlockData.to_block_data(packed_data)
+				extra_markers = set(markers) - set([1, 2])
+				for extra in extra_markers:
+					log.warning('Marker {0} ignored: {1}'.format(extra, repr(markers[extra])))
 
-		log.debug('Sending packed block waveform data for "{0}" on device "{1}": {1}'.format(name,
-				self.name, repr(block_data)))
+			# Always 16-bit, unsigned, little-endian.
+			packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
+			block_data = BlockData.to_block_data(packed_data)
 
-		self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
+			log.debug('Sending packed block waveform data for "{0}" on device "{1}": {1}'.format(name,
+					self.name, repr(block_data)))
+
+			self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
+		finally:
+			self.status.pop()
 
 	@property
 	def enabled(self):

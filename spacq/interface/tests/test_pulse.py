@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
 from ..units import Quantity
@@ -92,6 +92,15 @@ class ParserTest(TestCase):
 		result = pp.parse_program(prog)
 
 		eq_(result, expected)
+
+	def testInvalid(self):
+		"""
+		Unparseable things.
+		"""
+
+		pp = pulse.Parser()
+
+		assert_raises(ValueError, pp.parse_program, 'this is not valid')
 
 
 class ProgramTest(TestCase):

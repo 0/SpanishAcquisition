@@ -1,4 +1,4 @@
-from nose.tools import assert_almost_equal, eq_
+from nose.tools import assert_almost_equal, assert_raises, eq_
 from numpy import interp, linspace
 from os import path
 from unittest import main, TestCase
@@ -95,6 +95,21 @@ class GeneratorTest(TestCase):
 		eq_(wg.absolute_wave, [512] * 51 + [int(x) for x in linspace(512, 1024, 100)] + [0] * 50 + [1024] + wave_points)
 		eq_(wg.get_marker(1), [True] * 51 + [False] * 553)
 		eq_(wg.get_marker(2), [True] * 202 + [False] * 402)
+		eq_(wg.get_marker(3), [False] * 604)
+
+	def testInvalid(self):
+		"""
+		Try a few invalid things.
+		"""
+
+		wg = waveform.Generator(frequency=1)
+
+		assert_raises(IOError, wg.include_wave, '01.wav')
+		assert_raises(ValueError, wg.run_commands, Program('this "is not a command"').commands)
+		assert_raises(ValueError, wg.marker, 0, 'medium')
+
+		wg.cwd = resource_dir
+		assert_raises(ValueError, wg.include_ampph, '02.csv', 'fake')
 
 
 if __name__ == '__main__':

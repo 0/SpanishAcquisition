@@ -75,7 +75,7 @@ class SweepController(object):
 
 			kwargs = {}
 			if self.resource_exception_handler is not None:
-				kwargs['exception_callback'] = partial(self.resource_exception_handler, name)
+				kwargs['exception_callback'] = partial(self.resource_exception_handler, name, write=True)
 
 			thr = Thread(target=resource.sweep, args=(value_from, value_to, resource_steps), kwargs=kwargs)
 			thrs.append(thr)
@@ -127,8 +127,8 @@ class SweepController(object):
 				if self.paused:
 					log.debug('Paused before function: {0}'.format(f_name))
 
-					self.pause_lock.acquire()
-					self.pause_lock.wait()
+					with self.pause_lock:
+						self.pause_lock.wait()
 
 				if self.aborting:
 					log.debug('Aborting before function: {0}'.format(f_name))
@@ -362,15 +362,28 @@ class SweepController(object):
 		if self.close_callback is not None:
 			self.close_callback()
 
+	def pause(self):
+		log.debug('Pausing.')
+
+		self.paused = True
+
+		log.debug('Paused.')
+
 	def unpause(self):
+		log.debug('Unpausing.')
+
 		with self.pause_lock:
 			self.paused = False
 			self.pause_lock.notify()
+
+		log.debug('Unpaused.')
 
 	def abort(self, fatal=False):
 		"""
 		Ending abruptly for any reason.
 		"""
+
+		log.debug('Aborting.')
 
 		self.aborting = True
 		self.abort_fatal = fatal

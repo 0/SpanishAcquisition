@@ -49,6 +49,8 @@ class QuantityTest(TestCase):
 		for q in qs:
 			eq_(q, qs[0])
 
+		assert_raises(NotImplementedError, str, qs[0])
+
 	def testBadStrings(self):
 		"""
 		Invalid strings pretending to be quantities.
@@ -76,6 +78,23 @@ class QuantityTest(TestCase):
 
 		for q in qs:
 			eq_(q, qs[0])
+
+	def testAmbiguousUnit(self):
+		"""
+		This shouldn't happen, but let's make sure it works.
+		"""
+
+		# Ensure it works normally.
+		units.Quantity(5, 'ps')
+
+		# Insert fake unit.
+		assert 'ps' not in units.SIValues.units
+		units.SIValues.units.add('ps')
+
+		try:
+			assert_raises(ValueError, units.Quantity, 5, 'ps')
+		finally:
+			units.SIValues.units.remove('ps')
 
 	def testAssertDimensions(self):
 		"""

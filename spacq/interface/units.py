@@ -224,4 +224,4 @@ class Quantity(object):
 		if isinstance(value, float):
 			return '{0:.10g} {1}'.format(value, symbol)
 		else:
-			return '{0} {1}'.format(value, symbol)
+			raise NotImplementedError()

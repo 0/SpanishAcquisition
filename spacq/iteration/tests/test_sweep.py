@@ -110,7 +110,12 @@ class SweepControllerTest(TestCase):
 		var3 = OutputVariable(name='Var 3', order=1, enabled=True, const=-9.0, wait=str(dwell_time))
 		var3.config = LinSpaceConfig(-1.0, 2.0, 4)
 		var3.smooth_steps = 2
-		var3.smooth_from, var3.smooth_to, var3.smooth_transition = [True] * 3
+		var3.smooth_from, var3.smooth_to, var3.smooth_transition = True, True, False
+
+		var4 = OutputVariable(name='Var 4', order=3, enabled=True, const=-20.0)
+		var4.config = LinSpaceConfig(-10.0, 20, 1)
+		var4.smooth_steps = 2
+		var4.smooth_from = True
 
 		# Input.
 		meas_res0 = Resource(getter=partial(getter, 0))
@@ -119,9 +124,10 @@ class SweepControllerTest(TestCase):
 		meas0 = InputVariable(name='Meas 0')
 		meas1 = InputVariable(name='Meas 1')
 
-		vars, num_items = sort_variables([var0, var1, var2, var3])
-		ctrl = sweep.SweepController([(('Res 2', res2),), (('Res 0', res0),), (('Res 1', res1), ('Res 3', res3))],
-				vars, num_items, [('Meas res 0', meas_res0), ('Meas res 1', meas_res1)], [meas0, meas1])
+		vars, num_items = sort_variables([var0, var1, var2, var3, var4])
+		ctrl = sweep.SweepController([(('Res 2', res2),), (('Something', None),), (('Res 0', res0),),
+				(('Res 1', res1), ('Res 3', res3))], vars, num_items,
+				[('Meas res 0', meas_res0), ('Meas res 1', meas_res1)], [meas0, meas1])
 
 		# Callback verification buffers.
 		actual_values = []
@@ -159,17 +165,17 @@ class SweepControllerTest(TestCase):
 		expected_res1 = [1.0, 2.0, 3.0, 4.0]
 		expected_res2 = [-1.0, 0.0, 1.0, 2.0]
 
-		expected_inner_writes = list(flatten(((2, 0, x), (2, 1, x - 2.0)) for x in [1.0, 2.0, 3.0, 4.0]))
-		expected_writes = [(0, 0, 1.23)] + list(flatten([(1, 0, x)] + expected_inner_writes for x in [-1.0, -2.0]))
+		expected_inner_writes = list(flatten(((3, 0, x), (3, 1, x - 2.0)) for x in [1.0, 2.0, 3.0, 4.0]))
+		expected_writes = [(0, 0, 1.23), (1, 0, -10.0)] + list(flatten([(2, 0, x)] + expected_inner_writes for x in [-1.0, -2.0]))
 
 		eq_(res_bufs, [
 			[0.0, -1.0, -1.0, -2.0, -2.0, 0.0],
 			[-1.0, 0.0, 1.0] + expected_res1 + [4.0, 2.5, 1.0] + expected_res1 + [4.0, 1.5, -1.0],
 			[1.23],
-			[-9.0, -1.0] + expected_res2 + [2.0, -1.0] + expected_res2 + [2.0, -9.0],
+			[-9.0, -1.0] + expected_res2 + expected_res2 + [2.0, -9.0],
 		])
 		eq_(measurement_counts, [8, -8])
-		eq_(actual_values, [(1.23, x, y, y - 2.0) for x in [-1.0, -2.0] for y in [1.0, 2.0, 3.0, 4.0]])
+		eq_(actual_values, [(1.23, -10.0, x, y, y - 2.0) for x in [-1.0, -2.0] for y in [1.0, 2.0, 3.0, 4.0]])
 		eq_(actual_measurement_values, [(x, -x) for x in xrange(1, 9)])
 		eq_(actual_writes, expected_writes)
 		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in xrange(1, 9))))
@@ -196,9 +202,13 @@ class SweepControllerTest(TestCase):
 		thr.daemon = True
 		thr.start()
 
-		sleep(1.5)
+		sleep(0.5)
+		ctrl.pause()
+		sleep(0.5)
+		ctrl.unpause()
+		sleep(0.5)
 
-		ctrl.abort()
+		ctrl.last_continuous = True
 		thr.join()
 
 		expected_buf = [1.0, 2.0, 3.0, 4.0]
@@ -217,8 +227,9 @@ class SweepControllerTest(TestCase):
 			raise e
 
 		res = Resource(setter=setter)
-		var = OutputVariable(name='Var', order=1, enabled=True)
+		var = OutputVariable(name='Var', order=1, enabled=True, const=0.0)
 		var.config = LinSpaceConfig(1.0, 4.0, 4)
+		var.smooth_from = True
 
 		vars, num_items = sort_variables([var])
 		ctrl = sweep.SweepController([(('Res', res),)], vars, num_items, [], [])

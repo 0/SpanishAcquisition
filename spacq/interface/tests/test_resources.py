@@ -220,21 +220,21 @@ class ResourceTest(TestCase):
 		eq_(res1.value, 5)
 
 		# Wrap once.
-		res2 = res1.wrapped('wrapper1', lambda x: 2 * x, lambda x: 3 * x)
+		res2 = res1.wrapped('wrapper1', setter_filter=lambda x: 3 * x)
 
-		eq_(res2.value, 10)
+		eq_(res2.value, 5)
 		res2.value = 5
 		eq_(res1.value, 15)
-		eq_(res2.value, 30)
+		eq_(res2.value, 15)
 
 		# Wrap again.
 		res3 = res2.wrapped('wrapper2', lambda x: 5 * x)
 
-		eq_(res3.value, 150)
+		eq_(res3.value, 75)
 		res3.value = 10
 		eq_(res1.value, 30)
-		eq_(res2.value, 60)
-		eq_(res3.value, 300)
+		eq_(res2.value, 30)
+		eq_(res3.value, 150)
 
 		# Unwrap.
 		res4 = res3.unwrapped('wrapper1')
@@ -242,15 +242,15 @@ class ResourceTest(TestCase):
 		eq_(res4.value, 150)
 		res4.value = 7
 		eq_(res1.value, 7)
-		eq_(res2.value, 14)
-		eq_(res3.value, 70)
+		eq_(res2.value, 7)
+		eq_(res3.value, 35)
 		eq_(res4.value, 35)
 
 		# Modify the original Resource.
 		res1.value = 1
 		eq_(res1.value, 1)
-		eq_(res2.value, 2)
-		eq_(res3.value, 10)
+		eq_(res2.value, 1)
+		eq_(res3.value, 5)
 		eq_(res4.value, 5)
 
 		assert not res1.is_wrapped_by('wrapper1')

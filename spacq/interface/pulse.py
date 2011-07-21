@@ -32,12 +32,6 @@ class Parameter(object):
 		else:
 			return 'Parameter({0})'.format(repr(self.name))
 
-	def __str__(self):
-		if self.value is not None:
-			return '{0}{{{1}}}'.format(self.name, self.value)
-		else:
-			return '{0}'.format(self.name)
-
 	def __eq__(self, other):
 		return self.name == other.name and (self.value is None and other.value is None
 				or self.value == other.value)
@@ -54,12 +48,6 @@ class Command(object):
 
 	def __repr__(self):
 		return "Command({0}, {1})".format(repr(self.command), repr(self.arguments))
-
-	def __str__(self):
-		if self.arguments:
-			return '{0} {1}'.format(self.command, ', '.join(str(x) for x in self.arguments))
-		else:
-			return '{0}'.format(self.command)
 
 	def __eq__(self, other):
 		return self.command == other.command and self.arguments == other.arguments
@@ -253,9 +241,6 @@ class Program(object):
 
 	def __repr__(self):
 		return 'Program({0})'.format(repr(self.commands))
-
-	def __str__(self):
-		return '\n'.join([str(cmd) for cmd in self.commands])
 
 	def __eq__(self, other):
 		return self.commands == other.commands

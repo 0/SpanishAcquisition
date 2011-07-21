@@ -233,7 +233,7 @@ class DataCaptureDialog(Dialog, SweepController):
 
 				self.timer.Start(self.timer_delay)
 
-			self.paused = True
+			self.pause()
 
 			self.last_checked_time = -1
 			self.timer.Stop()

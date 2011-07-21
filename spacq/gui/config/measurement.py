@@ -80,7 +80,7 @@ class MeasurementConfigFrame(wx.Frame):
 		self.live_view_panel.SetMinSize((-1, 400))
 		frame_box.Add(self.live_view_panel, proportion=1, flag=wx.EXPAND)
 
-		self.SetSizer(frame_box)
+		self.SetSizerAndFit(frame_box)
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 

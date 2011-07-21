@@ -109,7 +109,6 @@ class AcquisitionApp(wx.App):
 
 	def OnMenuMeasurementsAddScalar(self, evt=None):
 		measurement_frame = MeasurementConfigFrame(self.acq_frame, self.global_store)
-		measurement_frame.SetSizerAndFit(measurement_frame.Sizer)
 		measurement_frame.Show()
 
 	def OnMenuHelpAbout(self, evt=None):

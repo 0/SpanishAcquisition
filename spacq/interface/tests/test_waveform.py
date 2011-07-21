@@ -1,5 +1,6 @@
 from nose.tools import assert_almost_equal, assert_raises, eq_
 from numpy import interp, linspace
+from numpy.testing import assert_array_almost_equal
 from os import path
 from unittest import main, TestCase
 
@@ -34,16 +35,7 @@ class GeneratorTest(TestCase):
 
 		wg = waveform.Generator(frequency=1)
 
-		try:
-			wg.absolute_wave
-		except ValueError:
-			pass
-		else:
-			assert False, 'Expected ValueError'
-
-		wg.min_value, wg.max_value = 0, 1
-
-		eq_(wg.absolute_wave, [])
+		eq_(wg.wave, [])
 
 	def testWaveform(self):
 		"""
@@ -67,9 +59,14 @@ class GeneratorTest(TestCase):
 		wg.include_ampph('02.csv', 'imag')
 		wg.include_ampph('02.csv', 'abs', 2.0)
 
-		eq_(wg.absolute_wave, [0, 0, 100, 80, 60, 40, 20, 0, -20, -40, -60, -80, -100, -50,
-			-50, -100, 0, 100, -100, 0, 0, 25, 50, 0, -50, -25, 0, 0, 0, -50, 0, 0, 0, 25, 0, -25, 0,
-			0, 50, 100, 50, 0])
+		expected = [0.0, 0.0, 1.0, 0.8, 0.6, 0.4, 0.2, 0.0, -0.2, -0.4, -0.6, -0.8, -1.0, -0.5, -0.5,
+				-1.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.25, 0.5, 0.0, -0.5, -0.25, 0.0, 0.0, 0.0, -0.5, 0.0,
+				0.0, 0.0, 0.25, 0.0, -0.25, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0]
+
+		print wg.wave
+		print expected
+
+		assert_array_almost_equal(wg.wave, expected, 4)
 		eq_(wg.get_marker(1), [0] * 2 + [1] * 11 + [0] * 29)
 		eq_(wg.get_marker(2), [0] * 2 + [1] * 25 + [0] * 15)
 
@@ -89,10 +86,11 @@ class GeneratorTest(TestCase):
 		wg.run_commands(prog.evaluated.commands)
 
 		wave_points = waveform.read_wave(path.join(resource_dir, '03.wav'))
-		wave_points = [(x + 1.0) / 2.0 * 1024 for x in wave_points]
-		wave_points = [int(x) for x in interp(linspace(0, 1, 402), linspace(0, 1, 201), wave_points)]
+		wave_points = interp(linspace(0, 1, 402), linspace(0, 1, 201), wave_points)
 
-		eq_(wg.absolute_wave, [512] * 51 + [int(x) for x in linspace(512, 1024, 100)] + [0] * 50 + [1024] + wave_points)
+		expected = [0.0] * 51 + list(linspace(0.0, 1.0, 100)) + [-1.0] * 50 + [1.0] + list(wave_points)
+
+		assert_array_almost_equal(wg.wave, expected, 4)
 		eq_(wg.get_marker(1), [True] * 51 + [False] * 553)
 		eq_(wg.get_marker(2), [True] * 202 + [False] * 402)
 		eq_(wg.get_marker(3), [False] * 604)

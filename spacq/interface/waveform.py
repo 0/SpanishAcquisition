@@ -110,18 +110,6 @@ class Generator(object):
 		# The path relative to which imports are done.
 		self.cwd = None
 
-	@property
-	def absolute_wave(self):
-		"""
-		Convert the float values on [-1.0, 1.0] to integer values on [min_value, max_value]
-		"""
-
-		if self.min_value is None or self.max_value is None:
-			raise ValueError('Bounds required to form absolute wave values.')
-
-		value_range = self.max_value - self.min_value
-		return [int(self.min_value + value_range * (x + 1.0) / 2) for x in self.wave]
-
 	def run_commands(self, commands):
 		"""
 		Execute pulse commands.

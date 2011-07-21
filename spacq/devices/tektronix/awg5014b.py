@@ -274,9 +274,13 @@ class AWG5014B(AbstractDevice):
 			data = struct.unpack('<{0}H'.format(waveform_length), packed_data)
 			data = [x & 2 ** 14 - 1 for x in data] # Filter out marker data.
 
+			min_value, max_value = self.value_range
+			range_diff = max_value - min_value
+			data = [2.0 * (x - min_value) / range_diff - 1.0 for x in data]
+
 			log.debug('Got waveform "{0}" from device "{1}": {2}'.format(name, self.name, repr(data)))
 
-			return list(data)
+			return data
 		finally:
 			self.status.pop()
 
@@ -291,7 +295,10 @@ class AWG5014B(AbstractDevice):
 		try:
 			log.debug('Creating waveform "{0}" on device "{1}" with data: {2}'.format(name, self.name, repr(data)))
 
-			data = list(data)
+			min_value, max_value = self.value_range
+			range_diff = max_value - min_value
+			data = [min_value + int(range_diff * (x + 1.0) / 2.0) for x in data]
+
 			waveform_length = len(data)
 			self.write('wlist:waveform:new "{0}", {1}, integer'.format(name, waveform_length))
 

@@ -81,7 +81,7 @@ class AcquisitionApp(wx.App):
 		menu = wx.Menu()
 
 		### About.
-		item = menu.Append(wx.ID_ANY, '&About...')
+		item = menu.Append(wx.ID_ABOUT, '&About...')
 		self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, item)
 
 		menuBar.Append(menu, '&Help')

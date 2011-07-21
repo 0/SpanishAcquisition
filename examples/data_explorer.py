@@ -20,10 +20,10 @@ class DataExplorerApp(wx.App):
 		## File.
 		menu = wx.Menu()
 
-		item = menu.Append(wx.ID_ANY, '&Open...')
+		item = menu.Append(wx.ID_OPEN, '&Open...')
 		self.Bind(wx.EVT_MENU, self.OnMenuFileOpen, item)
 
-		item = menu.Append(wx.ID_ANY, '&Close')
+		item = menu.Append(wx.ID_CLOSE, '&Close')
 		self.Bind(wx.EVT_MENU, self.OnMenuFileClose, item)
 
 		menu.AppendSeparator()
@@ -60,7 +60,7 @@ class DataExplorerApp(wx.App):
 		menu = wx.Menu()
 
 		### About.
-		item = menu.Append(wx.ID_ANY, '&About...')
+		item = menu.Append(wx.ID_ABOUT, '&About...')
 		self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, item)
 
 		menuBar.Append(menu, '&Help')

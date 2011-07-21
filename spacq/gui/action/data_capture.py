@@ -170,6 +170,14 @@ class DataCaptureDialog(Dialog, SweepController):
 
 		self.timer.Start(self.timer_delay)
 
+	def dwell(self):
+		result = SweepController.dwell(self)
+
+		# Prevent the GUI from locking up.
+		sleep(0.005)
+
+		return result
+
 	def end(self):
 		try:
 			SweepController.end(self)

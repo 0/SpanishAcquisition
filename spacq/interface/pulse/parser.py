@@ -3,126 +3,12 @@ from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, 
 		SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
 
 from ..units import Quantity
+from .tree import (Acquire, Assignment, Attribute, Block, Declaration, Delay, Dictionary,
+		DictionaryItem, Loop, ParallelPulses, Pulse, PulseSequence, Variable)
 
 """
 A parser for pulse programs.
 """
-
-
-class ASTNode(object):
-	names = []
-	is_list = False
-
-	def __init__(self, *args):
-		if len(args) == 3:
-			self.s = args[0]
-			self.loc = args[1]
-
-			tok = args[2]
-		else:
-			self.s = None
-			self.loc = None
-
-			if len(args) == 1:
-				tok = args[0]
-
-		if self.is_list:
-			self.items = list(tok)
-		else:
-			for name in self.names:
-				setattr(self, name, tok[name])
-
-	def __eq__(self, other):
-		return repr(self) == repr(other)
-
-
-class Acquire(ASTNode):
-	def __repr__(self):
-		return 'acquire'
-
-
-class Assignment(ASTNode):
-	names = ['target', 'value']
-
-	def __repr__(self):
-		return '{0} = {1}'.format(repr(self.target), repr(self.value))
-
-
-class Attribute(ASTNode):
-	names = ['variable', 'name']
-
-	def __repr__(self):
-		return '{0}.{1}'.format(repr(self.variable), repr(self.name))
-
-
-class Block(ASTNode):
-	is_list = True
-
-	def __repr__(self):
-		return '{{{0}}}'.format(', '.join(repr(item) for item in self.items))
-
-
-class Declaration(ASTNode):
-	names = ['type', 'variables']
-
-	def __repr__(self):
-		return '{0} {1}'.format(repr(self.type), ', '.join(repr(variable) for variable in self.variables))
-
-
-class Delay(ASTNode):
-	names = ['length']
-
-	def __repr__(self):
-		return '{0}'.format(repr(self.length))
-
-
-class Dictionary(ASTNode):
-	is_list = True
-
-	def __repr__(self):
-		return '{{{0}}}'.format(', '.join(repr(item) for item in self.items))
-
-
-class DictionaryItem(ASTNode):
-	names = ['key', 'value']
-
-	def __repr__(self):
-		return '{0}: {1}'.format(repr(self.key), repr(self.value))
-
-
-class Loop(ASTNode):
-	names = ['times', 'block']
-
-	def __repr__(self):
-		return 'times {0} {1}'.format(repr(self.times), repr(self.block))
-
-
-class ParallelPulses(ASTNode):
-	is_list = True
-
-	def __repr__(self):
-		return '{0}'.format(' '.join(repr(item) for item in self.items))
-
-
-class Pulse(ASTNode):
-	names = ['sequence', 'target']
-
-	def __repr__(self):
-		return '{0}:{1}'.format(repr(self.sequence), repr(self.target))
-
-
-class PulseSequence(ASTNode):
-	is_list = True
-
-	def __repr__(self):
-		return '({0})'.format(', '.join(repr(item) for item in self.items))
-
-
-class Variable(ASTNode):
-	names = ['name']
-
-	def __repr__(self):
-		return '{0}'.format(repr(self.name))
 
 
 def Parser():

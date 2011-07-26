@@ -84,7 +84,7 @@ class ParserTest(TestCase):
 
 		for line, ast in prog:
 			try:
-				result = pp.parseString(line).asList()
+				result = pp(line)
 			except Exception:
 				print line
 				raise
@@ -151,8 +151,7 @@ class ParserTest(TestCase):
 		]
 
 		pp = pulse_parser.Parser()
-
-		result = pp.parseString(prog).asList()
+		result = pp(prog)
 
 		eq_(result, expected)
 
@@ -191,8 +190,7 @@ class ParserTest(TestCase):
 		]
 
 		pp = pulse_parser.Parser()
-
-		result = pp.parseString(prog).asList()
+		result = pp(prog)
 
 		eq_(result, expected)
 
@@ -219,8 +217,7 @@ class ParserTest(TestCase):
 		]
 
 		pp = pulse_parser.Parser()
-
-		result = pp.parseString(prog).asList()
+		result = pp(prog)
 
 		eq_(result, expected)
 
@@ -277,7 +274,8 @@ class ParserTest(TestCase):
 
 		pp = pulse_parser.Parser()
 
-		result = pp.parseFile(path.join(resource_dir, '01.pulse')).asList()
+		with open(path.join(resource_dir, '01.pulse')) as f:
+			result = pp('\n'.join(f.readlines()))
 
 		eq_(result, expected)
 
@@ -287,16 +285,17 @@ class ParserTest(TestCase):
 		"""
 
 		prog = [
-			('int a b', 'Expected end of text (at char 6), (line:1, col:7)'),
+			'int a b', 'int a = b = c', '5:f1', 'times {d1;d2}', 'd1;{d2}d3',
+			'a.b = c', 'd = e.f', 'g.h', 'd1 (d2 d3):f1', 'refresh = d1:f5'
 		]
 
 		pp = pulse_parser.Parser()
 
-		for line, err in prog:
+		for line in prog:
 			try:
-				pp.parseString(line).asList()
-			except ParseException as e:
-				eq_(str(e), err)
+				pp(line)
+			except ParseException:
+				pass
 			else:
 				assert False, 'Expected ParseException'
 

@@ -220,6 +220,9 @@ def Parser():
 		comment = Literal('#') + SkipTo(LineEnd())
 		parser.ignore(comment)
 
-		return parser
+		def parseString(s):
+			return parser.parseString(s).asList()
+
+		return parseString
 	finally:
 		ParserElement.setDefaultWhitespaceChars(old_whitespace)

@@ -1,0 +1,35 @@
+## Declarations.
+int bumps = 2
+
+delay bump_spacing = 100 ns, settle, end_delay = 10 ns
+
+pulse first_square, wobble
+pulse last_square = {shape: 'square'}
+
+pulse manipulator = {shape: '/path/to/filename'}
+
+output f1, f2
+
+## Initializations of known values.
+first_square = {shape: 'square', length: 1 ms}
+
+wobble.length = 50 us
+wobble.amplitude = 1 mV
+
+## The commands themselves:
+10 us
+first_square:f1 wobble:f2
+
+times bumps {
+	bump_spacing
+
+	times 2 {
+		first_square:f1 wobble:f2
+	}
+}
+
+settle
+acquire
+
+last_square:f1 (manipulator end_delay manipulator):f2
+end_delay

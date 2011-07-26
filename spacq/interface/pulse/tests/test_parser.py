@@ -3,12 +3,12 @@ from os import path
 from pyparsing import ParseException
 from unittest import main, TestCase
 
-from ..pulse_parser import (Acquire, Assignment, Attribute, Block, Declaration,
+from ...units import Quantity
+from ..parser import (Acquire, Assignment, Attribute, Block, Declaration,
 		Delay, Dictionary, DictionaryItem, Loop, ParallelPulses, Pulse,
 		PulseSequence, Variable)
-from ..units import Quantity
 
-from .. import pulse_parser
+from .. import parser
 
 
 resource_dir = path.join(path.dirname(__file__), 'resources')
@@ -80,7 +80,7 @@ class ParserTest(TestCase):
 				Acquire())
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 
 		for line, ast in prog:
 			try:
@@ -150,7 +150,7 @@ class ParserTest(TestCase):
 			Delay({'length': 'end_delay'}),
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 		result = pp(prog)
 
 		eq_(result, expected)
@@ -189,7 +189,7 @@ class ParserTest(TestCase):
 						Pulse({'sequence': PulseSequence(['p1']), 'target': 'f2'})])])})])}),
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 		result = pp(prog)
 
 		eq_(result, expected)
@@ -216,7 +216,7 @@ class ParserTest(TestCase):
 			Delay({'length': 'd1'}),
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 		result = pp(prog)
 
 		eq_(result, expected)
@@ -272,7 +272,7 @@ class ParserTest(TestCase):
 			Delay({'length': 'end_delay'}),
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 
 		with open(path.join(resource_dir, '01.pulse')) as f:
 			result = pp('\n'.join(f.readlines()))
@@ -289,7 +289,7 @@ class ParserTest(TestCase):
 			'a.b = c', 'd = e.f', 'g.h', 'd1 (d2 d3):f1', 'refresh = d1:f5'
 		]
 
-		pp = pulse_parser.Parser()
+		pp = parser.Parser()
 
 		for line in prog:
 			try:

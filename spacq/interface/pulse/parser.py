@@ -2,7 +2,7 @@ from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, 
 		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParserElement, QuotedString,
 		SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
 
-from .units import Quantity
+from ..units import Quantity
 
 """
 A parser for pulse programs.

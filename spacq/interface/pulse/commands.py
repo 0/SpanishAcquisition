@@ -3,7 +3,7 @@ log = logging.getLogger(__name__)
 
 import re
 
-from units import Quantity
+from ..units import Quantity
 
 """
 A parser to parse programs of the form:

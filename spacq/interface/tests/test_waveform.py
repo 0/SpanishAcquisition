@@ -3,7 +3,7 @@ from numpy import interp, linspace
 from os import path
 from unittest import main, TestCase
 
-from ..pulse import Program
+from ..pulse.commands import Program
 from ..units import Quantity
 
 from .. import waveform

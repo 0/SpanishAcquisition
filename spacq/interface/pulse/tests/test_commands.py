@@ -1,9 +1,9 @@
 from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
-from ..units import Quantity
+from ...units import Quantity
 
-from .. import pulse
+from .. import commands
 
 
 class ParameterTest(TestCase):
@@ -13,9 +13,9 @@ class ParameterTest(TestCase):
 		"""
 
 		# For eval().
-		Parameter = pulse.Parameter
+		Parameter = commands.Parameter
 
-		parm = pulse.Parameter('Test')
+		parm = commands.Parameter('Test')
 
 		eq_(parm.name, 'Test')
 		assert parm.value is None
@@ -35,9 +35,9 @@ class CommandTest(TestCase):
 		"""
 
 		# For eval().
-		Command = pulse.Command
+		Command = commands.Command
 
-		cmd = pulse.Command('cmd', range(5))
+		cmd = commands.Command('cmd', range(5))
 
 		eq_(cmd.command, 'cmd')
 		eq_(cmd.arguments, [0, 1, 2, 3, 4])
@@ -50,7 +50,7 @@ class ParserTest(TestCase):
 		Try to turn text into a list of sensible commands.
 		"""
 
-		pp = pulse.Parser()
+		pp = commands.Parser()
 
 		prog = """
 			set 0.0 # End a line with a comment.
@@ -73,7 +73,7 @@ class ParserTest(TestCase):
 			reuse parameter0, parameter1   ,     parameter2
 		"""
 
-		expected = [pulse.Command(cmd, args) for (cmd, args) in [
+		expected = [commands.Command(cmd, args) for (cmd, args) in [
 			('set', [0.0]),
 			('delay', [Quantity(500.0, 'ns')]),
 			('no_arg', []),
@@ -84,9 +84,9 @@ class ParserTest(TestCase):
 			('delay', [Quantity(1.0, 's')]),
 			('marker', [1, 'high']),
 			('include', ['path', 'imag']),
-			('set', [pulse.Parameter('parameter1'), pulse.Parameter('and_another_one')]),
-			('delay', [pulse.Parameter('a_time'), 'long']),
-			('reuse', [pulse.Parameter('parameter0'), pulse.Parameter('parameter1'), pulse.Parameter('parameter2')]),
+			('set', [commands.Parameter('parameter1'), commands.Parameter('and_another_one')]),
+			('delay', [commands.Parameter('a_time'), 'long']),
+			('reuse', [commands.Parameter('parameter0'), commands.Parameter('parameter1'), commands.Parameter('parameter2')]),
 		]]
 
 		result = pp.parse_program(prog)
@@ -98,7 +98,7 @@ class ParserTest(TestCase):
 		Unparseable things.
 		"""
 
-		pp = pulse.Parser()
+		pp = commands.Parser()
 
 		assert_raises(ValueError, pp.parse_program, 'this is not valid')
 
@@ -110,12 +110,12 @@ class ProgramTest(TestCase):
 		"""
 
 		cmds = [
-			pulse.Command('test0', []),
-			pulse.Command('test1', [1]),
-			pulse.Command('test2', [2, 3]),
+			commands.Command('test0', []),
+			commands.Command('test1', [1]),
+			commands.Command('test2', [2, 3]),
 		]
 
-		prog = pulse.Program(cmds)
+		prog = commands.Program(cmds)
 
 		eq_(prog.all_parameters, set())
 		eq_(prog.unset_parameters, set())
@@ -127,17 +127,17 @@ class ProgramTest(TestCase):
 		"""
 
 		# For eval().
-		Program, Command, Parameter = pulse.Program, pulse.Command, pulse.Parameter
+		Program, Command, Parameter = commands.Program, commands.Command, commands.Parameter
 
 		cmds = [
-			pulse.Command('test0', [pulse.Parameter('parm0'), pulse.Parameter('parm1')]),
-			pulse.Command('test1', [pulse.Parameter('parm2'), pulse.Parameter('parm3')]),
-			pulse.Command('test1.5', ['not', 'parameters']),
-			pulse.Command('test2', [pulse.Parameter('parm0'), pulse.Parameter('parm2')]),
-			pulse.Command('test3', [pulse.Parameter('parm1'), pulse.Parameter('parm3')]),
+			commands.Command('test0', [commands.Parameter('parm0'), commands.Parameter('parm1')]),
+			commands.Command('test1', [commands.Parameter('parm2'), commands.Parameter('parm3')]),
+			commands.Command('test1.5', ['not', 'parameters']),
+			commands.Command('test2', [commands.Parameter('parm0'), commands.Parameter('parm2')]),
+			commands.Command('test3', [commands.Parameter('parm1'), commands.Parameter('parm3')]),
 		]
 
-		prog = pulse.Program(cmds)
+		prog = commands.Program(cmds)
 
 		prog.set_parameter('parm0', 'a value')
 		prog.set_parameter('parm3', 'another value')
@@ -159,14 +159,14 @@ class ProgramTest(TestCase):
 		eq_(prog.unset_parameters, set())
 
 		cmds_evaluated = [
-			pulse.Command('test0', ['a value', -1234.5]),
-			pulse.Command('test1', [('perhaps', 'a', 'tuple'), 'another value']),
-			pulse.Command('test1.5', ['not', 'parameters']),
-			pulse.Command('test2', ['a value', ('perhaps', 'a', 'tuple')]),
-			pulse.Command('test3', [-1234.5, 'another value']),
+			commands.Command('test0', ['a value', -1234.5]),
+			commands.Command('test1', [('perhaps', 'a', 'tuple'), 'another value']),
+			commands.Command('test1.5', ['not', 'parameters']),
+			commands.Command('test2', ['a value', ('perhaps', 'a', 'tuple')]),
+			commands.Command('test3', [-1234.5, 'another value']),
 		]
 
-		eq_(prog.evaluated, pulse.Program(cmds_evaluated))
+		eq_(prog.evaluated, commands.Program(cmds_evaluated))
 
 		eq_(eval(repr(prog)), prog)
 
@@ -175,11 +175,11 @@ class ProgramTest(TestCase):
 		Try to create a program from text.
 		"""
 
-		prog = pulse.Program('this "is", :line, 1\nand "this is line", 2')
+		prog = commands.Program('this "is", :line, 1\nand "this is line", 2')
 
 		cmds = [
-			pulse.Command('this', ['is', 'line', 1]),
-			pulse.Command('and', ['this is line', 2]),
+			commands.Command('this', ['is', 'line', 1]),
+			commands.Command('and', ['this is line', 2]),
 		]
 
 		eq_(prog.commands, cmds)

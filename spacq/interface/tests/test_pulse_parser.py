@@ -3,6 +3,11 @@ from os import path
 from pyparsing import ParseException
 from unittest import main, TestCase
 
+from ..pulse_parser import (Acquire, Assignment, Attribute, Block, Declaration,
+		Delay, Dictionary, DictionaryItem, Loop, ParallelPulses, Pulse,
+		PulseSequence, Variable)
+from ..units import Quantity
+
 from .. import pulse_parser
 
 
@@ -18,61 +23,61 @@ class ParserTest(TestCase):
 		prog = [
 			# Lone declaration.
 			('int test',
-				('Declaration', ['int',
-					('Variable', ['test'])])),
+				Declaration({'type': 'int', 'variables': [
+					Variable({'name': 'test'})]})),
 			# Declaration with some initialization.
 			('delay d1=+5ms,d2,\td3 = -7e2   ns2.J',
-				('Declaration', ['delay',
-					('Assignment', ['d1', ('Quantity', [5, 'ms'])]),
-					('Variable', ['d2']),
-					('Assignment', ['d3', ('Quantity', [-7e2, 'ns2.J'])])])),
+				Declaration({'type': 'delay', 'variables': [
+					Assignment({'target': 'd1', 'value': Quantity(5, 'ms')}),
+					Variable({'name': 'd2'}),
+					Assignment({'target': 'd3', 'value': Quantity(-7e2, 'ns2.J')})]})),
 			# Assignment of value.
 			('test = -99',
-				('Assignment', ['test', -99])),
+				Assignment({'target': 'test', 'value': -99})),
 			# Assignment of multiple values.
 			('long_pulse = {shape: \'filename\', length: 1 Ps}',
-				('Assignment', ['long_pulse', ('Dictionary', [
-					('DictionaryItem', ['shape', 'filename']),
-					('DictionaryItem', ['length', ('Quantity', [1, 'Ps'])])])])),
+				Assignment({'target': 'long_pulse', 'value': Dictionary([
+					DictionaryItem({'key': 'shape', 'value': 'filename'}),
+					DictionaryItem({'key': 'length', 'value': Quantity(1, 'Ps')})])})),
 			# Assignment of identifier.
 			('d2 = d3',
-				('Assignment', ['d2', 'd3'])),
+				Assignment({'target': 'd2', 'value': 'd3'})),
 			# Comments.
 			('  output f1 ,f2\t # outputs',
-				('Declaration', ['output',
-					('Variable', ['f1']),
-					('Variable', ['f2'])])),
+				Declaration({'type': 'output', 'variables': [
+					Variable({'name': 'f1'}),
+					Variable({'name': 'f2'})]})),
 			# Delay.
 			('10 us',
-				('Delay', [('Quantity', [10, 'us'])])),
+				Delay({'length': Quantity(10, 'us')})),
 			# Variable delay.
 			('d5 #Comment: a = 5',
-				('Delay', ['d5'])),
+				Delay({'length': 'd5'})),
 			# Attribute assignment.
 			('p1.length = 50.0 as',
-				('Assignment', [
-					('Attribute', ['p1', 'length']),
-					('Quantity', [50.0, 'as'])])),
+				Assignment({
+					'target': Attribute({'variable': 'p1', 'name': 'length'}),
+					'value': Quantity(50.0, 'as')})),
 			# Pulse command.
 			('some_pulse:f1',
-				('ParallelPulses', [
-					('Pulse', [('PulseSequence', ['some_pulse']), 'f1'])])),
+				ParallelPulses([
+					Pulse({'sequence': PulseSequence(['some_pulse']), 'target': 'f1'})])),
 			# Parallel pulses.
 			('a_pulse:outputA another_pulse:outputB',
-				('ParallelPulses', [
-					('Pulse', [('PulseSequence', ['a_pulse']), 'outputA']),
-					('Pulse', [('PulseSequence', ['another_pulse']), 'outputB'])])),
+				ParallelPulses([
+					Pulse({'sequence': PulseSequence(['a_pulse']), 'target': 'outputA'}),
+					Pulse({'sequence': PulseSequence(['another_pulse']), 'target': 'outputB'})])),
 			# Multiple pulse commands.
 			('(several commands with a 99 fs delay):formula1 lone_command:indy500',
-				('ParallelPulses', [
-					('Pulse', [('PulseSequence', [
+				ParallelPulses([
+					Pulse({'sequence': PulseSequence([
 						'several', 'commands', 'with', 'a',
-						('Delay', [('Quantity', [99, 'fs'])]),
-						'delay']), 'formula1']),
-					('Pulse', [('PulseSequence', ['lone_command']), 'indy500'])])),
+						Delay({'length': Quantity(99, 'fs')}),
+						'delay']), 'target': 'formula1'}),
+					Pulse({'sequence': PulseSequence(['lone_command']), 'target': 'indy500'})])),
 			# Acquire.
 			('\tacquire   #',
-				('Acquire', []))
+				Acquire())
 		]
 
 		pp = pulse_parser.Parser()
@@ -80,7 +85,7 @@ class ParserTest(TestCase):
 		for line, ast in prog:
 			try:
 				result = pp.parseString(line).asList()
-			except ParseException:
+			except Exception:
 				print line
 				raise
 
@@ -112,37 +117,37 @@ class ParserTest(TestCase):
 		"""
 
 		expected = [
-			('Declaration', ['int',
-				('Assignment', ['placeholder', 0])]),
-			('Declaration', ['delay',
-				('Variable', ['settle']),
-				('Assignment', ['end_delay', ('Quantity', [10, 'ns'])])]),
-			('Declaration', ['pulse',
-				('Variable', ['first_square']),
-				('Variable', ['wobble'])]),
-			('Declaration', ['output',
-				('Variable', ['f1']),
-				('Variable', ['f2'])]),
-			('Assignment', ['first_square',
-				('Dictionary', [
-					('DictionaryItem', ['shape', 'square']),
-					('DictionaryItem', ['length', ('Quantity', [1, 'ms'])])])]),
-			('Assignment', [
-				('Attribute', ['wobble', 'length']),
-				('Quantity', [50, 'us'])]),
-			('Assignment', [
-				('Attribute', ['wobble', 'amplitude']),
-				('Quantity', [1, 'mV'])]),
-			('Delay', [('Quantity', [10, 'us'])]),
-			('ParallelPulses', [
-				('Pulse', [('PulseSequence', ['first_square']), 'f1']),
-				('Pulse', [('PulseSequence', [
+			Declaration({'type': 'int', 'variables': [
+				Assignment({'target': 'placeholder', 'value': 0})]}),
+			Declaration({'type': 'delay', 'variables': [
+				Variable({'name': 'settle'}),
+				Assignment({'target': 'end_delay', 'value': Quantity(10, 'ns')})]}),
+			Declaration({'type': 'pulse', 'variables': [
+				Variable({'name': 'first_square'}),
+				Variable({'name': 'wobble'})]}),
+			Declaration({'type': 'output', 'variables': [
+				Variable({'name': 'f1'}),
+				Variable({'name': 'f2'})]}),
+			Assignment({'target': 'first_square',
+				'value': Dictionary([
+					DictionaryItem({'key': 'shape', 'value': 'square'}),
+					DictionaryItem({'key': 'length', 'value': Quantity(1, 'ms')})])}),
+			Assignment({
+				'target': Attribute({'variable': 'wobble', 'name': 'length'}),
+				'value': Quantity(50, 'us')}),
+			Assignment({
+				'target': Attribute({'variable': 'wobble', 'name': 'amplitude'}),
+				'value': Quantity(1, 'mV')}),
+			Delay({'length': Quantity(10, 'us')}),
+			ParallelPulses([
+				Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),
+				Pulse({'sequence': PulseSequence([
 					'wobble',
-					('Delay', [('Quantity', [+1e-3, 'us'])]),
-					'wobble']), 'f2'])]),
-			('Delay', ['settle']),
-			('Acquire', []),
-			('Delay', ['end_delay']),
+					Delay({'length': Quantity(+1e-3, 'us')}),
+					'wobble']), 'target': 'f2'})]),
+				Delay({'length': 'settle'}),
+			Acquire(),
+			Delay({'length': 'end_delay'}),
 		]
 
 		pp = pulse_parser.Parser()
@@ -172,17 +177,17 @@ class ParserTest(TestCase):
 		"""
 
 		expected = [
-			('Loop', [5, ('Block', [
-				('Delay', ['d1']),
-				('ParallelPulses', [
-					('Pulse', [('PulseSequence', ['p1']), 'f1']),
-					('Pulse', [('PulseSequence', ['p2']), 'f2'])])])]),
-			('Loop', ['M', ('Block', [
-				('Delay', ['d2']),
-				('Loop', ['N', ('Block', [
-					('ParallelPulses', [
-						('Pulse', [('PulseSequence', ['p2']), 'f1']),
-						('Pulse', [('PulseSequence', ['p1']), 'f2'])])])])])]),
+			Loop({'times': 5, 'block': Block([
+				Delay({'length': 'd1'}),
+				ParallelPulses([
+					Pulse({'sequence': PulseSequence(['p1']), 'target': 'f1'}),
+					Pulse({'sequence': PulseSequence(['p2']), 'target': 'f2'})])])}),
+			Loop({'times': 'M', 'block': Block([
+				Delay({'length': 'd2'}),
+				Loop({'times': 'N', 'block': Block([
+					ParallelPulses([
+						Pulse({'sequence': PulseSequence(['p2']), 'target': 'f1'}),
+						Pulse({'sequence': PulseSequence(['p1']), 'target': 'f2'})])])})])}),
 		]
 
 		pp = pulse_parser.Parser()
@@ -199,18 +204,18 @@ class ParserTest(TestCase):
 		prog = 'int x=5;delay d1;;d1;d1;times x{d1;d1;};times x{d1}d1'
 
 		expected = [
-			('Declaration', ['int',
-				('Assignment', ['x', 5])]),
-			('Declaration', ['delay',
-				('Variable', ['d1'])]),
-			('Delay', ['d1']),
-			('Delay', ['d1']),
-			('Loop', ['x', ('Block', [
-				('Delay', ['d1']),
-				('Delay', ['d1'])])]),
-			('Loop', ['x', ('Block', [
-				('Delay', ['d1'])])]),
-			('Delay', ['d1']),
+			Declaration({'type': 'int', 'variables': [
+				Assignment({'target': 'x', 'value': 5})]}),
+			Declaration({'type': 'delay', 'variables': [
+				Variable({'name': 'd1'})]}),
+			Delay({'length': 'd1'}),
+			Delay({'length': 'd1'}),
+			Loop({'times': 'x', 'block': Block([
+				Delay({'length': 'd1'}),
+				Delay({'length': 'd1'})])}),
+			Loop({'times': 'x', 'block': Block([
+				Delay({'length': 'd1'})])}),
+			Delay({'length': 'd1'}),
 		]
 
 		pp = pulse_parser.Parser()
@@ -225,50 +230,49 @@ class ParserTest(TestCase):
 		"""
 
 		expected = [
-			('Declaration', ['int',
-				('Assignment', ['bumps', 2])]),
-			('Declaration', ['delay',
-				('Assignment', ['bump_spacing', ('Quantity', [100, 'ns'])]),
-				('Variable', ['settle']),
-				('Assignment', ['end_delay', ('Quantity', [10, 'ns'])])]),
-			('Declaration', ['pulse',
-				('Variable', ['first_square']),
-				('Variable', ['wobble'])]),
-			('Declaration', ['pulse',
-				('Assignment', ['last_square', ('Dictionary', [
-					('DictionaryItem', ['shape', 'square'])])])]),
-			('Declaration', ['pulse',
-				('Assignment', ['manipulator', ('Dictionary', [
-					('DictionaryItem', ['shape', '/path/to/filename'])])])]),
-			('Declaration', ['output',
-				('Variable', ['f1']),
-				('Variable', ['f2'])]),
-			('Assignment', ['first_square',
-				('Dictionary', [
-					('DictionaryItem', ['shape', 'square']),
-					('DictionaryItem', ['length', ('Quantity', [1, 'ms'])])])]),
-			('Assignment',
-				[('Attribute', ['wobble', 'length']),
-					('Quantity', [50, 'us'])]),
-			('Assignment',
-				[('Attribute', ['wobble', 'amplitude']),
-					('Quantity', [1, 'mV'])]),
-			('Delay', [('Quantity', [10, 'us'])]),
-			('ParallelPulses', [
-				('Pulse', [('PulseSequence', ['first_square']), 'f1']),
-				('Pulse', [('PulseSequence', ['wobble']), 'f2'])]),
-			('Loop', ['bumps', ('Block', [
-				('Delay', ['bump_spacing']),
-				('Loop', [2, ('Block', [
-					('ParallelPulses', [
-						('Pulse', [('PulseSequence', ['first_square']), 'f1']),
-						('Pulse', [('PulseSequence', ['wobble']), 'f2'])])])])])]),
-			('Delay', ['settle']),
-			('Acquire', []),
-			('ParallelPulses', [
-				('Pulse', [('PulseSequence', ['last_square']), 'f1']),
-				('Pulse', [('PulseSequence', ['manipulator', 'end_delay', 'manipulator']), 'f2'])]),
-			('Delay', ['end_delay']),
+			Declaration({'type': 'int', 'variables': [
+				Assignment({'target': 'bumps', 'value': 2})]}),
+			Declaration({'type': 'delay', 'variables': [
+				Assignment({'target': 'bump_spacing', 'value': Quantity(100, 'ns')}),
+				Variable({'name': 'settle'}),
+				Assignment({'target': 'end_delay', 'value': Quantity(10, 'ns')})]}),
+			Declaration({'type': 'pulse', 'variables': [
+				Variable({'name': 'first_square'}),
+				Variable({'name': 'wobble'})]}),
+			Declaration({'type': 'pulse', 'variables': [
+				Assignment({'target': 'last_square', 'value': Dictionary([
+					DictionaryItem({'key': 'shape', 'value': 'square'})])})]}),
+			Declaration({'type': 'pulse', 'variables': [
+				Assignment({'target': 'manipulator', 'value': Dictionary([
+					DictionaryItem({'key': 'shape', 'value': '/path/to/filename'})])})]}),
+			Declaration({'type': 'output', 'variables': [
+				Variable({'name': 'f1'}),
+				Variable({'name': 'f2'})]}),
+			Assignment({'target': 'first_square', 'value': Dictionary([
+				DictionaryItem({'key': 'shape', 'value': 'square'}),
+				DictionaryItem({'key': 'length', 'value': Quantity(1, 'ms')})])}),
+			Assignment({
+				'target': Attribute({'variable': 'wobble', 'name': 'length'}),
+				'value': Quantity(50, 'us')}),
+			Assignment({
+				'target': Attribute({'variable': 'wobble', 'name': 'amplitude'}),
+				'value': Quantity(1, 'mV')}),
+			Delay({'length': Quantity(10, 'us')}),
+			ParallelPulses([
+				Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),
+				Pulse({'sequence': PulseSequence(['wobble']), 'target': 'f2'})]),
+			Loop({'times': 'bumps', 'block': Block([
+				Delay({'length': 'bump_spacing'}),
+				Loop({'times': 2, 'block': Block([
+					ParallelPulses([
+						Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),
+						Pulse({'sequence': PulseSequence(['wobble']), 'target': 'f2'})])])})])}),
+					Delay({'length': 'settle'}),
+			Acquire(),
+			ParallelPulses([
+				Pulse({'sequence': PulseSequence(['last_square']), 'target': 'f1'}),
+				Pulse({'sequence': PulseSequence(['manipulator', 'end_delay', 'manipulator']), 'target': 'f2'})]),
+			Delay({'length': 'end_delay'}),
 		]
 
 		pp = pulse_parser.Parser()

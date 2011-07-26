@@ -2,17 +2,127 @@ from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, 
 		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParserElement, QuotedString,
 		SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
 
+from .units import Quantity
+
 """
 A parser for pulse programs.
 """
 
 
-class Node(object):
-	def __init__(self, name):
-		self.name = name
+class ASTNode(object):
+	names = []
+	is_list = False
 
-	def __call__(self, tokens):
-		return (self.name, tokens.asList())
+	def __init__(self, *args):
+		if len(args) == 3:
+			self.s = args[0]
+			self.loc = args[1]
+
+			tok = args[2]
+		else:
+			self.s = None
+			self.loc = None
+
+			if len(args) == 1:
+				tok = args[0]
+
+		if self.is_list:
+			self.items = list(tok)
+		else:
+			for name in self.names:
+				setattr(self, name, tok[name])
+
+	def __eq__(self, other):
+		return repr(self) == repr(other)
+
+
+class Acquire(ASTNode):
+	def __repr__(self):
+		return 'acquire'
+
+
+class Assignment(ASTNode):
+	names = ['target', 'value']
+
+	def __repr__(self):
+		return '{0} = {1}'.format(repr(self.target), repr(self.value))
+
+
+class Attribute(ASTNode):
+	names = ['variable', 'name']
+
+	def __repr__(self):
+		return '{0}.{1}'.format(repr(self.variable), repr(self.name))
+
+
+class Block(ASTNode):
+	is_list = True
+
+	def __repr__(self):
+		return '{{{0}}}'.format(', '.join(repr(item) for item in self.items))
+
+
+class Declaration(ASTNode):
+	names = ['type', 'variables']
+
+	def __repr__(self):
+		return '{0} {1}'.format(repr(self.type), ', '.join(repr(variable) for variable in self.variables))
+
+
+class Delay(ASTNode):
+	names = ['length']
+
+	def __repr__(self):
+		return '{0}'.format(repr(self.length))
+
+
+class Dictionary(ASTNode):
+	is_list = True
+
+	def __repr__(self):
+		return '{{{0}}}'.format(', '.join(repr(item) for item in self.items))
+
+
+class DictionaryItem(ASTNode):
+	names = ['key', 'value']
+
+	def __repr__(self):
+		return '{0}: {1}'.format(repr(self.key), repr(self.value))
+
+
+class Loop(ASTNode):
+	names = ['times', 'block']
+
+	def __repr__(self):
+		return 'times {0} {1}'.format(repr(self.times), repr(self.block))
+
+
+class ParallelPulses(ASTNode):
+	is_list = True
+
+	def __repr__(self):
+		return '{0}'.format(' '.join(repr(item) for item in self.items))
+
+
+class Pulse(ASTNode):
+	names = ['sequence', 'target']
+
+	def __repr__(self):
+		return '{0}:{1}'.format(repr(self.sequence), repr(self.target))
+
+
+class PulseSequence(ASTNode):
+	is_list = True
+
+	def __repr__(self):
+		return '({0})'.format(', '.join(repr(item) for item in self.items))
+
+
+class Variable(ASTNode):
+	names = ['name']
+
+	def __repr__(self):
+		return '{0}'.format(repr(self.name))
 
 
 def Parser():
@@ -54,7 +164,7 @@ def Parser():
 		# Unit symbol cannot start with "e".
 		unit_symbol = Combine(Word(alphas.replace('E', '').replace('e', ''), alphas) + Optional(Word(nums)))
 		unit_symbols = delimitedList(unit_symbol, delim='.', combine=True)
-		quantity = (number + unit_symbols).setParseAction(Node('Quantity'))
+		quantity = (number + unit_symbols).setParseAction(lambda x: Quantity(x[0], x[1]))
 
 		## Strings.
 		string = QuotedString(r'"', escChar=r'\\') | QuotedString(r"'", escChar=r'\\')
@@ -62,40 +172,40 @@ def Parser():
 		value = quantity | number | string
 
 		## Dictionaries.
-		dictionary_item = (identifier + Suppress(':') + value).setParseAction(Node('DictionaryItem'))
+		dictionary_item = (identifier('key') + Suppress(':') + value('value')).setParseAction(DictionaryItem)
 		dictionary = Suppress('{') + Optional(delimitedList(dictionary_item)) + Suppress('}')
-		dictionary.setParseAction(Node('Dictionary'))
+		dictionary.setParseAction(Dictionary)
 
 		# Variables.
 		type = DELAY | INT | OUTPUT | PULSE
 
-		attribute = (identifier + Suppress('.') + identifier).setParseAction(Node('Attribute'))
+		attribute = (identifier('variable') + Suppress('.') + identifier('name')).setParseAction(Attribute)
 
-		identifier_assignment = identifier + Suppress('=') + (dictionary | identifier | value)
-		attribute_assignment = attribute + Suppress('=') + (attribute | value)
-		assignment = (identifier_assignment | attribute_assignment).setParseAction(Node('Assignment'))
+		identifier_assignment = identifier('target') + Suppress('=') + (dictionary | identifier | value)('value')
+		attribute_assignment = attribute('target') + Suppress('=') + (attribute | value)('value')
+		assignment = (identifier_assignment | attribute_assignment).setParseAction(Assignment)
 
-		declaration_list = delimitedList(assignment | identifier.copy().setParseAction(Node('Variable')))
-		declaration = (type + declaration_list).setParseAction(Node('Declaration'))
+		declaration_list = delimitedList(assignment | identifier('name').setParseAction(Variable))
+		declaration = (type('type') + declaration_list('variables')).setParseAction(Declaration)
 
 		# Commands.
 		## Acquire.
-		acquire = ACQUIRE.setParseAction(Node('Acquire'))
+		acquire = ACQUIRE.setParseAction(Acquire)
 
 		## Delay.
-		delay = (quantity | identifier).setParseAction(Node('Delay'))
+		delay = (quantity | identifier)('length').setParseAction(Delay)
 
 		## Pulse.
 		pulse_sequence = (Suppress('(') + OneOrMore(identifier | delay) + Suppress(')')) | identifier
-		pulse_sequence.setParseAction(Node('PulseSequence'))
-		pulse = (pulse_sequence + Suppress(':') + identifier).setParseAction(Node('Pulse'))
-		pulses = OneOrMore(pulse).setParseAction(Node('ParallelPulses'))
+		pulse_sequence.setParseAction(PulseSequence)
+		pulse = (pulse_sequence('sequence') + Suppress(':') + identifier('target')).setParseAction(Pulse)
+		pulses = OneOrMore(pulse).setParseAction(ParallelPulses)
 
 		command = acquire | pulses | delay
 
 		# Blocks.
-		block = Forward().setParseAction(Node('Block'))
-		loop_block = (TIMES + (identifier | inum) + block).setParseAction(Node('Loop'))
+		block = Forward().setParseAction(Block)
+		loop_block = (TIMES + (identifier | inum)('times') + block('block')).setParseAction(Loop)
 
 		# Statements.
 		statement = Optional(assignment | declaration | command)

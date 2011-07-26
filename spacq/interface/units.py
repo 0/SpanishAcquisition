@@ -44,7 +44,8 @@ class SIValues(object):
 		'Y': 24,
 	}
 
-	units = set(['A', 'cd', 'g', 'Hz', 'J', 'K', 'm', 'mol', 'N', 's'])
+	# SI base and derived units.
+	units = set(['A', 'cd', 'g', 'Hz', 'J', 'K', 'm', 'mol', 'N', 's', 'V'])
 
 
 class Quantity(object):

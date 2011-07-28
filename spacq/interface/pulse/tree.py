@@ -29,16 +29,6 @@ def draw_thing(thing, depth):
 	return ' ' * depth + result
 
 
-def traverse_tree(root, env):
-	"""
-	Modify the Environment, given a pulse program AST and an Environment.
-	"""
-
-	env.pre_stage()
-	root.visit(env)
-	env.post_stage()
-
-
 class Environment(object):
 	"""
 	An AST-traversal environment.
@@ -179,6 +169,15 @@ class Environment(object):
 			raise TypeError('Re-assignment of {0}'.format(target))
 		else:
 			self.values[target] = value
+
+	def traverse_tree(self, root):
+		"""
+		Modify the Environment, given a pulse program AST.
+		"""
+
+		self.pre_stage()
+		root.visit(self)
+		self.post_stage()
 
 	def format_errors(self):
 		result = []

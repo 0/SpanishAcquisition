@@ -41,7 +41,7 @@ class ValidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		expected = {
 			'_acq_marker': 'acq_marker',
@@ -61,10 +61,10 @@ class ValidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		env.stage = env.stages.values
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		expected = {
 			('abc1',): Quantity('100 ns'),
@@ -103,10 +103,10 @@ class ValidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		env.stage = env.stages.commands
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		eq_(env.errors, [])
 		assert env.acquisition
@@ -115,13 +115,13 @@ class ValidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		env.stage = env.stages.values
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		env.stage = env.stages.commands
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		updates = {
 			('_acq_marker', 'num'): 1,
@@ -135,7 +135,7 @@ class ValidTreeTest(TestCase):
 			env.set_value(name, value)
 
 		env.stage = env.stages.waveforms
-		tree.traverse_tree(self.prog, env)
+		env.traverse_tree(self.prog)
 
 		eq_(env.errors, [])
 
@@ -172,7 +172,7 @@ class InvalidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		expected_errors = ['Re-decl'] * 2 + ['Declara']
 
@@ -210,11 +210,11 @@ class InvalidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		env.errors = []
 		env.stage = env.stages.values
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		expected_errors = (['Re-assi'] + ['Cannot a'] + ['Must assi'] * 8 + ['Undecla'] * 2 +
 				['Assig'] + ['Undecla'] + ['Unrec'])
@@ -257,11 +257,11 @@ class InvalidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		env.errors = []
 		env.stage = env.stages.commands
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		expected_errors = ['Not a d'] + ['Repeate'] + ['Repeti'] + ['Repeate'] + ['Delay mu']
 
@@ -279,18 +279,18 @@ class InvalidTreeTest(TestCase):
 		env = tree.Environment()
 
 		env.stage = env.stages.declarations
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		env.stage = env.stages.values
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		env.stage = env.stages.commands
-		tree.traverse_tree(prog, env)
+		env.traverse_tree(prog)
 
 		env.errors = []
 		env.stage = env.stages.waveforms
 
-		assert_raises(ValueError, tree.traverse_tree, prog, env)
+		assert_raises(ValueError, env.traverse_tree, prog)
 
 
 if __name__ == '__main__':

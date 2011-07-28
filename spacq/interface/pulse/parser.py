@@ -1,14 +1,24 @@
 from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, Combine,
-		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParserElement, QuotedString,
-		SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
+		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParseBaseException, ParserElement,
+		QuotedString, SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
+import re
 
 from ..units import Quantity
+from .tool.box import find_location, format_error
 from .tree import (Acquire, Assignment, Attribute, Block, Declaration, Delay, Dictionary,
 		DictionaryItem, Loop, ParallelPulses, Pulse, PulseSequence, Variable)
 
 """
 A parser for pulse programs.
 """
+
+
+class PulseSyntaxError(Exception):
+	"""
+	Could not parse pulse program.
+	"""
+
+	pass
 
 
 def Parser():
@@ -65,10 +75,14 @@ def Parser():
 		# Variables.
 		type = DELAY | INT | OUTPUT | PULSE
 
-		attribute = (identifier('variable') + Suppress('.') + identifier('name')).setParseAction(Attribute)
+		attribute = (identifier('variable') + Suppress('.') - identifier('name')).setParseAction(Attribute)
 
-		identifier_assignment = identifier('target') + Suppress('=') + (dictionary | identifier | value)('value')
-		attribute_assignment = attribute('target') + Suppress('=') + (attribute | value)('value')
+		identifier_assignment = identifier('target') + Suppress('=') - (dictionary | value)('value')
+		identifier_assignment.setName('identifier_assignment')
+
+		attribute_assignment = attribute('target') + Suppress('=') - (value)('value')
+		attribute_assignment.setName('attribute_assignment')
+
 		assignment = (identifier_assignment | attribute_assignment).setParseAction(Assignment)
 
 		declaration_list = delimitedList(assignment | identifier('name').setParseAction(Variable))
@@ -100,14 +114,25 @@ def Parser():
 
 		block << (Suppress('{') + statements + Suppress('}'))
 
-		parser = statements + StringEnd()
+		parser = (statements + StringEnd().suppress()).setParseAction(Block)
 
 		# Comments.
 		comment = Literal('#') + SkipTo(LineEnd())
 		parser.ignore(comment)
 
 		def parseString(s):
-			return parser.parseString(s).asList()
+			s = s.expandtabs()
+
+			try:
+				return parser.parseString(s)[0]
+			except ParseBaseException as e:
+				m = re.match(r'(.*) \(at char \d+\), \(line:\d+, col:\d+\)', str(e))
+				if m is None:
+					msg = str(e)
+				else:
+					msg = m.groups()[0]
+
+				raise PulseSyntaxError(format_error(msg, *find_location(s, e.loc)))
 
 		return parseString
 	finally:

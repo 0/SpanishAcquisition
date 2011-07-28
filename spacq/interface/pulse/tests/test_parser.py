@@ -1,6 +1,5 @@
 from nose.tools import eq_
 from os import path
-from pyparsing import ParseException
 from unittest import main, TestCase
 
 from ...units import Quantity
@@ -39,9 +38,6 @@ class ParserTest(TestCase):
 				Assignment({'target': 'long_pulse', 'value': Dictionary([
 					DictionaryItem({'key': 'shape', 'value': 'filename'}),
 					DictionaryItem({'key': 'length', 'value': Quantity(1, 'Ps')})])})),
-			# Assignment of identifier.
-			('d2 = d3',
-				Assignment({'target': 'd2', 'value': 'd3'})),
 			# Comments.
 			('  output f1 ,f2\t # outputs',
 				Declaration({'type': 'output', 'variables': [
@@ -89,7 +85,7 @@ class ParserTest(TestCase):
 				print line
 				raise
 
-			eq_(result[0], ast)
+			eq_(result, Block([ast]))
 
 	def testMultiple(self):
 		"""
@@ -153,7 +149,7 @@ class ParserTest(TestCase):
 		pp = parser.Parser()
 		result = pp(prog)
 
-		eq_(result, expected)
+		eq_(result, Block(expected))
 
 	def testLoop(self):
 		"""
@@ -192,7 +188,7 @@ class ParserTest(TestCase):
 		pp = parser.Parser()
 		result = pp(prog)
 
-		eq_(result, expected)
+		eq_(result, Block(expected))
 
 	def testOneLine(self):
 		"""
@@ -219,7 +215,7 @@ class ParserTest(TestCase):
 		pp = parser.Parser()
 		result = pp(prog)
 
-		eq_(result, expected)
+		eq_(result, Block(expected))
 
 	def testFromFile(self):
 		"""
@@ -277,16 +273,17 @@ class ParserTest(TestCase):
 		with open(path.join(resource_dir, '01.pulse')) as f:
 			result = pp('\n'.join(f.readlines()))
 
-		eq_(result, expected)
+		eq_(result, Block(expected))
 
 	def testInvalid(self):
 		"""
-		Try the error detection and reporting.
+		Try the error detection.
 		"""
 
 		prog = [
 			'int a b', 'int a = b = c', '5:f1', 'times {d1;d2}', 'd1;{d2}d3',
-			'a.b = c', 'd = e.f', 'g.h', 'd1 (d2 d3):f1', 'refresh = d1:f5'
+			'a = b', 'c.d = e.f', 'g.h', 'd1 (d2 d3):f1', 'refresh = d1:f5',
+			'times 5 V {}',
 		]
 
 		pp = parser.Parser()
@@ -294,7 +291,7 @@ class ParserTest(TestCase):
 		for line in prog:
 			try:
 				pp(line)
-			except ParseException:
+			except parser.PulseSyntaxError:
 				pass
 			else:
 				assert False, 'Expected ParseException'

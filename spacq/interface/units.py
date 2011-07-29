@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 from math import log10
 from numpy import allclose, array
 import quantities as pq
@@ -134,6 +137,8 @@ class Quantity(object):
 
 		# Even if passed a lone integer, work with an array of floats.
 		value = array(value, dtype=float)
+
+		log.debug('Creating Quantity: {0}, {1}'.format(value, units))
 
 		# Remove unit prefixes.
 		new_units, multiplier = self.parse_units(units)

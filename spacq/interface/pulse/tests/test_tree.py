@@ -21,7 +21,7 @@ class ValidTreeTest(TestCase):
 
 		ghi1.shape = '{0}'
 		ghi1.length = 8 ns
-		ghi1.amplitude = 1 mV
+		ghi1.amplitude = -1.0 mV
 
 		abc1
 		(10 ns):pqr2
@@ -68,7 +68,7 @@ class ValidTreeTest(TestCase):
 
 		expected = {
 			('abc1',): Quantity('100 ns'),
-			('ghi1', 'amplitude'): Quantity(1, 'mV'),
+			('ghi1', 'amplitude'): Quantity(-1, 'mV'),
 			('ghi1', 'length'): Quantity(8, 'ns'),
 			('ghi1', 'shape'): path.join(resource_dir, 'non-square'),
 			('jkl2', 'shape'): 'square',

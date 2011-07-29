@@ -14,7 +14,7 @@ output f1, f2
 first_square = {shape: 'square', length: 1 ms}
 
 wobble.length = 50 us
-wobble.amplitude = 1 mV
+wobble.amplitude = -1.0 mV
 
 ## The commands themselves:
 10 us

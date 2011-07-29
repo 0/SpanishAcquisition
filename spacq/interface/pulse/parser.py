@@ -42,7 +42,8 @@ def Parser():
 
 		## Numbers.
 		### Integer.
-		inum = Word('+-' + nums, nums).setParseAction(lambda x: int(x[0]))
+		unparsed_inum = Word('+-' + nums, nums)
+		inum = unparsed_inum.copy().setParseAction(lambda x: int(x[0]))
 
 		### Floating point.
 		dot = Literal('.')
@@ -51,7 +52,7 @@ def Parser():
 		fractional_part = dot + Word(nums, nums)
 		exponent_part = e + inum
 
-		fnum = Combine(inum + (fractional_part + Optional(exponent_part) | exponent_part))
+		fnum = Combine(unparsed_inum + (fractional_part + Optional(exponent_part) | exponent_part))
 		fnum.setParseAction(lambda x: float(x[0]))
 
 		number = fnum | inum

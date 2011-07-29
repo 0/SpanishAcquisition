@@ -102,7 +102,7 @@ class ParserTest(TestCase):
 		# Configure:
 		first_square = {shape: 'square', length: 1 ms}
 		wobble.length = 50 us
-		wobble.amplitude = 1 mV
+		wobble.amplitude = -0.5 mV
 
 		# Execute:
 		10 us
@@ -133,7 +133,7 @@ class ParserTest(TestCase):
 				'value': Quantity(50, 'us')}),
 			Assignment({
 				'target': Attribute({'variable': 'wobble', 'name': 'amplitude'}),
-				'value': Quantity(1, 'mV')}),
+				'value': Quantity(-0.5, 'mV')}),
 			Delay({'length': Quantity(10, 'us')}),
 			ParallelPulses([
 				Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),
@@ -249,7 +249,7 @@ class ParserTest(TestCase):
 				'value': Quantity(50, 'us')}),
 			Assignment({
 				'target': Attribute({'variable': 'wobble', 'name': 'amplitude'}),
-				'value': Quantity(1, 'mV')}),
+				'value': Quantity(-1, 'mV')}),
 			Delay({'length': Quantity(10, 'us')}),
 			ParallelPulses([
 				Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),

@@ -1,6 +1,6 @@
 from os.path import dirname
 
-from .parser import Parser
+from .parser import Parser, PulseSyntaxError
 from .tree import Environment
 
 """
@@ -51,7 +51,7 @@ class Program(object):
 			env.traverse_tree(ast)
 
 			if env.errors:
-				raise ValueError(env.errors)
+				raise PulseSyntaxError(env.format_errors())
 
 	def generate_waveforms(self, frequency):
 		"""

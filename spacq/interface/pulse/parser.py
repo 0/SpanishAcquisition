@@ -144,7 +144,7 @@ def Parser():
 				else:
 					msg = m.groups()[0]
 
-				raise PulseSyntaxError(format_error(msg, *find_location(s, e.loc)))
+				raise PulseSyntaxError([format_error(msg, *find_location(s, e.loc))])
 
 		return parseString
 	finally:

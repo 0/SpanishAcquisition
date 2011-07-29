@@ -1,6 +1,6 @@
 from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, Combine,
-		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParseBaseException, ParserElement,
-		QuotedString, SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
+		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParseBaseException, ParseException,
+		ParserElement, QuotedString, SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
 import re
 
 from ..units import Quantity
@@ -19,6 +19,17 @@ class PulseSyntaxError(Exception):
 	"""
 
 	pass
+
+
+def read_quantity(s, loc, toks):
+	"""
+	Attempt to create a Quantity object.
+	"""
+
+	try:
+		return Quantity(toks[0], toks[1])
+	except ValueError as e:
+		raise ParseException(s, loc, e)
 
 
 def Parser():
@@ -61,7 +72,7 @@ def Parser():
 		# Unit symbol cannot start with "e".
 		unit_symbol = Combine(Word(alphas.replace('E', '').replace('e', ''), alphas) + Optional(Word(nums)))
 		unit_symbols = delimitedList(unit_symbol, delim='.', combine=True)
-		quantity = (number + unit_symbols).setParseAction(lambda x: Quantity(x[0], x[1]))
+		quantity = (number + unit_symbols).setParseAction(read_quantity)
 
 		## Strings.
 		string = QuotedString(r'"', escChar=r'\\') | QuotedString(r"'", escChar=r'\\')

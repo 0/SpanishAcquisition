@@ -283,7 +283,7 @@ class ParserTest(TestCase):
 		prog = [
 			'int a b', 'int a = b = c', '5:f1', 'times {d1;d2}', 'd1;{d2}d3',
 			'a = b', 'c.d = e.f', 'g.h', 'd1 (d2 d3):f1', 'refresh = d1:f5',
-			'times 5 V {}',
+			'times 5 V {}', '100 units',
 		]
 
 		pp = parser.Parser()

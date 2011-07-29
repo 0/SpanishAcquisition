@@ -33,7 +33,7 @@ class Program(object):
 		with open(path) as f:
 			prog_lines = f.readlines()
 
-		p = cls.from_string('\n'.join(prog_lines))
+		p = cls.from_string(''.join(prog_lines))
 		p.env.cwd = dirname(path)
 
 		return p

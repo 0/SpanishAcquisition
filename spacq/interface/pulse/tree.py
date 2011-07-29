@@ -124,13 +124,6 @@ class Environment(object):
 						self.all_values.add((name, attr))
 				elif type != 'output':
 					self.all_values.add((name,))
-		elif self.stage == self.stages.values:
-			existing_values = set(k for k, v in self.values.items())
-			extra_values = existing_values - self.all_values
-
-			for value in extra_values:
-				if len(value) > 1:
-					self.add_error('Unrecognized attribute "{0}"'.format('.'.join(value)))
 
 	def set_value(self, target, value):
 		"""
@@ -324,7 +317,13 @@ class Attribute(ASTNode):
 		return 'Attribute\n' + draw_thing(self.variable, depth + 1) + draw_thing(self.name, depth + 1)
 
 	def visit(self, env):
-		return (self.variable, self.name)
+		result = (self.variable, self.name)
+
+		if env.stage == env.stages.values:
+			if result not in env.all_values:
+				env.add_error('Unrecognized attribute "{0}"'.format('.'.join(result)), self.location)
+
+		return result
 
 
 class Block(ASTNode):
@@ -450,7 +449,7 @@ class Loop(ASTNode):
 					if env.variables[self.times] != 'int':
 						env.add_error('Repetition count must be int', self.location)
 				except KeyError:
-					env.add_error('Undeclared variable "{0}"'.format(self.times))
+					env.add_error('Undeclared variable "{0}"'.format(self.times), self.location)
 
 		if env.stage == env.stages.waveforms:
 			if isinstance(self.times, basestring):

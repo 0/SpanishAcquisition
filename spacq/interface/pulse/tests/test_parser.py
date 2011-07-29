@@ -271,7 +271,7 @@ class ParserTest(TestCase):
 		pp = parser.Parser()
 
 		with open(path.join(resource_dir, '01.pulse')) as f:
-			result = pp('\n'.join(f.readlines()))
+			result = pp(''.join(f.readlines()))
 
 		eq_(result, Block(expected))
 

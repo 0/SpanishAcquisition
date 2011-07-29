@@ -40,7 +40,7 @@ class ProgramTest(TestCase):
 
 		p.generate_waveforms(1e9)
 		eq_('\n'.join(p.env.format_errors()), """\
-error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 on line 41:
+error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 on line 21:
   first_square:f1 wobble:f2
                   ^\
 """)

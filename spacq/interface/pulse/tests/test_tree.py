@@ -218,8 +218,8 @@ class InvalidTreeTest(TestCase):
 		env.stage = env.stages.values
 		env.traverse_tree(prog)
 
-		expected_errors = (['Re-assi'] + ['Cannot a'] + ['Must assi'] * 8 + ['Undecla'] * 2 +
-				['Assig'] + ['Undecla'] + ['Unrec'])
+		expected_errors = (['Re-assi', 'Cannot a'] + ['Must assi'] * 8 + ['Undecla', 'Unrec'] * 2 +
+				['Assig'] + ['Undecl'])
 
 		eq_(len(env.errors), len(expected_errors))
 
@@ -265,7 +265,7 @@ class InvalidTreeTest(TestCase):
 		env.stage = env.stages.commands
 		env.traverse_tree(prog)
 
-		expected_errors = ['Not a d'] + ['Repeate'] + ['Repeti'] + ['Repeate'] + ['Delay mu']
+		expected_errors = ['Not a d', 'Repeate', 'Repeti', 'Repeate', 'Delay mu']
 
 		eq_(len(env.errors), len(expected_errors))
 

@@ -13,7 +13,7 @@ resource_dir = path.join(path.dirname(__file__), 'resources')
 
 class ProgramTest(TestCase):
 	missing = [
-		(('_acq_marker', 'num'), 1),
+		(('_acq_marker', 'marker_num'), 1),
 		(('_acq_marker', 'output'), 'f1'),
 		(('first_square', 'amplitude'), Quantity(0.5, 'V')),
 		(('last_square', 'amplitude'), Quantity(-0.5, 'V')),

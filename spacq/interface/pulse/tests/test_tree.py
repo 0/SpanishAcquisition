@@ -75,7 +75,7 @@ class ValidTreeTest(TestCase):
 			('repeat',): 2,
 		}
 
-		missing = set([('_acq_marker', 'num'), ('_acq_marker', 'output'), ('def2',),
+		missing = set([('_acq_marker', 'marker_num'), ('_acq_marker', 'output'), ('def2',),
 				('jkl2', 'amplitude'), ('jkl2', 'length')])
 
 		eq_(env.errors, [])
@@ -84,7 +84,7 @@ class ValidTreeTest(TestCase):
 
 		# Later additions (perhaps from the UI).
 		updates = {
-			('_acq_marker', 'num'): 1,
+			('_acq_marker', 'marker_num'): 1,
 			('_acq_marker', 'output'): 'mno1',
 			('def2',): Quantity('7 ns'),
 			('jkl2', 'amplitude'): Quantity(1, 'V'),
@@ -124,7 +124,7 @@ class ValidTreeTest(TestCase):
 		env.traverse_tree(self.prog)
 
 		updates = {
-			('_acq_marker', 'num'): 5,
+			('_acq_marker', 'marker_num'): 5,
 			('_acq_marker', 'output'): 'pqr2',
 			('def2',): Quantity(7, 'ns'),
 			('jkl2', 'amplitude'): Quantity(1, 'V'),

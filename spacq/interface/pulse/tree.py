@@ -120,7 +120,7 @@ class Environment(object):
 					for attr in ['amplitude', 'length', 'shape']:
 						self.all_values.add((name, attr))
 				elif type == 'acq_marker':
-					for attr in ['output', 'num']:
+					for attr in ['marker_num', 'output']:
 						self.all_values.add((name, attr))
 				elif type != 'output':
 					self.all_values.add((name,))
@@ -136,7 +136,7 @@ class Environment(object):
 			if len(target) == 1:
 				raise TypeError('Must assign dictionary to acq_marker')
 			else:
-				if target[1] == 'num':
+				if target[1] == 'marker_num':
 					if not isinstance(value, int):
 						raise TypeError('Must assign int to acq_marker num')
 				elif target[1] == 'output':
@@ -254,8 +254,8 @@ class Acquire(ASTNode):
 			else:
 				env.acquisition = True
 		elif env.stage == env.stages.waveforms:
+			acq_marker = env.values[('_acq_marker', 'marker_num')]
 			acq_output = env.values[('_acq_marker', 'output')]
-			acq_marker = env.values[('_acq_marker', 'num')]
 
 			env.waveforms[acq_output].marker(acq_marker, 'high')
 

@@ -1,3 +1,5 @@
+from os.path import dirname
+
 from .parser import Parser
 from .tree import Environment
 
@@ -31,7 +33,10 @@ class Program(object):
 		with open(path) as f:
 			prog_lines = f.readlines()
 
-		return cls.from_string('\n'.join(prog_lines))
+		p = cls.from_string('\n'.join(prog_lines))
+		p.env.cwd = dirname(path)
+
+		return p
 
 	def __init__(self, env, ast):
 		"""

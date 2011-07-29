@@ -226,9 +226,9 @@ class ParserTest(TestCase):
 			Declaration({'type': 'int', 'variables': [
 				Assignment({'target': 'bumps', 'value': 2})]}),
 			Declaration({'type': 'delay', 'variables': [
-				Assignment({'target': 'bump_spacing', 'value': Quantity(100, 'ns')}),
+				Assignment({'target': 'bump_spacing', 'value': Quantity(10, 'ns')}),
 				Variable({'name': 'settle'}),
-				Assignment({'target': 'end_delay', 'value': Quantity(10, 'ns')})]}),
+				Assignment({'target': 'end_delay', 'value': Quantity(15, 'ns')})]}),
 			Declaration({'type': 'pulse', 'variables': [
 				Variable({'name': 'first_square'}),
 				Variable({'name': 'wobble'})]}),
@@ -237,20 +237,20 @@ class ParserTest(TestCase):
 					DictionaryItem({'key': 'shape', 'value': 'square'})])})]}),
 			Declaration({'type': 'pulse', 'variables': [
 				Assignment({'target': 'manipulator', 'value': Dictionary([
-					DictionaryItem({'key': 'shape', 'value': '/path/to/filename'})])})]}),
+					DictionaryItem({'key': 'shape', 'value': 'non-square'})])})]}),
 			Declaration({'type': 'output', 'variables': [
 				Variable({'name': 'f1'}),
 				Variable({'name': 'f2'})]}),
 			Assignment({'target': 'first_square', 'value': Dictionary([
 				DictionaryItem({'key': 'shape', 'value': 'square'}),
-				DictionaryItem({'key': 'length', 'value': Quantity(1, 'ms')})])}),
+				DictionaryItem({'key': 'length', 'value': Quantity(1, 'ns')})])}),
 			Assignment({
 				'target': Attribute({'variable': 'wobble', 'name': 'length'}),
-				'value': Quantity(50, 'us')}),
+				'value': Quantity(8, 'ns')}),
 			Assignment({
 				'target': Attribute({'variable': 'wobble', 'name': 'amplitude'}),
 				'value': Quantity(-1, 'mV')}),
-			Delay({'length': Quantity(10, 'us')}),
+			Delay({'length': Quantity(10, 'ns')}),
 			ParallelPulses([
 				Pulse({'sequence': PulseSequence(['first_square']), 'target': 'f1'}),
 				Pulse({'sequence': PulseSequence(['wobble']), 'target': 'f2'})]),

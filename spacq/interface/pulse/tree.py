@@ -1,6 +1,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+from os import path
+
 from spacq.tool.box import Enum
 
 from ..units import IncompatibleDimensions
@@ -66,6 +68,12 @@ class Environment(object):
 		# Waveforms generators for the output channels.
 		# Keys are output names.
 		self.waveforms = {}
+
+		# Where to look for shapes.
+		self.cwd = None
+
+		# Shapes that could not be found.
+		self.missing_shapes = set()
 
 		# TODO: Make this a per-output value.
 		self.frequency = None
@@ -536,16 +544,29 @@ class PulseSequence(ASTNode):
 						length = env.values[(item, 'length')]
 						shape = env.values[(item, 'shape')]
 
-						if shape == 'square':
-							target.square(amplitude, length)
-						else:
-							try:
-								with open(shape) as f:
-									data = load_values(f)
-							except IOError:
-								env.add_error('File "{0}" (due to "{1}") not found'.format(shape, item), self.location)
+						if shape not in env.missing_shapes:
+							if shape == 'square':
+								target.square(amplitude, length)
 							else:
-								target.pulse(data, amplitude, length)
+								# Figure out all the locations where the file can be.
+								paths = [shape]
+								if env.cwd is not None:
+									paths.append(path.join(env.cwd, shape))
+
+								data = None
+								for p in paths:
+									try:
+										with open(p) as f:
+											data = load_values(f)
+									except IOError:
+										continue
+
+								if data is None:
+									env.add_error('File "{0}" (due to "{1}") not found'.format(shape, item),
+											self.location)
+									env.missing_shapes.add(shape)
+								else:
+									target.pulse(data, amplitude, length)
 				else:
 					target._set(0.0)
 					target.delay(item.length)

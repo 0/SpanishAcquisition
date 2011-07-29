@@ -41,6 +41,8 @@ class Environment(object):
 	#  waveforms: generate waveforms
 	stages = Enum(['declarations', 'values', 'commands', 'waveforms'])
 
+	prep_stages = [stages.declarations, stages.values, stages.commands]
+
 	def __init__(self):
 		self.stage = None
 		self.stack = []

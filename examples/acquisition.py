@@ -61,30 +61,28 @@ class AcquisitionApp(wx.App):
 		# Menu.
 		menuBar = wx.MenuBar()
 
-		## Devices.
+		## Configuration.
 		menu = wx.Menu()
+		menuBar.Append(menu, '&Configuration')
 
-		item = menu.Append(wx.ID_ANY, '&Configuration...')
-		self.Bind(wx.EVT_MENU, self.OnMenuDeviceConfiguration, item)
+		### Devices.
+		item = menu.Append(wx.ID_ANY, '&Devices...')
+		self.Bind(wx.EVT_MENU, self.OnMenuConfigurationDevices, item)
 
-		menuBar.Append(menu, '&Devices')
+		### Measurements.
+		submenu = wx.Menu()
+		menu.AppendMenu(wx.ID_ANY, '&Measurements', submenu)
 
-		## Measurements.
-		menu = wx.Menu()
-
-		item = menu.Append(wx.ID_ANY, 'Add &scalar')
-		self.Bind(wx.EVT_MENU, self.OnMenuMeasurementsAddScalar, item)
-
-		menuBar.Append(menu, '&Measurements')
+		item = submenu.Append(wx.ID_ANY, 'Add &scalar...')
+		self.Bind(wx.EVT_MENU, self.OnMenuConfigurationMeasurementsAddScalar, item)
 
 		## Help.
 		menu = wx.Menu()
+		menuBar.Append(menu, '&Help')
 
 		### About.
 		item = menu.Append(wx.ID_ABOUT, '&About...')
 		self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, item)
-
-		menuBar.Append(menu, '&Help')
 
 		self.acq_frame.SetMenuBar(menuBar)
 
@@ -96,7 +94,7 @@ class AcquisitionApp(wx.App):
 
 		return True
 
-	def OnMenuDeviceConfiguration(self, evt=None):
+	def OnMenuConfigurationDevices(self, evt=None):
 		def close_callback():
 			self.device_config_frame = None
 
@@ -107,7 +105,7 @@ class AcquisitionApp(wx.App):
 
 		self.device_config_frame.Raise()
 
-	def OnMenuMeasurementsAddScalar(self, evt=None):
+	def OnMenuConfigurationMeasurementsAddScalar(self, evt=None):
 		measurement_frame = MeasurementConfigFrame(self.acq_frame, self.global_store)
 		measurement_frame.Show()
 

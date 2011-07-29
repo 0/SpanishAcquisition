@@ -19,6 +19,7 @@ class DataExplorerApp(wx.App):
 
 		## File.
 		menu = wx.Menu()
+		menuBar.Append(menu, '&File')
 
 		item = menu.Append(wx.ID_OPEN, '&Open...')
 		self.Bind(wx.EVT_MENU, self.OnMenuFileOpen, item)
@@ -31,11 +32,8 @@ class DataExplorerApp(wx.App):
 		item = menu.Append(wx.ID_EXIT, 'E&xit')
 		self.Bind(wx.EVT_MENU, self.OnMenuFileExit, item)
 
-		menuBar.Append(menu, '&File')
-
 		## Plot.
 		menu = wx.Menu()
-
 		menuBar.Append(menu, '&Plot')
 
 		menu.Append(wx.ID_ANY, ' 2D:').Enable(False)
@@ -58,12 +56,11 @@ class DataExplorerApp(wx.App):
 
 		## Help.
 		menu = wx.Menu()
+		menuBar.Append(menu, '&Help')
 
 		### About.
 		item = menu.Append(wx.ID_ABOUT, '&About...')
 		self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, item)
-
-		menuBar.Append(menu, '&Help')
 
 		self.csv_frame.SetMenuBar(menuBar)
 

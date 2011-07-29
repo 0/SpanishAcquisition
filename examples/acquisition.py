@@ -7,6 +7,7 @@ from spacq.gui.action.data_capture import DataCapturePanel
 from spacq.gui.action.smooth_reset import SmoothResetPanel
 from spacq.gui.config.devices import DeviceConfigFrame
 from spacq.gui.config.measurement import MeasurementConfigFrame
+from spacq.gui.config.pulse import PulseProgramFrame
 from spacq.gui.config.variables import VariablesPanel
 from spacq.gui.global_store import GlobalStore
 from spacq.gui.tool.box import MessageDialog
@@ -57,6 +58,7 @@ class AcquisitionApp(wx.App):
 		# Frames.
 		self.acq_frame = SweepingAcquisitionFrame(None, self.global_store, title='Acquisition')
 		self.device_config_frame = None
+		self.pulse_program_frame = None
 
 		# Menu.
 		menuBar = wx.MenuBar()
@@ -75,6 +77,10 @@ class AcquisitionApp(wx.App):
 
 		item = submenu.Append(wx.ID_ANY, 'Add &scalar...')
 		self.Bind(wx.EVT_MENU, self.OnMenuConfigurationMeasurementsAddScalar, item)
+
+		### Pulse program.
+		item = menu.Append(wx.ID_ANY, '&Pulse program...')
+		self.Bind(wx.EVT_MENU, self.OnMenuConfigurationPulseProgram, item)
 
 		## Help.
 		menu = wx.Menu()
@@ -108,6 +114,17 @@ class AcquisitionApp(wx.App):
 	def OnMenuConfigurationMeasurementsAddScalar(self, evt=None):
 		measurement_frame = MeasurementConfigFrame(self.acq_frame, self.global_store)
 		measurement_frame.Show()
+
+	def OnMenuConfigurationPulseProgram(self, evt=None):
+		def close_callback():
+			self.pulse_program_frame = None
+
+		if self.pulse_program_frame is None:
+			self.pulse_program_frame = PulseProgramFrame(self.acq_frame, close_callback)
+			self.pulse_program_frame.Fit()
+			self.pulse_program_frame.Show()
+
+		self.pulse_program_frame.Raise()
 
 	def OnMenuHelpAbout(self, evt=None):
 		info = wx.AboutDialogInfo()

@@ -48,10 +48,11 @@ class Program(object):
 			if env.errors:
 				raise ValueError(env.errors)
 
-	def generate_waveforms(self):
+	def generate_waveforms(self, frequency):
 		"""
 		Generate the waveforms, given that the values are all filled in.
 		"""
 
 		self.env.stage = self.env.stages.waveforms
+		self.env.frequency = frequency
 		self.env.traverse_tree(self.ast)

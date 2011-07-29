@@ -67,6 +67,9 @@ class Environment(object):
 		# Keys are output names.
 		self.waveforms = {}
 
+		# TODO: Make this a per-output value.
+		self.frequency = None
+
 	@property
 	def missing_values(self):
 		existing_values = set(self.values.keys())
@@ -90,8 +93,7 @@ class Environment(object):
 
 			# Set up output waveform generators.
 			for output in self.waveforms:
-				# TODO: Change frequency.
-				self.waveforms[output] = Generator(frequency=1e9)
+				self.waveforms[output] = Generator(frequency=self.frequency)
 
 	def post_stage(self):
 		"""

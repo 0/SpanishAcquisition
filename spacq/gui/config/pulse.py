@@ -269,7 +269,9 @@ class OutputPanel(ParameterPanel):
 				return
 
 			waveform = self.prog.env.waveforms[parameter[0]]
-			markers = []
+			markers = {}
+			for num in waveform.markers:
+				markers[num] = waveform.get_marker(num)
 
 			wx.CallAfter(show_frame, waveform.wave, markers, Quantity(1e9, 'Hz'))
 

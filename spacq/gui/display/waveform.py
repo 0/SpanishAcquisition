@@ -1,3 +1,5 @@
+from chaco.api import VPlotContainer
+from enable.api import Window
 from numpy import linspace
 import wx
 
@@ -5,14 +7,35 @@ from .plot.two_dimensional import TwoDimensionalPlot
 
 
 class WaveformDisplay(TwoDimensionalPlot):
+	marker_height = 50
+
 	def __init__(self, parent, *args, **kwargs):
 		TwoDimensionalPlot.__init__(self, parent, *args, **kwargs)
 
 		self.padding_left = 50
 
+		self.title = 'Waveform'
+
+		self.vplot_container = VPlotContainer(use_backbuffer=True)
+		self.vplot_container.stack_order = 'top_to_bottom'
+		self.vplot_container.add(self)
+
 	@property
 	def control(self):
-		return TwoDimensionalPlot.control.__get__(self)
+		return Window(self.parent, component=self.vplot_container).control
+
+	def add_marker(self, num, data):
+		marker_plot = TwoDimensionalPlot(self, height=self.marker_height, resizable='h')
+		marker_plot.padding_left = self.padding_left
+
+		marker_plot.x_data = self.x_data
+		marker_plot.y_data = data
+		marker_plot.title = 'Marker {0}'.format(num)
+
+		# Synchronize with waveform plot.
+		marker_plot.index_range = self.index_range
+
+		self.vplot_container.add(marker_plot)
 
 
 class WaveformPanel(wx.Panel):
@@ -31,6 +54,9 @@ class WaveformPanel(wx.Panel):
 	def SetValue(self, waveform, marker_data, frequency):
 		self.waveform_plot.x_data = linspace(0, len(waveform) / frequency.value, len(waveform))
 		self.waveform_plot.y_data = waveform
+
+		for num, data in marker_data.items():
+			self.waveform_plot.add_marker(num, data)
 
 		self.waveform_plot.x_autoscale()
 		self.waveform_plot.y_autoscale()

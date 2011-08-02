@@ -27,3 +27,5 @@ To select a variable, click on its row. To select multiple variables, hold down 
 .. rubric:: Footnotes
 
 .. [#inner_loop_order] The user interface is organized so that **gate 2** and **gate 3** are still displayed alongside the other variables with order number 1. However, **gate 2** is set to const, and so will be in a separate virtual order, and **gate 3** is disabled, so will not participate at all.
+
+.. TODO: Value configuration dialog.

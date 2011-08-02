@@ -6,3 +6,4 @@ Developer's Guide
    :maxdepth: 2
 
    devices/index
+   gui/index

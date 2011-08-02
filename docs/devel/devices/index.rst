@@ -37,14 +37,14 @@ Each manufacturer has its own directory in ``spacq/devices/`` (eg. ``agilent`` f
 
 .. rubric:: Footnotes
 
-.. [#four_files] Most devices will have four files, but, for example, the custom voltage source (``custom/voltage_source.py``) includes a non-server test file as a fifth file.
+.. [#four_files] Most devices will have four files, but, for example, the IQC voltage source (``iqc/voltage_source.py``) includes a non-server test file (``iqc/tests/test_voltage_source.py``) as a fifth file, and a :ref:`graphical configuration panel <devices_graphical_configuration>` (``iqc/gui/voltage_source.py``) as a sixth file.
 
 Adding a manufacturer
 =====================
 
 To add a manufacturer:
 
-#. Copy the sample manufacturer directory (``spacq/devices/sample/``) to a new directory in ``spacq/devices/`` corresponding to the manufacturer. The name of this directory will be the *package name*; it should include only lowercase letters, but may also include digits and underscores starting with the second character.
+#. Copy the sample manufacturer directory (``spacq/devices/sample/``) to a new directory in ``spacq/devices/`` corresponding to the manufacturer. The name of this directory will be the *package name*; it should include only lowercase letters, but starting with the second character may also include digits and underscores.
 #. In the ``spacq/devices/<manufacturer>/__init__.py`` file, replace the name with the name of the manufacturer as you would like it to appear in the user interface.
 #. Add the new package name to both lines of ``spacq/devices/__init__.py``.
 
@@ -79,3 +79,29 @@ The sample manufacturer comes with a sample device in the form of files ending i
 .. rubric:: Footnotes
 
 .. [#server_tests] They are referred to as "server" tests because they have an external dependency (the hardware device) which acts roughly as a server to which the tests connect.
+
+.. _devices_graphical_configuration:
+
+Graphical configuration
+***********************
+
+In the case that a device requires a graphical configuration panel, one can be added in the form of a non-modal wxPython dialog (inherited from :class:`~spacq.gui.tool.box.Dialog`). The dialog should reside in ``spacq/devices/<manufacturer>/gui/<model>.py``, and its constructor must take the following arguments, in order:
+
+#. The parent window.
+#. The global store.
+#. The device name as used in the global store.
+
+The latter two values allow the dialog to find a reference to the device object itself.
+
+In order to announce that a GUI configuration panel is available, the device class (child of :class:`~spacq.devices.abstract_device.AbstractDevice`) must have a ``_gui_setup`` property which follows the following template::
+
+   @property
+   def _gui_setup(self):
+       try:
+           from .gui.model import ModelSettingsDialog
+
+           return ModelSettingsDialog
+       except ImportError as e:
+           log.debug('Could not load GUI setup for device "{0}": {1}'.format(self.name, str(e)))
+
+           return None

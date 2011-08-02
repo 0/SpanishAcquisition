@@ -18,21 +18,26 @@ Device drivers
 
 * `Linux GPIB <http://linux-gpib.sourceforge.net/>`_ (with Python bindings) for GPIB device support.
 
-Python modules
-==============
+Python packages
+===============
 
 * `Chaco <http://code.enthought.com/chaco/>`_
 * `Enable <http://code.enthought.com/projects/enable/>`_
 * `matplotlib <http://matplotlib.sourceforge.net/>`_
 * `numpy <http://numpy.scipy.org/>`_
 * `ObjectListView <http://objectlistview.sourceforge.net/python/>`_
-* `PyPubSub <http://pubsub.sourceforge.net/>`_ >= 3.1
+* `PyPubSub <http://pubsub.sourceforge.net/>`_ ``>= 3.1``
 * `quantities <http://packages.python.org/quantities/>`_
 * `scipy <http://www.scipy.org/>`_
 * `wxPython <http://www.wxpython.org/>`_
 
-Python testing modules
-======================
+Documentation
+-------------
+
+* `Sphinx <http://sphinx.pocoo.org/>`_ ``>= 1.0``
+
+Testing
+-------
 
 * `nose <http://somethingaboutorange.com/mrl/projects/nose/>`_
 * `nose-testconfig <http://pypi.python.org/pypi/nose-testconfig/>`_

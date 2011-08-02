@@ -1,6 +1,6 @@
 from os import path
 from nose.tools import assert_raises, eq_
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 from unittest import main, TestCase
 
 from ...units import Quantity
@@ -62,7 +62,7 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 
 		f1 = p.env.waveforms['f1']
 		loop = [0.0] * 10 + [0.5] + [0.0] * 7 + [0.5] + [0.0] * 7
-		eq_(f1.wave, [0.0] * 10 + [0.5] * 1 + [0.0] * 7 + loop * 2 + [0.0] * 20 + [-0.5] * 5 + [0.0] * 49)
+		assert_array_equal(f1.wave, [0.0] * 10 + [0.5] * 1 + [0.0] * 7 + loop * 2 + [0.0] * 20 + [-0.5] * 5 + [0.0] * 49)
 		eq_(f1.get_marker(1), [False] * 90 + [True] * 54)
 
 		f2 = p.env.waveforms['f2']

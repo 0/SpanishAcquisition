@@ -58,6 +58,6 @@ class Program(object):
 		Generate the waveforms, given that the values are all filled in.
 		"""
 
-		self.env.stage = self.env.stages.waveforms
 		self.env.frequency = frequency
+		self.env.stage = self.env.stages.waveforms
 		self.env.traverse_tree(self.ast)

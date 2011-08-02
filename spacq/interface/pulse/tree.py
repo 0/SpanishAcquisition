@@ -1,6 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from numpy import append
 from os import path
 
 from spacq.tool.box import Enum
@@ -43,6 +44,8 @@ class Environment(object):
 	#  waveforms: generate waveforms
 	stages = Enum(['declarations', 'values', 'commands', 'waveforms'])
 
+	# The stages that must happen (in this order) before waveform generation.
+	# These only require the data which is contained in the pulse program itself.
 	prep_stages = [stages.declarations, stages.values, stages.commands]
 
 	def __init__(self):
@@ -75,12 +78,12 @@ class Environment(object):
 		# Shapes that could not be found.
 		self.missing_shapes = set()
 
-		# TODO: Make this a per-output value.
 		self.frequency = None
 
 	@property
 	def missing_values(self):
 		existing_values = set(self.values.keys())
+
 		return self.all_values - existing_values
 
 	def add_error(self, msg, loc=None):
@@ -98,6 +101,9 @@ class Environment(object):
 		if self.stage == self.stages.waveforms:
 			if self.missing_values:
 				raise ValueError('Cannot generate waveforms while values are missing')
+
+			if self.frequency is None:
+				raise ValueError('No frequency specified')
 
 			# Set up output waveform generators.
 			for output in self.waveforms:
@@ -484,7 +490,7 @@ class ParallelPulses(ASTNode):
 
 			for waveform in env.waveforms.values():
 				if len(waveform.wave) < max_length:
-					waveform.wave.extend([0.0] * (max_length - len(waveform.wave)))
+					waveform.wave = append(waveform.wave, [0.0] * (max_length - len(waveform.wave)))
 
 
 class Pulse(ASTNode):

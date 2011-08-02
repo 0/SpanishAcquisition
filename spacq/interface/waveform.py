@@ -1,4 +1,4 @@
-from numpy import interp, linspace
+from numpy import append, array, interp, linspace
 
 """
 A waveform generator.
@@ -15,7 +15,7 @@ class Generator(object):
 		self.frequency = frequency
 
 		# The resulting wave, with each data point on the interval [-1.0, 1.0].
-		self.wave = []
+		self.wave = array([])
 
 		# The resulting marker channels, with each channel being a sparse list represented as a dictionary.
 		self.markers = {}
@@ -46,7 +46,7 @@ class Generator(object):
 		Set the next point to have the given amplitude.
 		"""
 
-		self.wave.append(value)
+		self.wave = append(self.wave, value)
 
 	def _parse_time(self, value):
 		"""
@@ -96,7 +96,7 @@ class Generator(object):
 		except IndexError:
 			last_value = 0.0
 
-		self.wave.extend([last_value] * delay_length)
+		self.wave = append(self.wave, [last_value] * delay_length)
 
 	def square(self, amplitude, length):
 		"""
@@ -118,7 +118,7 @@ class Generator(object):
 		"""
 
 		data = self._scale_waveform(values, amplitude, duration)
-		self.wave.extend(data)
+		self.wave = append(self.wave, data)
 
 	def marker(self, num, value):
 		"""

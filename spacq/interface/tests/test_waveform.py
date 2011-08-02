@@ -15,7 +15,7 @@ class GeneratorTest(TestCase):
 
 		wg = waveform.Generator(frequency=1)
 
-		eq_(wg.wave, [])
+		eq_(list(wg.wave), [])
 
 	def testWaveform(self):
 		"""

@@ -14,7 +14,7 @@ class Generator(object):
 	max_length = 10000000 # 1e7 (0.01 s @ 1 GHz)
 
 	def __init__(self, frequency):
-		# The number of samples per second.
+		# The sampling frequency.
 		self.frequency = frequency
 
 		# The resulting wave, with each data point on the interval [-1.0, 1.0].
@@ -64,7 +64,7 @@ class Generator(object):
 		Convert a time value to a number of samples based on the frequency.
 		"""
 
-		return int(value.value * self.frequency)
+		return int(value.value * self.frequency.value)
 
 	def _scale_waveform(self, data, amplitude=None, duration=None):
 		"""

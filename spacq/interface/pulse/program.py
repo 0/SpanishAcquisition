@@ -53,12 +53,11 @@ class Program(object):
 			if self.env.errors:
 				raise PulseSyntaxError(self.env.format_errors())
 
-	def generate_waveforms(self, frequency):
+	def generate_waveforms(self):
 		"""
 		Generate the waveforms, given that the values are all filled in.
 		"""
 
-		self.env.frequency = frequency
 		self.env.stage = self.env.stages.waveforms
 		self.env.errors = []
 		self.env.traverse_tree(self.ast)

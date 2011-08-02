@@ -13,7 +13,7 @@ class GeneratorTest(TestCase):
 		Generate an empty waveform.
 		"""
 
-		wg = waveform.Generator(frequency=1)
+		wg = waveform.Generator(frequency=Quantity(1, 'Hz'))
 
 		eq_(list(wg.wave), [])
 
@@ -22,7 +22,7 @@ class GeneratorTest(TestCase):
 		Generate a non-empty waveform.
 		"""
 
-		wg = waveform.Generator(frequency=2)
+		wg = waveform.Generator(frequency=Quantity(2, 'Hz'))
 
 		wg.delay(Quantity(2, 's'))
 		wg.marker(1, 'high')
@@ -44,7 +44,7 @@ class GeneratorTest(TestCase):
 		Try to create a waveform that is far too long.
 		"""
 
-		wg = waveform.Generator(frequency=1e9)
+		wg = waveform.Generator(frequency=Quantity(1, 'GHz'))
 
 		wg.delay(Quantity(1, 'ns'))
 		wg.delay(Quantity(1, 'us'))

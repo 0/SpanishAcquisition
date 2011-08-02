@@ -39,7 +39,7 @@ class ProgramTest(TestCase):
 		p.env.set_value(('wobble', 'shape'), 'this-shape-doesn\'t-exist')
 
 		try:
-			p.generate_waveforms(1e9)
+			p.generate_waveforms()
 		except program.PulseError as e:
 			eq_('\n'.join(e[0]), """\
 error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 on line 21:
@@ -53,14 +53,15 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		# Missing values.
-		assert_raises(ValueError, p.generate_waveforms, 1e9)
+		assert_raises(ValueError, p.generate_waveforms)
 
 		for name, value in self.missing:
 			p.env.set_value(name, value)
 
 		p.env.set_value(('wobble', 'shape'), 'non-square')
 
-		p.generate_waveforms(1e9)
+		p.env.frequency = Quantity(1, 'GHz')
+		p.generate_waveforms()
 
 		eq_(set(p.env.waveforms.keys()), set(['f1', 'f2']))
 

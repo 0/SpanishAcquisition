@@ -6,7 +6,7 @@ from os import path
 
 from spacq.tool.box import Enum
 
-from ..units import IncompatibleDimensions
+from ..units import IncompatibleDimensions, Quantity
 from ..waveform import Generator
 from .tool.box import find_location, format_error, load_values
 
@@ -78,7 +78,8 @@ class Environment(object):
 		# Shapes that could not be found.
 		self.missing_shapes = set()
 
-		self.frequency = None
+		# Default frequency.
+		self.frequency = Quantity(1, 'Hz')
 
 	@property
 	def missing_values(self):
@@ -101,9 +102,6 @@ class Environment(object):
 		if self.stage == self.stages.waveforms:
 			if self.missing_values:
 				raise ValueError('Cannot generate waveforms while values are missing')
-
-			if self.frequency is None:
-				raise ValueError('No frequency specified')
 
 			# Set up output waveform generators.
 			for output in self.waveforms:

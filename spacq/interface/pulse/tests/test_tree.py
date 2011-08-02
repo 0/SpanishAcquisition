@@ -134,7 +134,7 @@ class ValidTreeTest(TestCase):
 		for name, value in updates.items():
 			env.set_value(name, value)
 
-		env.frequency = 1e9
+		env.frequency = Quantity(1, 'GHz')
 		env.stage = env.stages.waveforms
 		env.traverse_tree(self.prog)
 

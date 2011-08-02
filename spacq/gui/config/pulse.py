@@ -80,7 +80,7 @@ class ParameterPanel(ScrolledPanel):
 		# Last column.
 		return self.num_cols - 1
 
-	def add_row(self, parameter, sizer):
+	def add_row(self, parameter):
 		"""
 		Add a parameter to the sizer and display the value if it is available.
 		"""
@@ -92,16 +92,16 @@ class ParameterPanel(ScrolledPanel):
 				label = parameter[0]
 				self.last_variable = parameter[0]
 
-			sizer.Add(wx.StaticText(self, label=label),
+			self.panel_sizer.Add(wx.StaticText(self, label=label),
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 
 		if self.attributes:
-			sizer.Add(wx.StaticText(self, label=parameter[1]),
+			self.panel_sizer.Add(wx.StaticText(self, label=parameter[1]),
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT)
 
 		input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
 		self.parameter_inputs.append(input)
-		sizer.Add(input, flag=wx.EXPAND)
+		self.panel_sizer.Add(input, flag=wx.EXPAND)
 
 		if self.default_background_color is None:
 			self.default_background_color = input.BackgroundColour
@@ -135,15 +135,15 @@ class ParameterPanel(ScrolledPanel):
 		self.last_variable = None
 
 		# Panel.
-		panel_sizer = wx.FlexGridSizer(rows=len(self.parameters), cols=self.num_cols, hgap=5)
+		self.panel_sizer = wx.FlexGridSizer(rows=len(self.parameters), cols=self.num_cols, hgap=5)
 
-		panel_sizer.AddGrowableCol(self.input_col, 1)
+		self.panel_sizer.AddGrowableCol(self.input_col, 1)
 
 		## Parameter inputs.
 		for parameter in self.parameters:
-			self.add_row(parameter, panel_sizer)
+			self.add_row(parameter)
 
-		self.SetSizer(panel_sizer)
+		self.SetSizer(self.panel_sizer)
 		self.SetupScrolling()
 
 	def set_value(self, parameter, value):
@@ -236,16 +236,50 @@ class OutputPanel(ParameterPanel):
 	def input_col(self):
 		return self.num_cols - 2
 
-	def add_row(self, parameter, sizer):
-		ParameterPanel.add_row(self, parameter, sizer)
+	def add_row(self, parameter):
+		ParameterPanel.add_row(self, parameter)
 
 		view_button = wx.Button(self, label='View')
-		sizer.Add(view_button)
+		self.panel_sizer.Add(view_button)
 		self.Bind(wx.EVT_BUTTON, partial(self.OnView, parameter), view_button)
+
+	def __init__(self, *args, **kwargs):
+		ParameterPanel.__init__(self, *args, **kwargs)
+
+		# Spacers.
+		for _ in xrange(self.num_cols):
+			self.panel_sizer.Add((-1, 30))
+
+		# Add frequency input.
+		self.panel_sizer.Add(wx.StaticText(self, label='Frequency'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.freq_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.panel_sizer.Add(self.freq_input, flag=wx.EXPAND)
+
+		self.freq_input.Value = str(self.prog.env.frequency)
+		self.freq_input.BackgroundColour = self.ok_background_color
+
+		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnFrequencyInput, self.freq_input)
 
 	def set_value(self, parameter, value):
 		# TODO
 		pass
+
+	def OnFrequencyChange(self, evt=None):
+		self.freq_input.BackgroundColour = self.default_background_color
+
+	def OnFrequencyInput(self, evt=None):
+		try:
+			value = quantity_converter(self.freq_input.Value, 'Hz', 'frequency')
+		except ValueError as e:
+			MessageDialog(self, str(e), 'Invalid value').Show()
+
+			return
+
+		self.prog.env.frequency = value
+
+		self.freq_input.BackgroundColour = self.ok_background_color
 
 	def OnView(self, parameter, evt=None):
 		def show_frame(waveform, markers, frequency):
@@ -258,7 +292,7 @@ class OutputPanel(ParameterPanel):
 
 		def show_waveform():
 			try:
-				self.prog.generate_waveforms(1e9)
+				self.prog.generate_waveforms()
 			except ValueError as e:
 				wx.CallAfter(show_error, str(e))
 
@@ -273,7 +307,7 @@ class OutputPanel(ParameterPanel):
 			for num in waveform.markers:
 				markers[num] = waveform.get_marker(num)
 
-			wx.CallAfter(show_frame, waveform.wave, markers, Quantity(1e9, 'Hz'))
+			wx.CallAfter(show_frame, waveform.wave, markers, self.prog.env.frequency)
 
 		thr = Thread(target=show_waveform)
 		thr.daemon = True

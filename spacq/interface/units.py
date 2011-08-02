@@ -46,6 +46,7 @@ class SIValues(object):
 		'Z': 21,
 		'Y': 24,
 	}
+	prefixes_ = dict([(v, k) for (k, v) in prefixes.items()])
 
 	# SI base and derived units.
 	units = set(['A', 'cd', 'g', 'Hz', 'J', 'K', 'm', 'mol', 'N', 's', 'V'])

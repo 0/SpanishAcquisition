@@ -1,7 +1,10 @@
 from chaco.api import VPlotContainer
 from enable.api import Window
+from math import floor, log10
 from numpy import linspace
 import wx
+
+from spacq.interface.units import SIValues
 
 from .plot.two_dimensional import TwoDimensionalPlot
 
@@ -52,8 +55,14 @@ class WaveformPanel(wx.Panel):
 		self.SetSizer(panel_box)
 
 	def SetValue(self, waveform, marker_data, frequency):
-		self.waveform_plot.x_data = linspace(0, len(waveform) / frequency.value, len(waveform))
+		max_time = len(waveform) / frequency.value
+		# Find the order of magnitude (to within 3 orders, to keep it at n, u, m, etc).
+		magnitude = 3 * floor(floor(log10(max_time)) / 3)
+
+		self.waveform_plot.x_data = linspace(0, max_time / (10 ** magnitude), len(waveform))
 		self.waveform_plot.y_data = waveform
+
+		self.waveform_plot.x_label = '{0}s'.format(SIValues.prefixes_[magnitude])
 
 		for num, data in marker_data.items():
 			self.waveform_plot.add_marker(num, data)

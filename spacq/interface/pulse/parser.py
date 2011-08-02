@@ -13,7 +13,14 @@ A parser for pulse programs.
 """
 
 
-class PulseSyntaxError(Exception):
+class PulseError(Exception):
+	"""
+	A problem with the pulse program.
+	"""
+
+	pass
+
+class PulseSyntaxError(PulseError):
 	"""
 	Could not parse pulse program.
 	"""

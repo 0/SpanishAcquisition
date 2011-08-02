@@ -38,12 +38,16 @@ class ProgramTest(TestCase):
 
 		p.env.set_value(('wobble', 'shape'), 'this-shape-doesn\'t-exist')
 
-		p.generate_waveforms(1e9)
-		eq_('\n'.join(p.env.format_errors()), """\
+		try:
+			p.generate_waveforms(1e9)
+		except program.PulseError as e:
+			eq_('\n'.join(e[0]), """\
 error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 on line 21:
   first_square:f1 wobble:f2
                   ^\
 """)
+		else:
+			assert False, 'Expected PulseError'
 
 	def testGenerateWaveforms(self):
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))

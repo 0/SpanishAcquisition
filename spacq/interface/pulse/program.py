@@ -1,4 +1,4 @@
-from os.path import dirname
+from os.path import basename, dirname
 
 from .parser import Parser, PulseError, PulseSyntaxError
 from .tree import Environment
@@ -12,6 +12,8 @@ class Program(object):
 	"""
 	A prepared, compiled pulse program.
 	"""
+
+	filename = ''
 
 	@classmethod
 	def from_string(cls, s):
@@ -35,6 +37,7 @@ class Program(object):
 
 		p = cls.from_string(''.join(prog_lines))
 		p.env.cwd = dirname(path)
+		p.filename = basename(path)
 
 		return p
 

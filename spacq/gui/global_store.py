@@ -19,3 +19,5 @@ class GlobalStore(object):
 		self.devices = PubDict(self.lock, pub, 'device')
 		self.resources = PubDict(self.lock, pub, 'resource')
 		self.variables = PubDict(self.lock, pub, 'variable')
+
+		self.pulse_program = None

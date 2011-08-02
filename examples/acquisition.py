@@ -120,7 +120,7 @@ class AcquisitionApp(wx.App):
 			self.pulse_program_frame = None
 
 		if self.pulse_program_frame is None:
-			self.pulse_program_frame = PulseProgramFrame(self.acq_frame, close_callback)
+			self.pulse_program_frame = PulseProgramFrame(self.acq_frame, self.global_store, close_callback)
 			self.pulse_program_frame.Fit()
 			self.pulse_program_frame.Show()
 

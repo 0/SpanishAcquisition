@@ -1,5 +1,4 @@
 from functools import partial
-from os.path import basename
 from threading import Thread
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -384,7 +383,7 @@ class PulseProgramPanel(wx.Panel):
 class PulseProgramFrame(wx.Frame):
 	default_title = 'Pulse program'
 
-	def __init__(self, parent, close_callback, *args, **kwargs):
+	def __init__(self, parent, global_store, close_callback, *args, **kwargs):
 		if 'title' not in kwargs:
 			kwargs['title'] = self.default_title
 		else:
@@ -392,6 +391,7 @@ class PulseProgramFrame(wx.Frame):
 
 		wx.Frame.__init__(self, parent, *args, **kwargs)
 
+		self.global_store = global_store
 		self.close_callback = close_callback
 
 		# Menu.
@@ -419,6 +419,15 @@ class PulseProgramFrame(wx.Frame):
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
+		# Reload existing program.
+		if self.global_store.pulse_program is not None:
+			self.load_program(self.global_store.pulse_program)
+
+	def load_program(self, prog):
+			self.Title = '{0} - {1}'.format(prog.filename, self.default_title)
+
+			self.pulse_panel.OnOpen(prog)
+
 	def OnMenuFileOpen(self, evt=None):
 		wildcard = determine_wildcard('pulse', 'Pulse program')
 		dlg = wx.FileDialog(parent=self, message='Load...', wildcard=wildcard,
@@ -437,14 +446,16 @@ class PulseProgramFrame(wx.Frame):
 			# Only purge the previous file if this one has been opened successfully.
 			self.OnMenuFileClose()
 
-			self.Title = '{0} - {1}'.format(basename(path), self.default_title)
+			self.load_program(prog)
 
-			self.pulse_panel.OnOpen(prog)
+			self.global_store.pulse_program = prog
 
 	def OnMenuFileClose(self, evt=None):
+		self.pulse_panel.OnClose()
+
 		self.Title = self.default_title
 
-		self.pulse_panel.OnClose()
+		self.global_store.pulse_program = None
 
 	def OnClose(self, evt):
 		self.close_callback()

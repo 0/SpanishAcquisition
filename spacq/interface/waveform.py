@@ -10,6 +10,9 @@ class Generator(object):
 	A generator for arbitrary waveforms.
 	"""
 
+	# Generation should fail if the number of points exceeds this value.
+	max_length = 10000000 # 1e7 (0.01 s @ 1 GHz)
+
 	def __init__(self, frequency):
 		# The number of samples per second.
 		self.frequency = frequency
@@ -19,6 +22,12 @@ class Generator(object):
 
 		# The resulting marker channels, with each channel being a sparse list represented as a dictionary.
 		self.markers = {}
+
+	def check_length(self, additional):
+		resulting_length = len(self.wave) + additional
+
+		if resulting_length > self.max_length:
+			raise ValueError('Waveform is too long; stopping at {0:n} points'.format(resulting_length))
 
 	def get_marker(self, num):
 		"""
@@ -45,6 +54,8 @@ class Generator(object):
 		"""
 		Set the next point to have the given amplitude.
 		"""
+
+		self.check_length(1)
 
 		self.wave = append(self.wave, value)
 
@@ -96,6 +107,8 @@ class Generator(object):
 		except IndexError:
 			last_value = 0.0
 
+		self.check_length(delay_length)
+
 		self.wave = append(self.wave, [last_value] * delay_length)
 
 	def square(self, amplitude, length):
@@ -118,6 +131,9 @@ class Generator(object):
 		"""
 
 		data = self._scale_waveform(values, amplitude, duration)
+
+		self.check_length(len(data))
+
 		self.wave = append(self.wave, data)
 
 	def marker(self, num, value):

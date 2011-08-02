@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_raises, eq_
 from numpy.testing import assert_array_almost_equal
 from unittest import main, TestCase
 
@@ -38,6 +38,18 @@ class GeneratorTest(TestCase):
 		eq_(wg.get_marker(1), [False] * 3 + [True] * 6 + [False] * 5)
 		eq_(wg.get_marker(2), [False] * 3 + [True] * 11)
 		eq_(wg.get_marker(3), [False] * 14)
+
+	def testTooLong(self):
+		"""
+		Try to create a waveform that is far too long.
+		"""
+
+		wg = waveform.Generator(frequency=1e9)
+
+		wg.delay(Quantity(1, 'ns'))
+		wg.delay(Quantity(1, 'us'))
+		wg.delay(Quantity(1, 'ms'))
+		assert_raises(ValueError, wg.delay, Quantity(1, 's'))
 
 
 if __name__ == '__main__':

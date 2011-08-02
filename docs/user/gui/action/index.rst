@@ -1,5 +1,6 @@
+######
 Action
-======
+######
 
 .. toctree::
    :maxdepth: 2

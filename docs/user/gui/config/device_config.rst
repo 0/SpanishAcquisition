@@ -1,12 +1,13 @@
+####################
 Device configuration
-====================
+####################
 
 The device configuration dialog is used to configure :ref:`devices <general_concepts_devices>` for use with an application.
 
 .. _device_config_connection:
 
 Device connection
------------------
+*****************
 
 .. figure:: device_config_01.*
    :alt: Device configuration.
@@ -40,7 +41,7 @@ Device connection
 .. _device_config_resources:
 
 Device resources
-----------------
+****************
 
 .. figure:: device_config_02.*
    :alt: Resource configuration.

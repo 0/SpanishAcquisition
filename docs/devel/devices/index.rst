@@ -1,11 +1,11 @@
-*******
+#######
 Devices
-*******
+#######
 
 Interfaces for various hardware devices.
 
 Class hierarchy
-===============
+***************
 
 All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractDevice`, with their subdevices inheriting from :class:`~spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
 
@@ -17,7 +17,7 @@ All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractD
 .. _devices_testing:
 
 Testing
-=======
+*******
 
 All the device interfaces can be tested against real hardware as long as the hardware is present and configured.
 
@@ -26,7 +26,7 @@ Configuration of external resources should be done by copying and editing the ex
    cp test-config.py ~/.spacq-test-config.py
 
 File structure
-==============
+**************
 
 Each manufacturer has its own directory in ``spacq/devices/`` (eg. ``agilent`` for Agilent, ``tektronix`` for Tektronix, etc), and each of these directories may contain any number of devices. There should be at least four files [#four_files]_ per device:
 
@@ -40,7 +40,7 @@ Each manufacturer has its own directory in ``spacq/devices/`` (eg. ``agilent`` f
 .. [#four_files] Most devices will have four files, but, for example, the custom voltage source (``custom/voltage_source.py``) includes a non-server test file as a fifth file.
 
 Adding a manufacturer
----------------------
+=====================
 
 To add a manufacturer:
 
@@ -55,7 +55,7 @@ For example, to add Oxford Instruments as a manufacturer::
    vim spacq/devices/__init__.py # Add "oxford".
 
 Adding a device
----------------
+===============
 
 The sample manufacturer comes with a sample device in the form of files ending in ``abc1234.py``. If the manufacturer is newly added, you should modify this sample device; otherwise, copy the four sample device files over from ``spacq/devices/sample/``.
 

@@ -1,5 +1,6 @@
+############
 Smooth reset
-============
+############
 
 The smooth reset panel provides a convenient way to reset all resources tied to enabled and **constant** variables. Each step is always 100 ms.
 

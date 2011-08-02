@@ -1,13 +1,13 @@
-****************
+################
 General concepts
-****************
+################
 
 Everything tangible (:ref:`devices <general_concepts_devices>`, :ref:`variables<general_concepts_variables>`) in this package is tied together via :ref:`resources <general_concepts_resources>`.
 
 .. _general_concepts_devices:
 
 Devices
-=======
+*******
 
 A device typically refers to a physical piece of hardware, but can be, for example, a piece of software pretending to be hardware.
 
@@ -20,7 +20,7 @@ Devices can offer any number of arbitrary :ref:`resources <general_concepts_reso
 .. _general_concepts_subdevices:
 
 Subdevices
-----------
+==========
 
 A device which has several versions of the same :ref:`resources <general_concepts_resources>` can organize these resources into a tree of subdevices.
 
@@ -31,7 +31,7 @@ For example, an oscilloscope may have multiple channels, with each having the sa
 .. _general_concepts_resources:
 
 Resources
-=========
+*********
 
 Resources provide a way of interacting with :ref:`devices <general_concepts_devices>` in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW). RO and RW resources are considered *readable*; WO and RW resources are considered *writable*.
 
@@ -46,14 +46,14 @@ These provided resources can be given arbitrary labels, and these labels are use
 .. _general_concepts_variables:
 
 Variables
-=========
+*********
 
 Variables are how sweeping acquisition experiments are described.
 
 .. _general_concepts_output_variables:
 
 Output variables
-----------------
+================
 
 Output variables provide a way to sweep over a range of values on a :ref:`resource <general_concepts_resources>`. An output variable will have a customizable range of values over which it iterates.
 
@@ -70,6 +70,6 @@ Output variables provide a way to sweep over a range of values on a :ref:`resour
 .. _general_concepts_input_variables:
 
 Input variables
----------------
+===============
 
 Typically referred to as "measurements", input variables provide a way of gathering data from :ref:`resources <general_concepts_resources>`.

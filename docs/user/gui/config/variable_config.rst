@@ -1,7 +1,8 @@
 .. _variable_config:
 
+######################
 Variable configuration
-======================
+######################
 
 The variable configuration panel is used to set up :ref:`output variables <general_concepts_output_variables>` for an application.
 

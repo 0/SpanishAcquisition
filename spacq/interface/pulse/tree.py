@@ -101,7 +101,9 @@ class Environment(object):
 
 		if self.stage == self.stages.waveforms:
 			if self.missing_values:
-				raise ValueError('Cannot generate waveforms while values are missing')
+				values = ', '.join('.'.join(x) for x in sorted(self.missing_values))
+
+				raise ValueError('Cannot generate waveforms while values are missing: {0}'.format(values))
 
 			# Set up output waveform generators.
 			for output in self.waveforms:
@@ -563,6 +565,8 @@ class PulseSequence(ASTNode):
 											data = load_values(f)
 									except IOError:
 										continue
+									except ValueError:
+										raise ValueError('Not a shape file: {0}'.format(p))
 
 								if data is None:
 									env.add_error('File "{0}" (due to "{1}") not found'.format(shape, item),

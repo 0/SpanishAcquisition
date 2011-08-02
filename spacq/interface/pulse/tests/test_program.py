@@ -24,6 +24,10 @@ class ProgramTest(TestCase):
 	]
 
 	def testFromFile(self):
+		"""
+		Grab a file and load the program in it.
+		"""
+
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		p.env.set_value(('wobble', 'shape'), 'non-square')
@@ -31,6 +35,10 @@ class ProgramTest(TestCase):
 		eq_(p.env.missing_values, set([name for name, value in self.missing]))
 
 	def testInvalidShapePath(self):
+		"""
+		A shape file which isn't there.
+		"""
+
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		for name, value in self.missing:
@@ -48,6 +56,20 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 """)
 		else:
 			assert False, 'Expected PulseError'
+
+	def testInvalidShapeFile(self):
+		"""
+		A shape file which isn't a shape file.
+		"""
+
+		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
+
+		for name, value in self.missing:
+			p.env.set_value(name, value)
+
+		p.env.set_value(('wobble', 'shape'), '01.pulse')
+
+		assert_raises(ValueError, p.generate_waveforms)
 
 	def testGenerateWaveforms(self):
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))

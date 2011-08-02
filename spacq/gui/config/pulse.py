@@ -1,6 +1,7 @@
 from functools import partial
 from threading import Thread
 import wx
+from wx.lib import filebrowsebutton
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from spacq.interface.pulse.parser import PulseError, PulseSyntaxError
@@ -9,6 +10,13 @@ from spacq.interface.units import IncompatibleDimensions, Quantity
 
 from ..display.waveform import WaveformFrame
 from ..tool.box import determine_wildcard, MessageDialog
+
+
+class FileBrowseButton(filebrowsebutton.FileBrowseButton):
+	ChangeValue = filebrowsebutton.FileBrowseButton.SetValue
+
+	def SetBackgroundColour(self, colour):
+		self.textControl.SetBackgroundColour(colour)
 
 
 def quantity_converter(x, symbols='s', dimensions='time', non_negative=True):
@@ -79,7 +87,7 @@ class ParameterPanel(ScrolledPanel):
 		# Last column.
 		return self.num_cols - 1
 
-	def add_row(self, parameter):
+	def add_row(self, parameter, input_type='text'):
 		"""
 		Add a parameter to the sizer and display the value if it is available.
 		"""
@@ -98,7 +106,16 @@ class ParameterPanel(ScrolledPanel):
 			self.panel_sizer.Add(wx.StaticText(self, label=parameter[1]),
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT)
 
-		input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		if input_type == 'text':
+			input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+
+			self.Bind(wx.EVT_TEXT, partial(self.OnChange, parameter), input)
+			self.Bind(wx.EVT_TEXT_ENTER, partial(self.OnInput, parameter), input)
+		elif input_type == 'file':
+			input = FileBrowseButton(self, labelText='File:', changeCallback=partial(self.OnInput, parameter))
+		else:
+			raise ValueError('Unrecognized type "{0}"'.format(input_type))
+
 		self.parameter_inputs.append(input)
 		self.panel_sizer.Add(input, flag=wx.EXPAND)
 
@@ -106,15 +123,12 @@ class ParameterPanel(ScrolledPanel):
 			self.default_background_color = input.BackgroundColour
 
 		try:
-			input.Value = str(self.values[parameter])
+			input.ChangeValue(str(self.values[parameter]))
 		except KeyError:
 			# No default value set.
 			pass
 		else:
-			input.BackgroundColour = self.ok_background_color
-
-		self.Bind(wx.EVT_TEXT, partial(self.OnChange, parameter), input)
-		self.Bind(wx.EVT_TEXT_ENTER, partial(self.OnInput, parameter), input)
+			input.SetBackgroundColour(self.ok_background_color)
 
 	def converter(self, parameter, x):
 		"""
@@ -148,9 +162,15 @@ class ParameterPanel(ScrolledPanel):
 	def set_value(self, parameter, value):
 		self.values[parameter] = value
 
+	def del_value(self, parameter):
+		try:
+			del self.values[parameter]
+		except KeyError:
+			pass
+
 	def OnChange(self, parameter, evt):
 		# Awaiting validation.
-		self.set_value(parameter, None)
+		self.del_value(parameter)
 
 		evt.EventObject.BackgroundColour = self.default_background_color
 
@@ -317,6 +337,13 @@ class PulsePanel(ParameterPanel):
 	type = 'pulse'
 	name = 'Pulses'
 	attributes = True
+
+	def add_row(self, parameter):
+		kwargs = {}
+		if parameter[1] == 'shape':
+			kwargs['input_type'] = 'file'
+
+		return ParameterPanel.add_row(self, parameter, **kwargs)
 
 	def converter(self, parameter, x):
 		x = ParameterPanel.converter(self, parameter, x)

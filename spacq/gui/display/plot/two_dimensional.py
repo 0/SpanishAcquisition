@@ -15,7 +15,7 @@ class TwoDimensionalPlot(ChacoPlot):
 	"""
 
 	auto_color_idx = 0
-	auto_color_list = ['green', 'brown', 'blue', 'red', 'black', 'orange']
+	auto_color_list = ['green', 'brown', 'blue', 'red', 'black']
 
 	@classmethod
 	def auto_color(cls):

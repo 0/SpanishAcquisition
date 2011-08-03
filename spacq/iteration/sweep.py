@@ -162,7 +162,7 @@ class SweepController(object):
 					next_f = next_f()
 				except Exception as e:
 					if self.general_exception_handler is not None:
-						self.general_exception_handler(e)
+						self.general_exception_handler(f_name, e)
 					else:
 						log.exception('Caught exception in function: {0}'.format(f_name))
 
@@ -189,11 +189,11 @@ class SweepController(object):
 			log.debug('Configuring devices')
 
 			if self.pulse_config is not None:
-				self.pulse_config.device.run_mode = 'triggered'
+				# AWG
+				awg = self.pulse_config.awg
 
-				# TODO: Enable all relevant channels.
-				# TODO: Set sampling frequency.
-				# TODO: Put the scope in single acquisition mode.
+				awg.sampling_rate = self.pulse_config.program.frequency.value
+				awg.run_mode = 'triggered'
 
 			self.devices_configured = True
 
@@ -328,20 +328,36 @@ class SweepController(object):
 		"""
 
 		if self.pulse_config.channels:
-			device = self.pulse_config.device
+			# AWG
+			awg = self.pulse_config.awg
 			waveforms = self.pulse_config.program.generate_waveforms()
 
-			for output, number in self.pulse_config.channels.items():
-				name = 'channel{0}'.format(number)
-				channel = device.channels[number]
+			for name in awg.waveform_names:
+				if name.startswith('spacq'):
+					awg.delete_waveform(name)
 
-				# TODO: Markers.
-				device.create_waveform(name, waveforms[output].wave)
+			for output, number in self.pulse_config.channels.items():
+				name = 'spacq{0}'.format(number)
+				channel = awg.channels[number]
+
+				markers = {}
+				for num in waveforms[output].markers:
+					markers[num] = waveforms[output].get_marker(num)
+
+				awg.create_waveform(name, waveforms[output].wave, markers)
 
 				channel.waveform_name = name
+				channel.enabled = True
 
-			self.pulse_config.device.trigger()
-			# TODO: Wait for completion of waveform.
+			awg.enabled = True
+
+			# Oscilloscope
+			osc = self.pulse_config.oscilloscope
+			osc.stopafter = 'sequence'
+			osc.acquiring = True
+
+			# All together now!
+			awg.trigger()
 
 		return self.read
 

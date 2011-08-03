@@ -56,6 +56,12 @@ class Program(object):
 			if self._env.errors:
 				raise PulseSyntaxError(self._env.format_errors())
 
+		# Output channel numbers.
+		self.output_channels = dict((name, None) for name, type in self._env.variables.items() if type == 'output')
+
+		# Output device label.
+		self.device = ''
+
 	@property
 	def all_values(self):
 		return self._env.all_values

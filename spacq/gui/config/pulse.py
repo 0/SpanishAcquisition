@@ -19,6 +19,17 @@ class FileBrowseButton(filebrowsebutton.FileBrowseButton):
 		self.textControl.SetBackgroundColour(colour)
 
 
+def pos_int_converter(x):
+	try:
+		result = int(x)
+
+		if result <= 0:
+			raise ValueError()
+
+		return result
+	except ValueError:
+		raise ValueError('Expected positive integer')
+
 def quantity_converter(x, symbols='s', dimensions='time', non_negative=True):
 	try:
 		q = Quantity(x)
@@ -116,7 +127,6 @@ class ParameterPanel(ScrolledPanel):
 		else:
 			raise ValueError('Unrecognized type "{0}"'.format(input_type))
 
-		self.parameter_inputs.append(input)
 		self.panel_sizer.Add(input, flag=wx.EXPAND)
 
 		if self.default_background_color is None:
@@ -142,18 +152,18 @@ class ParameterPanel(ScrolledPanel):
 
 		self.prog = prog
 		self.values = prog.values
-		self.parameter_inputs = []
-		self.parameters = self.extract_parameters(prog)
 
 		self.last_variable = None
 
+		parameters = self.extract_parameters(prog)
+
 		# Panel.
-		self.panel_sizer = wx.FlexGridSizer(rows=len(self.parameters), cols=self.num_cols, hgap=5)
+		self.panel_sizer = wx.FlexGridSizer(rows=len(parameters), cols=self.num_cols, hgap=5)
 
 		self.panel_sizer.AddGrowableCol(self.input_col, 1)
 
 		## Parameter inputs.
-		for parameter in self.parameters:
+		for parameter in parameters:
 			self.add_row(parameter)
 
 		self.SetSizer(self.panel_sizer)
@@ -198,15 +208,7 @@ class AcqMarkerPanel(ParameterPanel):
 		x = ParameterPanel.converter(self, parameter, x)
 
 		if parameter[1] == 'marker_num':
-			try:
-				result = int(x)
-
-				if result <= 0:
-					raise ValueError()
-
-				return result
-			except ValueError:
-				raise ValueError('Expected positive integer')
+			return pos_int_converter(x)
 		elif parameter[1] == 'output':
 			try:
 				if self.prog.variables[x] == 'output':
@@ -262,6 +264,12 @@ class OutputPanel(ParameterPanel):
 		self.panel_sizer.Add(view_button)
 		self.Bind(wx.EVT_BUTTON, partial(self.OnView, parameter), view_button)
 
+	def converter(self, parameter, x):
+		if x == '':
+			return x
+		else:
+			return pos_int_converter(x)
+
 	def __init__(self, *args, **kwargs):
 		ParameterPanel.__init__(self, *args, **kwargs)
 
@@ -274,6 +282,7 @@ class OutputPanel(ParameterPanel):
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.freq_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
 		self.panel_sizer.Add(self.freq_input, flag=wx.EXPAND)
+		self.panel_sizer.Add((-1, -1))
 
 		self.freq_input.Value = str(self.prog.frequency)
 		self.freq_input.BackgroundColour = self.ok_background_color
@@ -281,9 +290,24 @@ class OutputPanel(ParameterPanel):
 		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnFrequencyInput, self.freq_input)
 
+		# Add device input.
+		self.panel_sizer.Add(wx.StaticText(self, label='Device'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.device_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.panel_sizer.Add(self.device_input, flag=wx.EXPAND)
+		self.panel_sizer.Add((-1, -1))
+
+		self.device_input.Value = self.prog.device
+		self.device_input.BackgroundColour = self.ok_background_color
+
+		self.Bind(wx.EVT_TEXT, self.OnDeviceChange, self.device_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnDeviceInput, self.device_input)
+
 	def set_value(self, parameter, value):
-		# TODO
-		pass
+		if value == '':
+			value = None
+
+		self.prog.output_channels[parameter[0]] = value
 
 	def OnFrequencyChange(self, evt=None):
 		self.freq_input.BackgroundColour = self.default_background_color
@@ -299,6 +323,14 @@ class OutputPanel(ParameterPanel):
 		self.prog.frequency = value
 
 		self.freq_input.BackgroundColour = self.ok_background_color
+
+	def OnDeviceChange(self, evt=None):
+		self.device_input.BackgroundColour = self.default_background_color
+
+	def OnDeviceInput(self, evt=None):
+		self.prog.device = self.device_input.Value
+
+		self.device_input.BackgroundColour = self.ok_background_color
 
 	def OnView(self, parameter, evt=None):
 		def show_frame(waveform, markers, frequency):

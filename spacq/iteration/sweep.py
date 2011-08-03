@@ -41,6 +41,7 @@ class SweepController(object):
 
 		# The callbacks should be set before calling run(), if necessary.
 		self.data_callback, self.close_callback, self.write_callback, self.read_callback = [None] * 4
+		self.general_exception_handler = None
 		self.resource_exception_handler = None
 
 		self.current_f = None
@@ -143,7 +144,13 @@ class SweepController(object):
 
 				try:
 					next_f = next_f()
-				except Exception:
+				except Exception as e:
+					if self.general_exception_handler is not None:
+						self.general_exception_handler(e)
+					else:
+						log.exception('Caught exception in function: {0}'.format(f_name))
+
+					# Attempt to exit normally at this point.
 					next_f = None
 		finally:
 			self.end()
@@ -387,5 +394,8 @@ class SweepController(object):
 
 		self.aborting = True
 		self.abort_fatal = fatal
+
+		if self.abort_fatal:
+			log.warning('Aborting fatally.')
 
 		self.unpause()

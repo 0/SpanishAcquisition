@@ -64,6 +64,7 @@ class DataCaptureDialog(Dialog, SweepController):
 			self.value_inputs[i].Value = str(value)
 		self.read_callback = partial(wx.CallAfter, read_callback)
 
+		self.general_exception_handler = partial(wx.CallAfter, self._general_exception_handler)
 		self.resource_exception_handler = partial(wx.CallAfter, self._resource_exception_handler)
 
 		# Dialog.
@@ -153,6 +154,13 @@ class DataCaptureDialog(Dialog, SweepController):
 
 		# Try to cancel cleanly instead of giving up.
 		self.Bind(wx.EVT_CLOSE, self.OnCancel)
+
+	def _general_exception_handler(self, e):
+		"""
+		Called when a trampolined function raises e.
+		"""
+
+		MessageDialog(self.parent, str(e), 'Sweep error').Show()
 
 	def _resource_exception_handler(self, resource_name, e, write=True):
 		"""

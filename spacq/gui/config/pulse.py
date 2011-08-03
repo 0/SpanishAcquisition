@@ -48,7 +48,7 @@ class ParameterPanel(ScrolledPanel):
 		By default, extract the variables which pertain to the current type.
 		"""
 
-		return [k for k, v in prog.env.variables.items() if v == self.type]
+		return [k for k, v in prog.variables.items() if v == self.type]
 
 	def extract_parameters(self, prog):
 		"""
@@ -57,7 +57,7 @@ class ParameterPanel(ScrolledPanel):
 
 		variables = self.extract_variables(prog)
 
-		return sorted([item for item in prog.env.all_values for variable in variables if item[0] == variable])
+		return sorted([item for item in prog.all_values for variable in variables if item[0] == variable])
 
 	@property
 	def num_cols(self):
@@ -141,7 +141,7 @@ class ParameterPanel(ScrolledPanel):
 		ScrolledPanel.__init__(self, parent, *args, **kwargs)
 
 		self.prog = prog
-		self.values = prog.env.values
+		self.values = prog.values
 		self.parameter_inputs = []
 		self.parameters = self.extract_parameters(prog)
 
@@ -209,7 +209,7 @@ class AcqMarkerPanel(ParameterPanel):
 				raise ValueError('Expected positive integer')
 		elif parameter[1] == 'output':
 			try:
-				if self.prog.env.variables[x] == 'output':
+				if self.prog.variables[x] == 'output':
 					return x
 				else:
 					raise KeyError()
@@ -275,7 +275,7 @@ class OutputPanel(ParameterPanel):
 		self.freq_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
 		self.panel_sizer.Add(self.freq_input, flag=wx.EXPAND)
 
-		self.freq_input.Value = str(self.prog.env.frequency)
+		self.freq_input.Value = str(self.prog.frequency)
 		self.freq_input.BackgroundColour = self.ok_background_color
 
 		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
@@ -296,7 +296,7 @@ class OutputPanel(ParameterPanel):
 
 			return
 
-		self.prog.env.frequency = value
+		self.prog.frequency = value
 
 		self.freq_input.BackgroundColour = self.ok_background_color
 
@@ -311,7 +311,7 @@ class OutputPanel(ParameterPanel):
 
 		def show_waveform():
 			try:
-				self.prog.generate_waveforms()
+				waveforms = self.prog.generate_waveforms()
 			except ValueError as e:
 				wx.CallAfter(show_error, str(e))
 
@@ -321,12 +321,12 @@ class OutputPanel(ParameterPanel):
 
 				return
 
-			waveform = self.prog.env.waveforms[parameter[0]]
+			waveform = waveforms[parameter[0]]
 			markers = {}
 			for num in waveform.markers:
 				markers[num] = waveform.get_marker(num)
 
-			wx.CallAfter(show_frame, waveform.wave, markers, self.prog.env.frequency)
+			wx.CallAfter(show_frame, waveform.wave, markers, self.prog.frequency)
 
 		thr = Thread(target=show_waveform)
 		thr.daemon = True
@@ -382,7 +382,7 @@ class PulseProgramPanel(wx.Panel):
 		self.SetSizerAndFit(panel_box)
 
 	def create_parameter_panels(self, prog):
-		types = set(prog.env.variables.values())
+		types = set(prog.variables.values())
 
 		for type in sorted(types):
 			try:

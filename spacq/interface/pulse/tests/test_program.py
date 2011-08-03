@@ -30,9 +30,9 @@ class ProgramTest(TestCase):
 
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
-		p.env.set_value(('wobble', 'shape'), 'non-square')
+		p.set_value(('wobble', 'shape'), 'non-square')
 
-		eq_(p.env.missing_values, set([name for name, value in self.missing]))
+		eq_(p.missing_values, set([name for name, value in self.missing]))
 
 	def testInvalidShapePath(self):
 		"""
@@ -42,9 +42,9 @@ class ProgramTest(TestCase):
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		for name, value in self.missing:
-			p.env.set_value(name, value)
+			p.set_value(name, value)
 
-		p.env.set_value(('wobble', 'shape'), 'this-shape-doesn\'t-exist')
+		p.set_value(('wobble', 'shape'), 'this-shape-doesn\'t-exist')
 
 		try:
 			p.generate_waveforms()
@@ -65,9 +65,9 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		for name, value in self.missing:
-			p.env.set_value(name, value)
+			p.set_value(name, value)
 
-		p.env.set_value(('wobble', 'shape'), '01.pulse')
+		p.set_value(('wobble', 'shape'), '01.pulse')
 
 		assert_raises(ValueError, p.generate_waveforms)
 
@@ -78,21 +78,21 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		assert_raises(ValueError, p.generate_waveforms)
 
 		for name, value in self.missing:
-			p.env.set_value(name, value)
+			p.set_value(name, value)
 
-		p.env.set_value(('wobble', 'shape'), 'non-square')
+		p.set_value(('wobble', 'shape'), 'non-square')
 
-		p.env.frequency = Quantity(1, 'GHz')
-		p.generate_waveforms()
+		p.frequency = Quantity(1, 'GHz')
+		waveforms = p.generate_waveforms()
 
-		eq_(set(p.env.waveforms.keys()), set(['f1', 'f2']))
+		eq_(set(waveforms.keys()), set(['f1', 'f2']))
 
-		f1 = p.env.waveforms['f1']
+		f1 = waveforms['f1']
 		loop = [0.0] * 10 + [0.5] + [0.0] * 7 + [0.5] + [0.0] * 7
 		assert_array_equal(f1.wave, [0.0] * 10 + [0.5] * 1 + [0.0] * 7 + loop * 2 + [0.0] * 20 + [-0.5] * 5 + [0.0] * 49)
 		eq_(f1.get_marker(1), [False] * 90 + [True] * 54)
 
-		f2 = p.env.waveforms['f2']
+		f2 = waveforms['f2']
 		non_square = [0.1, 0.5, 0.7, 1.0] + [4.2] * 3 + [3.6, 9.9]
 		wobble = f2._scale_waveform(non_square, Quantity(-1, 'mV').value, Quantity(8, 'ns'))
 		manipulator = f2._scale_waveform(non_square, Quantity(1, 'V').value, Quantity(12, 'ns'))

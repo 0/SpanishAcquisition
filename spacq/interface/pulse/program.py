@@ -36,7 +36,7 @@ class Program(object):
 			prog_lines = f.readlines()
 
 		p = cls.from_string(''.join(prog_lines))
-		p.env.cwd = dirname(path)
+		p._env.cwd = dirname(path)
 		p.filename = basename(path)
 
 		return p
@@ -46,24 +46,57 @@ class Program(object):
 		Given a blank Environment and AST, prepare a program.
 		"""
 
-		self.env = env
-		self.ast = ast
+		self._env = env
+		self._ast = ast
 
-		for stage in self.env.prep_stages:
-			self.env.stage = stage
-			self.env.traverse_tree(self.ast)
+		for stage in self._env.prep_stages:
+			self._env.stage = stage
+			self._env.traverse_tree(self._ast)
 
-			if self.env.errors:
-				raise PulseSyntaxError(self.env.format_errors())
+			if self._env.errors:
+				raise PulseSyntaxError(self._env.format_errors())
+
+	@property
+	def all_values(self):
+		return self._env.all_values
+
+	@property
+	def frequency(self):
+		return self._env.frequency
+
+	@frequency.setter
+	def frequency(self, value):
+		self._env.frequency = value
+
+	@property
+	def missing_values(self):
+		return self._env.missing_values
+
+	@property
+	def values(self):
+		return self._env.values
+
+	@property
+	def variables(self):
+		return self._env.variables
+
+	def set_value(self, parameter, value):
+		"""
+		Set a value, even if it has already been set previously.
+		"""
+
+		self._env.values[parameter] = value
 
 	def generate_waveforms(self):
 		"""
 		Generate the waveforms, given that the values are all filled in.
 		"""
 
-		self.env.stage = self.env.stages.waveforms
-		self.env.errors = []
-		self.env.traverse_tree(self.ast)
+		self._env.stage = self._env.stages.waveforms
+		self._env.errors = []
+		self._env.traverse_tree(self._ast)
 
-		if self.env.errors:
-			raise PulseError(self.env.format_errors())
+		if self._env.errors:
+			raise PulseError(self._env.format_errors())
+
+		return self._env.waveforms

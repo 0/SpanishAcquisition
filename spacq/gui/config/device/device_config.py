@@ -365,6 +365,7 @@ class DeviceConfigDialog(Dialog):
 
 			try:
 				if value is not None:
+					value.name = self.connection_panel.name
 					self.SetValue(value)
 			except Exception as e:
 				raise IOError('Could not set values.', e)

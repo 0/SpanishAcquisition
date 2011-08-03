@@ -101,7 +101,7 @@ class DeviceConfig(object):
 		result = self.__dict__.copy()
 
 		# Do not pickle references to mutable objects.
-		del result['device']
+		del result['_device']
 		del result['resources']
 
 		return result
@@ -114,7 +114,7 @@ class DeviceConfig(object):
 		self.__dict__ = dict
 
 		# Set missing values to defaults.
-		self.device = None
+		self._device = None
 		self.resources = {}
 
 	@property

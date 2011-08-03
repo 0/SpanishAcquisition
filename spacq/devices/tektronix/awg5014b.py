@@ -215,6 +215,9 @@ class AWG5014B(AbstractDevice):
 
 	@sampling_rate.setter
 	def sampling_rate(self, value):
+		if value < 1e7 or value > 1.2e9:
+			raise ValueError('Sampling rate must be between 10 MHz and 1.2 GHz')
+
 		self.write('source1:frequency {0:E}'.format(value))
 
 	@property
@@ -328,6 +331,16 @@ class AWG5014B(AbstractDevice):
 			self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
 		finally:
 			self.status.pop()
+
+	def delete_waveform(self, name):
+		"""
+		Remove a waveform on the AWG.
+		"""
+
+		if name not in self.waveform_names:
+			raise ValueError('No such waveform "{0}"'.format(name))
+
+		self.write('wlist:waveform:delete "{0}"'.format(name))
 
 	@property
 	def enabled(self):

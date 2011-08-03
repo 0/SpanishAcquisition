@@ -68,6 +68,9 @@ class Environment(object):
 		#  (error string, (row, col, code line))
 		self.errors = []
 
+		# Whether to actually generate waveforms.
+		self.dry_run = False
+
 		# Waveforms generators for the output channels.
 		# Keys are output names.
 		self.waveforms = {}
@@ -107,7 +110,7 @@ class Environment(object):
 
 			# Set up output waveform generators.
 			for output in self.waveforms:
-				self.waveforms[output] = Generator(frequency=self.frequency)
+				self.waveforms[output] = Generator(frequency=self.frequency, dry_run=self.dry_run)
 
 	def post_stage(self):
 		"""

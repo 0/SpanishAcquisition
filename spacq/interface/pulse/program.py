@@ -87,12 +87,13 @@ class Program(object):
 
 		self._env.values[parameter] = value
 
-	def generate_waveforms(self):
+	def generate_waveforms(self, dry_run=False):
 		"""
 		Generate the waveforms, given that the values are all filled in.
 		"""
 
 		self._env.stage = self._env.stages.waveforms
+		self._env.dry_run = dry_run
 		self._env.errors = []
 		self._env.traverse_tree(self._ast)
 

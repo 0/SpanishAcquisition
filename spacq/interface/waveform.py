@@ -13,9 +13,14 @@ class Generator(object):
 	# Generation should fail if the number of points exceeds this value.
 	max_length = 10000000 # 1e7 (0.01 s @ 1 GHz)
 
-	def __init__(self, frequency):
+	length = 0
+
+	def __init__(self, frequency, dry_run=False):
 		# The sampling frequency.
 		self.frequency = frequency
+
+		# If True, do not generate a waveform. Useful for verifying the generating code.
+		self.dry_run = dry_run
 
 		# The resulting wave, with each data point on the interval [-1.0, 1.0].
 		self.wave = array([])
@@ -24,10 +29,16 @@ class Generator(object):
 		self.markers = {}
 
 	def check_length(self, additional):
-		resulting_length = len(self.wave) + additional
+		resulting_length = self.length + additional
 
 		if resulting_length > self.max_length:
 			raise ValueError('Waveform is too long; stopping at {0:n} points'.format(resulting_length))
+
+	def append(self, values):
+		self.length += len(values)
+
+		if not self.dry_run:
+			self.wave = append(self.wave, values)
 
 	def get_marker(self, num):
 		"""
@@ -56,8 +67,7 @@ class Generator(object):
 		"""
 
 		self.check_length(1)
-
-		self.wave = append(self.wave, value)
+		self.append([value])
 
 	def _parse_time(self, value):
 		"""
@@ -102,14 +112,14 @@ class Generator(object):
 
 		delay_length = self._parse_time(value) - less_points
 
+		self.check_length(delay_length)
+
 		try:
 			last_value = self.wave[-1]
 		except IndexError:
 			last_value = 0.0
 
-		self.check_length(delay_length)
-
-		self.wave = append(self.wave, [last_value] * delay_length)
+		self.append([last_value] * delay_length)
 
 	def square(self, amplitude, length):
 		"""
@@ -133,8 +143,7 @@ class Generator(object):
 		data = self._scale_waveform(values, amplitude, duration)
 
 		self.check_length(len(data))
-
-		self.wave = append(self.wave, data)
+		self.append(data)
 
 	def marker(self, num, value):
 		"""
@@ -143,6 +152,9 @@ class Generator(object):
 
 		if value not in ['high', 'low']:
 			raise ValueError('Invalid value: {0}'.format(value))
+
+		if self.dry_run:
+			return
 
 		if num not in self.markers:
 			self.markers[num] = {}

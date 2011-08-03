@@ -72,6 +72,10 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		assert_raises(ValueError, p.generate_waveforms)
 
 	def testGenerateWaveforms(self):
+		"""
+		Finally generate some waveforms.
+		"""
+
 		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
 
 		# Missing values.
@@ -99,6 +103,38 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		loop = [0.0] * 10 + wobble * 2
 		end = manipulator + [0.0] * 15
 		assert_array_almost_equal(f2.wave, [0.0] * 10 + wobble + loop * 2 + [0.0] * 20 + end * 2, 2)
+
+	def testWaveformsDryRun(self):
+		"""
+		Run through waveform generation, but don't actually generate anything.
+		"""
+
+		p = program.Program.from_file(path.join(resource_dir, '01.pulse'))
+
+		# Missing values.
+		assert_raises(ValueError, p.generate_waveforms, dry_run=True)
+
+		for name, value in self.missing:
+			p.set_value(name, value)
+
+		p.set_value(('wobble', 'shape'), 'non-square')
+
+		# Too long.
+		p.frequency = Quantity(1, 'YHz')
+		assert_raises(ValueError, p.generate_waveforms, dry_run=True)
+
+		# Just right.
+		p.frequency = Quantity(1, 'GHz')
+		waveforms = p.generate_waveforms(dry_run=True)
+
+		# But nothing there.
+		eq_(set(waveforms.keys()), set(['f1', 'f2']))
+		eq_(list(waveforms['f1'].wave), [])
+		eq_(waveforms['f1'].get_marker(1), [])
+		eq_(waveforms['f1'].get_marker(2), [])
+		eq_(list(waveforms['f2'].wave), [])
+		eq_(waveforms['f2'].get_marker(1), [])
+		eq_(waveforms['f2'].get_marker(2), [])
 
 
 if __name__ == '__main__':

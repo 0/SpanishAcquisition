@@ -39,17 +39,24 @@ class GeneratorTest(TestCase):
 		eq_(wg.get_marker(2), [False] * 3 + [True] * 11)
 		eq_(wg.get_marker(3), [False] * 14)
 
-	def testTooLong(self):
+	def testTooLong(self, dry_run=False):
 		"""
 		Try to create a waveform that is far too long.
 		"""
 
-		wg = waveform.Generator(frequency=Quantity(1, 'GHz'))
+		wg = waveform.Generator(frequency=Quantity(1, 'GHz'), dry_run=dry_run)
 
 		wg.delay(Quantity(1, 'ns'))
 		wg.delay(Quantity(1, 'us'))
 		wg.delay(Quantity(1, 'ms'))
-		assert_raises(ValueError, wg.delay, Quantity(1, 's'))
+		assert_raises(ValueError, wg.delay, Quantity(0.01, 's'))
+
+	def testDryRun(self):
+		"""
+		testTooLong, but as a dry run.
+		"""
+
+		self.testTooLong(dry_run=True)
 
 
 if __name__ == '__main__':

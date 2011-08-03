@@ -178,7 +178,12 @@ class Quantity(object):
 		The magnitude of the quantity.
 		"""
 
-		return self._q.magnitude
+		result = self._q.magnitude
+
+		if result.shape:
+			return result
+		else:
+			return result.tolist()
 
 	def assert_dimensions(self, other, exception=True):
 		"""
@@ -207,7 +212,7 @@ class Quantity(object):
 	def __lt__(self, other):
 		self.assert_dimensions(other.dimensions)
 
-		return (self.value < other.value).all()
+		return self.value < other.value
 
 	def __ne__(self, other):
 		return not self == other

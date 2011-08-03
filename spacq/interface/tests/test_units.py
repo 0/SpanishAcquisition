@@ -136,6 +136,8 @@ class QuantityTest(TestCase):
 		else:
 			assert False, 'Expected IncompatibleDimensions.'
 
+		# TODO: Compare arrays.
+
 	def testRepr(self):
 		"""
 		Ensure that repr() gives a useful value.

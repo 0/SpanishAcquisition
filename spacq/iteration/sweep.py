@@ -21,28 +21,43 @@ def update_current_f(f):
 	return wrapped
 
 
+class PulseConfiguration(object):
+	"""
+	The configuration necessary to execute a pulse program with a device.
+	"""
+
+	def __init__(self, program, channels, device):
+		self.program = program
+		self.channels = channels
+		self.device = device
+
+
 class SweepController(object):
 	"""
 	A simple controller for a sweep of several variables.
 
-	init -> next -> transition -> write -> dwell -> read -> ramp_down -> end
-	^       ^__________________________________________|            |
-	|_______________________________________________________________|
+	init -> next -> transition -> write -> dwell -> pulse -> read -> ramp_down -> end
+	^       ^                                  |_____________^  |            |
+	|       |___________________________________________________|            |
+	|________________________________________________________________________|
 	"""
 
 	def __init__(self, resources, variables, num_items, measurement_resources, measurement_variables,
-			continuous=False):
+			pulse_config=None, continuous=False):
 		self.resources = resources
 		self.variables = variables
 		self.num_items = num_items
 		self.measurement_resources = measurement_resources
 		self.measurement_variables = measurement_variables
+		self.pulse_config = pulse_config
 		self.continuous = continuous
 
 		# The callbacks should be set before calling run(), if necessary.
 		self.data_callback, self.close_callback, self.write_callback, self.read_callback = [None] * 4
 		self.general_exception_handler = None
 		self.resource_exception_handler = None
+
+		self.devices_configured = False
 
 		self.current_f = None
 
@@ -158,7 +173,7 @@ class SweepController(object):
 	@update_current_f
 	def init(self):
 		"""
-		Initialize values.
+		Initialize values and possibly devices.
 		"""
 
 		self.iterators = None
@@ -168,6 +183,18 @@ class SweepController(object):
 		self.item = -1
 
 		self.sweep_start_time = time()
+
+		if not self.devices_configured:
+			log.debug('Configuring devices')
+
+			if self.pulse_config is not None:
+				self.pulse_config.device.run_mode = 'triggered'
+
+				# TODO: Enable all relevant channels.
+				# TODO: Set sampling frequency.
+				# TODO: Put the scope in single acquisition mode.
+
+			self.devices_configured = True
 
 		return self.next
 
@@ -265,7 +292,6 @@ class SweepController(object):
 		thrs = []
 		for pos in self.changed_indices:
 			for i, ((name, resource), value) in enumerate(zip(self.resources[pos], self.current_values[pos])):
-
 				if resource is not None:
 					thr = Thread(target=self.write_resource, args=(name, resource, value))
 					thrs.append(thr)
@@ -288,6 +314,33 @@ class SweepController(object):
 
 		delay = max(var._wait.value for pos in self.changed_indices for var in self.variables[pos])
 		sleep(delay)
+
+		if self.pulse_config is not None:
+			return self.pulse
+		else:
+			return self.read
+
+	@update_current_f
+	def pulse(self):
+		"""
+		Run through the pulse program.
+		"""
+
+		if self.pulse_config.channels:
+			device = self.pulse_config.device
+			waveforms = self.pulse_config.program.generate_waveforms()
+
+			for output, number in self.pulse_config.channels.items():
+				name = 'channel{0}'.format(number)
+				channel = device.channels[number]
+
+				# TODO: Markers.
+				device.create_waveform(name, waveforms[output].wave)
+
+				channel.waveform_name = name
+
+			self.pulse_config.device.trigger()
+			# TODO: Wait for completion of waveform.
 
 		return self.read
 

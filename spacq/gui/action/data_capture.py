@@ -8,7 +8,7 @@ from time import localtime, sleep, time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
-from spacq.iteration.sweep import SweepController
+from spacq.iteration.sweep import PulseConfiguration, SweepController
 from spacq.iteration.variables import sort_variables, InputVariable, OutputVariable
 from spacq.tool.box import flatten, sift
 
@@ -30,18 +30,20 @@ class DataCaptureDialog(Dialog, SweepController):
 		'transition': 'Smooth setting',
 		'write': 'Writing to devices',
 		'dwell': 'Waiting for devices to settle',
+		'pulse': 'Running pulse program',
 		'read': 'Taking measurements',
 		'ramp_down': 'Smooth setting',
 		'end': 'Finishing',
 	}
 
 	def __init__(self, parent, resources, variables, num_items, measurement_resources,
-			measurement_variables, continuous=False, *args, **kwargs):
+			measurement_variables, pulse_config, continuous=False,
+			*args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
 
 		Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
 		SweepController.__init__(self, resources, variables, num_items, measurement_resources,
-				measurement_variables, continuous=continuous)
+				measurement_variables, pulse_config, continuous=continuous)
 
 		self.parent = parent
 
@@ -347,6 +349,38 @@ class DataCapturePanel(wx.Panel):
 		missing_resources = []
 		unreadable_resources = []
 		unwritable_resources = []
+		missing_devices = []
+
+		pulse_program = self.global_store.pulse_program
+
+		if pulse_program is not None:
+			try:
+				pulse_program.generate_waveforms(dry_run=True)
+			except Exception as e:
+				MessageDialog(self, str(e), 'Pulse program error').Show()
+				return
+
+			pulse_device = None
+			pulse_channels = {}
+
+			try:
+				pulse_device = self.global_store.devices[pulse_program.device].device
+			except KeyError:
+				missing_devices.append(pulse_program.device)
+			else:
+				# Gather used channel numbers.
+				pulse_channels = dict((k, v) for k, v in pulse_program.output_channels.items() if v is not None)
+
+				actual_channels = range(1, len(pulse_device.channels))
+				invalid_channels = [k for k, v in pulse_channels.items() if v not in actual_channels]
+
+				if invalid_channels:
+					MessageDialog(self, 'Invalid channels for: {0}'.format(', '.join(invalid_channels)), 'Invalid channels').Show()
+					return
+
+			pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_device)
+		else:
+			pulse_config = None
 
 		resources = []
 		for group in resource_names:
@@ -385,7 +419,9 @@ class DataCapturePanel(wx.Panel):
 			MessageDialog(self, ', '.join(unreadable_resources), 'Unreadable resources').Show()
 		if unwritable_resources:
 			MessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
-		if missing_resources or unreadable_resources or unwritable_resources:
+		if missing_devices:
+			MessageDialog(self, ', '.join(missing_devices), 'Missing devices').Show()
+		if missing_resources or unreadable_resources or unwritable_resources or missing_devices:
 			return
 
 		exporting = False
@@ -422,7 +458,7 @@ class DataCapturePanel(wx.Panel):
 		self.capture_dialogs += 1
 
 		dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources,
-				input_variables, continuous)
+				input_variables, pulse_config, continuous=continuous)
 
 		for name in measurement_resource_names:
 			pub.sendMessage('data_capture.start', name=name)

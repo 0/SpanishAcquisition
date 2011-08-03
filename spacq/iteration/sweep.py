@@ -26,10 +26,11 @@ class PulseConfiguration(object):
 	The configuration necessary to execute a pulse program with a device.
 	"""
 
-	def __init__(self, program, channels, device):
+	def __init__(self, program, channels, awg, oscilloscope):
 		self.program = program
 		self.channels = channels
-		self.device = device
+		self.awg = awg
+		self.oscilloscope = oscilloscope
 
 
 class SweepController(object):

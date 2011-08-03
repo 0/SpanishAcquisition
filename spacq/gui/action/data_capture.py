@@ -157,12 +157,12 @@ class DataCaptureDialog(Dialog, SweepController):
 		# Try to cancel cleanly instead of giving up.
 		self.Bind(wx.EVT_CLOSE, self.OnCancel)
 
-	def _general_exception_handler(self, e):
+	def _general_exception_handler(self, f, e):
 		"""
 		Called when a trampolined function raises e.
 		"""
 
-		MessageDialog(self.parent, str(e), 'Sweep error').Show()
+		MessageDialog(self.parent, '{0}'.format(str(e)), 'Sweep error in "{0}"'.format(f)).Show()
 
 	def _resource_exception_handler(self, resource_name, e, write=True):
 		"""
@@ -360,25 +360,30 @@ class DataCapturePanel(wx.Panel):
 				MessageDialog(self, str(e), 'Pulse program error').Show()
 				return
 
-			pulse_device = None
+			pulse_awg, pulse_oscilloscope = None, None
 			pulse_channels = {}
 
 			try:
-				pulse_device = self.global_store.devices[pulse_program.device].device
+				pulse_awg = self.global_store.devices[pulse_program.awg].device
 			except KeyError:
-				missing_devices.append(pulse_program.device)
+				missing_devices.append(pulse_program.awg)
 			else:
 				# Gather used channel numbers.
 				pulse_channels = dict((k, v) for k, v in pulse_program.output_channels.items() if v is not None)
 
-				actual_channels = range(1, len(pulse_device.channels))
+				actual_channels = range(1, len(pulse_awg.channels))
 				invalid_channels = [k for k, v in pulse_channels.items() if v not in actual_channels]
 
 				if invalid_channels:
 					MessageDialog(self, 'Invalid channels for: {0}'.format(', '.join(invalid_channels)), 'Invalid channels').Show()
 					return
 
-			pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_device)
+			try:
+				pulse_oscilloscope = self.global_store.devices[pulse_program.oscilloscope].device
+			except KeyError:
+				missing_devices.append(pulse_program.oscilloscope)
+
+			pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_awg, pulse_oscilloscope)
 		else:
 			pulse_config = None
 

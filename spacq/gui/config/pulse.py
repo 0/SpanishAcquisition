@@ -246,6 +246,8 @@ class OutputPanel(ParameterPanel):
 	type = 'output'
 	name = 'Outputs'
 
+	spacer_height = 15
+
 	def extract_parameters(self, prog):
 		return sorted([(x,) for x in self.extract_variables(prog)])
 
@@ -275,10 +277,10 @@ class OutputPanel(ParameterPanel):
 
 		# Spacers.
 		for _ in xrange(self.num_cols):
-			self.panel_sizer.Add((-1, 30))
+			self.panel_sizer.Add((-1, self.spacer_height))
 
-		# Add frequency input.
-		self.panel_sizer.Add(wx.StaticText(self, label='Frequency'),
+		# Frequency input.
+		self.panel_sizer.Add(wx.StaticText(self, label='Sampling rate'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.freq_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
 		self.panel_sizer.Add(self.freq_input, flag=wx.EXPAND)
@@ -290,18 +292,35 @@ class OutputPanel(ParameterPanel):
 		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnFrequencyInput, self.freq_input)
 
-		# Add device input.
-		self.panel_sizer.Add(wx.StaticText(self, label='Device'),
+		# Spacers.
+		for _ in xrange(self.num_cols):
+			self.panel_sizer.Add((-1, self.spacer_height))
+
+		# AWG input.
+		self.panel_sizer.Add(wx.StaticText(self, label='AWG'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.device_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
-		self.panel_sizer.Add(self.device_input, flag=wx.EXPAND)
+		self.awg_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.panel_sizer.Add(self.awg_input, flag=wx.EXPAND)
 		self.panel_sizer.Add((-1, -1))
 
-		self.device_input.Value = self.prog.device
-		self.device_input.BackgroundColour = self.ok_background_color
+		self.awg_input.Value = self.prog.awg
+		self.awg_input.BackgroundColour = self.ok_background_color
 
-		self.Bind(wx.EVT_TEXT, self.OnDeviceChange, self.device_input)
-		self.Bind(wx.EVT_TEXT_ENTER, self.OnDeviceInput, self.device_input)
+		self.Bind(wx.EVT_TEXT, self.OnAWGChange, self.awg_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnAWGInput, self.awg_input)
+
+		# Oscilloscope input.
+		self.panel_sizer.Add(wx.StaticText(self, label='Oscilloscope'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.oscilloscope_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.panel_sizer.Add(self.oscilloscope_input, flag=wx.EXPAND)
+		self.panel_sizer.Add((-1, -1))
+
+		self.oscilloscope_input.Value = self.prog.oscilloscope
+		self.oscilloscope_input.BackgroundColour = self.ok_background_color
+
+		self.Bind(wx.EVT_TEXT, self.OnOscilloscopeChange, self.oscilloscope_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnOscilloscopeInput, self.oscilloscope_input)
 
 	def set_value(self, parameter, value):
 		if value == '':
@@ -324,13 +343,21 @@ class OutputPanel(ParameterPanel):
 
 		self.freq_input.BackgroundColour = self.ok_background_color
 
-	def OnDeviceChange(self, evt=None):
-		self.device_input.BackgroundColour = self.default_background_color
+	def OnAWGChange(self, evt=None):
+		self.awg_input.BackgroundColour = self.default_background_color
 
-	def OnDeviceInput(self, evt=None):
-		self.prog.device = self.device_input.Value
+	def OnAWGInput(self, evt=None):
+		self.prog.awg = self.awg_input.Value
 
-		self.device_input.BackgroundColour = self.ok_background_color
+		self.awg_input.BackgroundColour = self.ok_background_color
+
+	def OnOscilloscopeChange(self, evt=None):
+		self.oscilloscope_input.BackgroundColour = self.default_background_color
+
+	def OnOscilloscopeInput(self, evt=None):
+		self.prog.oscilloscope = self.oscilloscope_input.Value
+
+		self.oscilloscope_input.BackgroundColour = self.ok_background_color
 
 	def OnView(self, parameter, evt=None):
 		def show_frame(waveform, markers, frequency):

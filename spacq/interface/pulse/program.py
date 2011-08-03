@@ -59,8 +59,9 @@ class Program(object):
 		# Output channel numbers.
 		self.output_channels = dict((name, None) for name, type in self._env.variables.items() if type == 'output')
 
-		# Output device label.
-		self.device = ''
+		# Output device labels.
+		self.awg = ''
+		self.oscilloscope = ''
 
 	@property
 	def all_values(self):

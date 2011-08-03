@@ -142,5 +142,22 @@ class LinSpaceConfigTest(TestCase):
 		eq_(list(it2), [10.0])
 
 
+class ArbitraryConfigTest(TestCase):
+	def testIterator(self):
+		"""
+		Create an iterator from an arbitrary variable.
+		"""
+
+		values = [8, -5, 6.6, 3, 0, 0]
+
+		var = variables.OutputVariable(config=variables.ArbitraryConfig(values),
+				name='Name', order=1, enabled=True)
+
+		eq_(len(var), len(values))
+
+		it = var.iterator
+		eq_(list(it), values)
+
+
 if __name__ == '__main__':
 	main()

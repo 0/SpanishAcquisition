@@ -163,3 +163,18 @@ class LinSpaceConfig(object):
 
 	def __len__(self):
 		return self.steps
+
+
+class ArbitraryConfig(object):
+	"""
+	Variable configuration for arbitrary values.
+	"""
+
+	def __init__(self, values):
+		self.values = values
+
+	def to_iterator(self):
+		return self.values
+
+	def __len__(self):
+		return len(self.values)

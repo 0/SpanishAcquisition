@@ -1,7 +1,7 @@
 import ObjectListView
 import wx
 
-from spacq.iteration.variables import OutputVariable, LinSpaceConfig
+from spacq.iteration.variables import OutputVariable, LinSpaceConfig, ArbitraryConfig
 
 from ..tool.box import Dialog, MessageDialog, load_pickled, save_pickled
 
@@ -75,6 +75,41 @@ class LinSpaceConfigPanel(wx.Panel):
 				str(config.final), config.steps)
 
 
+class ArbitraryConfigPanel(wx.Panel):
+	def __init__(self, parent, *args, **kwargs):
+		wx.Panel.__init__(self, parent, *args, **kwargs)
+
+		# Panel.
+		panel_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Config.
+		config_sizer = wx.FlexGridSizer(rows=1, cols=2)
+		config_sizer.AddGrowableCol(1, 1)
+		panel_box.Add(config_sizer, proportion=1, flag=wx.EXPAND)
+
+		### Values.
+		config_sizer.Add(wx.StaticText(self, label='Values:'),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT|wx.ALL, border=5)
+		self.values_input = wx.TextCtrl(self)
+		config_sizer.Add(self.values_input, flag=wx.EXPAND|wx.ALL, border=5)
+
+		self.SetSizerAndFit(panel_box)
+
+	def GetValue(self):
+		raw_values = self.values_input.Value.split(',')
+
+		# Ensure the values are sane.
+		try:
+			values = [float(x) for x in raw_values]
+		except ValueError as e:
+			raise ValueError('Invalid value: {0}'.format(str(e)))
+
+		return ArbitraryConfig(values)
+
+	def SetValue(self, config):
+		self.values_input.Value = ', '.join('{0:n}'.format(x) for x in config.values)
+
+
 class VariableEditor(Dialog):
 	def __init__(self, parent, ok_callback, *args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
@@ -96,6 +131,11 @@ class VariableEditor(Dialog):
 		linspace_config_panel = LinSpaceConfigPanel(self.config_notebook)
 		self.config_panel_types.append(LinSpaceConfig)
 		self.config_notebook.AddPage(linspace_config_panel, 'Linear')
+
+		### Arbitrary.
+		arbitrary_config_panel = ArbitraryConfigPanel(self.config_notebook)
+		self.config_panel_types.append(ArbitraryConfig)
+		self.config_notebook.AddPage(arbitrary_config_panel, 'Arbitrary')
 
 		## Smooth set.
 		smooth_static_box = wx.StaticBox(self, label='Smooth set')

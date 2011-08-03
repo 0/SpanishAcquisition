@@ -64,6 +64,8 @@ class DataCaptureDialog(Dialog, SweepController):
 			self.value_inputs[i].Value = str(value)
 		self.read_callback = partial(wx.CallAfter, read_callback)
 
+		self.resource_exception_handler = partial(wx.CallAfter, self._resource_exception_handler)
+
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
@@ -152,7 +154,7 @@ class DataCaptureDialog(Dialog, SweepController):
 		# Try to cancel cleanly instead of giving up.
 		self.Bind(wx.EVT_CLOSE, self.OnCancel)
 
-	def resource_exception_handler(self, resource_name, e, write=True):
+	def _resource_exception_handler(self, resource_name, e, write=True):
 		"""
 		Called when a write to or read from a Resource raises e.
 		"""
@@ -252,6 +254,10 @@ class DataCaptureDialog(Dialog, SweepController):
 
 
 class DataCapturePanel(wx.Panel):
+	"""
+	A panel to start the data capture process, optionally exporting the results to a file.
+	"""
+
 	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 

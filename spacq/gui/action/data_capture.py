@@ -327,8 +327,7 @@ class DataCapturePanel(wx.Panel):
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
 
 		if not output_variables:
-			MessageDialog(self, 'No output variables defined', 'No variables').Show()
-			return
+			output_variables.append(OutputVariable(order=0, name='', enabled=True))
 
 		output_variables, num_items = sort_variables(output_variables)
 

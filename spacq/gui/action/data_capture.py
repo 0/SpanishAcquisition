@@ -8,6 +8,7 @@ from time import localtime, sleep, time
 import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
+from spacq.interface.pulse.parser import PulseError
 from spacq.iteration.sweep import PulseConfiguration, SweepController
 from spacq.iteration.variables import sort_variables, InputVariable, OutputVariable
 from spacq.tool.box import flatten, sift
@@ -356,6 +357,9 @@ class DataCapturePanel(wx.Panel):
 		if pulse_program is not None:
 			try:
 				pulse_program.generate_waveforms(dry_run=True)
+			except PulseError as e:
+				MessageDialog(self, '\n'.join(e[0]), 'Pulse program error', monospace=True).Show()
+				return
 			except Exception as e:
 				MessageDialog(self, str(e), 'Pulse program error').Show()
 				return

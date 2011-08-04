@@ -28,12 +28,13 @@ class Channel(AbstractSubdevice):
 		# Resources.
 		read_only = ['waveform']
 		for name in read_only:
-			self.resources[name] = Resource(self, name, name)
+			self.resources[name] = Resource(self, name)
 
 		read_write = ['enabled']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		self.resources['waveform'].slow = True
 		self.resources['enabled'].converter = str_to_bool
 
 	def __init__(self, device, channel, *args, **kwargs):

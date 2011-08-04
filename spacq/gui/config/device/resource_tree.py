@@ -35,7 +35,10 @@ class ResourceFetcher(Thread):
 				resource = self.getter(item)
 
 				if resource is not None and resource.readable:
-					wx.CallAfter(self.callback, item, resource.value)
+					if resource.slow:
+						wx.CallAfter(self.callback, item, '[N/A]')
+					else:
+						wx.CallAfter(self.callback, item, resource.value)
 		except wx.PyDeadObjectError:
 			# The values are no longer wanted.
 			return

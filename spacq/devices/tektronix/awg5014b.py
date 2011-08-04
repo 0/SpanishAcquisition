@@ -205,6 +205,7 @@ class AWG5014B(AbstractDevice):
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		self.resources['waveform_names'].slow = True
 		self.resources['sampling_rate'].converter = float
 		self.resources['run_mode'].allowed_values = self.allowed_run_modes
 		self.resources['enabled'].converter = str_to_bool

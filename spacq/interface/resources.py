@@ -62,6 +62,9 @@ class Resource(object):
 
 		self.wrappers = []
 
+		# Resources marked slow should not be fetched implicitly.
+		self.slow = False
+
 	@property
 	def value(self):
 		"""

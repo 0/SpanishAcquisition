@@ -98,6 +98,13 @@ class ParameterPanel(ScrolledPanel):
 		# Last column.
 		return self.num_cols - 1
 
+	def get_value(self, parameter):
+		"""
+		Get the value of a parameter as a string, or raise KeyError if not available.
+		"""
+
+		return str(self.values[parameter])
+
 	def add_row(self, parameter, input_type='text'):
 		"""
 		Add a parameter to the sizer and display the value if it is available.
@@ -133,7 +140,7 @@ class ParameterPanel(ScrolledPanel):
 			self.default_background_color = input.BackgroundColour
 
 		try:
-			input.ChangeValue(str(self.values[parameter]))
+			input.ChangeValue(self.get_value(parameter))
 		except KeyError:
 			# No default value set.
 			pass
@@ -258,6 +265,14 @@ class OutputPanel(ParameterPanel):
 	@property
 	def input_col(self):
 		return self.num_cols - 2
+
+	def get_value(self, parameter):
+		result = self.prog.output_channels[parameter[0]]
+
+		if result is not None:
+			return str(result)
+		else:
+			raise KeyError(parameter[0])
 
 	def add_row(self, parameter):
 		ParameterPanel.add_row(self, parameter)

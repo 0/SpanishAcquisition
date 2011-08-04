@@ -101,6 +101,7 @@ class Program(object):
 
 		self._env.stage = self._env.stages.waveforms
 		self._env.dry_run = dry_run
+		self._env.missing_shapes = set()
 		self._env.errors = []
 		self._env.traverse_tree(self._ast)
 

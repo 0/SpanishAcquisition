@@ -30,11 +30,15 @@ class ResourceFetcher(Thread):
 		self.callback = callback
 
 	def run(self):
-		for item in self.items:
-			resource = self.getter(item)
+		try:
+			for item in self.items:
+				resource = self.getter(item)
 
-			if resource is not None and resource.readable:
-				wx.CallAfter(self.callback, item, resource.value)
+				if resource is not None and resource.readable:
+					wx.CallAfter(self.callback, item, resource.value)
+		except wx.PyDeadObjectError:
+			# The values are no longer wanted.
+			return
 
 
 class ItemData(object):
@@ -136,7 +140,11 @@ class ResourceTree(TreeListCtrl):
 					return pydata.resource
 
 		def set(item, value):
-			self.SetItemText(item, str(value), self.col_value)
+			try:
+				self.SetItemText(item, str(value), self.col_value)
+			except wx.PyDeadObjectError:
+				# The value isn't wanted anymore.
+				return
 
 		thr = ResourceFetcher(items, fetch, set)
 		thr.daemon = True

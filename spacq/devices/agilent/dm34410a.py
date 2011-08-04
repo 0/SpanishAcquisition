@@ -43,8 +43,6 @@ class DM34410A(AbstractDevice):
 	def _connected(self):
 		AbstractDevice._connected(self)
 
-		self.reset()
-
 		# TODO: Allow for measurements other than DC voltage.
 		self.write('configure:voltage:dc')
 

@@ -190,11 +190,6 @@ class AWG5014B(AbstractDevice):
 		self.resources['run_mode'].allowed_values = self.allowed_run_modes
 		self.resources['enabled'].converter = str_to_bool
 
-	def _connected(self):
-		AbstractDevice._connected(self)
-
-		self.reset()
-
 	@Synchronized()
 	def reset(self):
 		"""

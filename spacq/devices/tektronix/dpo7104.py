@@ -136,14 +136,6 @@ class DPO7104(AbstractDevice):
 		self.resources['horizontal_scale'].converter = float
 		self.resources['acquiring'].converter = str_to_bool
 
-	def _connected(self):
-		AbstractDevice._connected(self)
-
-		self.reset()
-		self.autoset()
-
-		self.stopafter = 'sequence'
-
 	@Synchronized()
 	def reset(self):
 		"""

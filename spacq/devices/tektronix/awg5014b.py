@@ -78,6 +78,11 @@ class Channel(AbstractSubdevice):
 	Output channel of the AWG.
 	"""
 
+	# Peak amplitude range.
+	# The values are supposed to be peak-to-peak, but the device seems to output twice the value.
+	min_amplitude = 0.02 # V
+	max_amplitude = 4.50 # V
+
 	def _setup(self):
 		AbstractSubdevice._setup(self)
 
@@ -147,6 +152,8 @@ class Channel(AbstractSubdevice):
 	def set_waveform(self, waveform, markers, name=None):
 		"""
 		Set the waveform on this channel.
+
+		The waveform data should be in V.
 		"""
 
 		if name is None:
@@ -155,6 +162,18 @@ class Channel(AbstractSubdevice):
 		# Clear existing.
 		if name in self.device.waveform_names:
 			self.device.delete_waveform(name)
+
+		# Normalize waveform.
+		max_amp = max(abs(x) for x in waveform)
+		if max_amp > self.max_amplitude:
+			raise ValueError('Amplitude {0} V exceeds maximum of {1} V'.format(max_amp, self.max_amplitude))
+		elif max_amp > 0:
+			if max_amp < self.min_amplitude:
+				max_amp = self.min_amplitude
+
+			waveform = [x / max_amp for x in waveform]
+
+			self.amplitude = max_amp
 
 		# Create new.
 		self.device.create_waveform(name, waveform, markers)
@@ -302,6 +321,8 @@ class AWG5014B(AbstractDevice):
 	def create_waveform(self, name, data, markers=None):
 		"""
 		Create a new waveform on the AWG.
+
+		The waveform data should be on [-1, 1].
 		"""
 
 		self.status.append('Creating waveform "{0}"'.format(name))

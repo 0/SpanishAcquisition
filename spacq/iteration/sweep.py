@@ -332,21 +332,15 @@ class SweepController(object):
 			awg = self.pulse_config.awg
 			waveforms = self.pulse_config.program.generate_waveforms()
 
-			for name in awg.waveform_names:
-				if name.startswith('spacq'):
-					awg.delete_waveform(name)
-
 			for output, number in self.pulse_config.channels.items():
-				name = 'spacq{0}'.format(number)
 				channel = awg.channels[number]
 
 				markers = {}
 				for num in waveforms[output].markers:
 					markers[num] = waveforms[output].get_marker(num)
 
-				awg.create_waveform(name, waveforms[output].wave, markers)
+				channel.set_waveform(waveforms[output].wave, markers, name=output)
 
-				channel.waveform_name = name
 				channel.enabled = True
 
 			awg.enabled = True

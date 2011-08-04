@@ -144,6 +144,22 @@ class Channel(AbstractSubdevice):
 	def amplitude(self, v):
 		self.device.write('source{0}:voltage {1:E}'.format(self.channel, v))
 
+	def set_waveform(self, waveform, markers, name=None):
+		"""
+		Set the waveform on this channel.
+		"""
+
+		if name is None:
+			name = 'channel{0}'.format(self.channel)
+
+		# Clear existing.
+		if name in self.device.waveform_names:
+			self.device.delete_waveform(name)
+
+		# Create new.
+		self.device.create_waveform(name, waveform, markers)
+		self.waveform_name = name
+
 
 class AWG5014B(AbstractDevice):
 	"""

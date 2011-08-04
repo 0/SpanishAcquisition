@@ -332,6 +332,9 @@ class SweepController(object):
 			awg = self.pulse_config.awg
 			waveforms = self.pulse_config.program.generate_waveforms()
 
+			awg.enabled = False
+
+			channels = []
 			for output, number in self.pulse_config.channels.items():
 				channel = awg.channels[number]
 
@@ -341,6 +344,9 @@ class SweepController(object):
 
 				channel.set_waveform(waveforms[output].wave, markers, name=output)
 
+				channels.append(channel)
+
+			for channel in channels:
 				channel.enabled = True
 
 			awg.enabled = True

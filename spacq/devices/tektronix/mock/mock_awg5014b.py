@@ -171,6 +171,9 @@ class MockAWG5014B(MockAbstractDevice, AWG5014B):
 						wave.marker2 = [1 if x & 2 ** 15 else 0 for x in data]
 
 					done = True
+				elif cmd[1] == 'waveform' and cmd[2] == 'delete':
+					self.mock_state['wlist'].remove(self.find_wave(args))
+					done = True
 			elif cmd[0].startswith('source'):
 				source = int(cmd[0][6])
 				channel = self.mock_state['channels'][source]

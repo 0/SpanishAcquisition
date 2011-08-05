@@ -247,7 +247,7 @@ class AWG5014B(AbstractDevice):
 	@sampling_rate.setter
 	def sampling_rate(self, value):
 		if value < 1e7 or value > 1.2e9:
-			raise ValueError('Sampling rate must be between 10 MHz and 1.2 GHz')
+			raise ValueError('Sampling rate must be between 1e7 Hz and 1.2e9 Hz, not {0:n} Hz'.format(value))
 
 		self.write('source1:frequency {0:E}'.format(value))
 

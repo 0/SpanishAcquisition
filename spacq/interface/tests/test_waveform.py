@@ -26,11 +26,11 @@ class GeneratorTest(TestCase):
 		wg = waveform.Generator(frequency=Quantity(2, 'Hz'))
 
 		wg.delay(Quantity(2, 's'))
-		wg.marker(1, 'high')
-		wg.marker(2, 'high')
+		wg.marker(1, True)
+		wg.marker(2, True)
 		wg.pulse([], 0.5, Quantity(1, 's'))
 		wg.pulse([1.0, 0.0, -1.0], 1.0, Quantity(3, 's'))
-		wg.marker(1, 'low')
+		wg.marker(1, False)
 		wg.square(-0.5, Quantity(2, 's'))
 
 		expected = [0.0, 0.0, 0.0, 1.0, 0.6, 0.2, -0.2, -0.6, -1.0, -0.5, -0.5, -0.5, -0.5, -1.0]
@@ -48,8 +48,8 @@ class GeneratorTest(TestCase):
 
 		wg = waveform.Generator(frequency=Quantity(1, 'mHz'))
 
-		wg.marker(1, 'high')
-		wg.marker(2, 'low')
+		wg.marker(1, True)
+		wg.marker(2, False)
 
 		wave, markers = wg.waveform
 		eq_(wave, [0.0])

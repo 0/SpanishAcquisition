@@ -178,13 +178,10 @@ class Generator(object):
 		Set the value of a marker starting from the current position.
 		"""
 
-		if value not in ['high', 'low']:
-			raise ValueError('Invalid value: {0}'.format(value))
-
 		if self.dry_run:
 			return
 
 		if num not in self._markers:
 			self._markers[num] = {}
 
-		self._markers[num][len(self._wave)] = (value == 'high')
+		self._markers[num][len(self._wave)] = value

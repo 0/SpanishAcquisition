@@ -273,7 +273,7 @@ class Acquire(ASTNode):
 			acq_marker = env.values[('_acq_marker', 'marker_num')]
 			acq_output = env.values[('_acq_marker', 'output')]
 
-			env.generators[acq_output].marker(acq_marker, 'high')
+			env.generators[acq_output].marker(acq_marker, True)
 
 
 class Assignment(ASTNode):
@@ -410,8 +410,11 @@ class Delay(ASTNode):
 	def visit(self, env):
 		if env.stage == env.stages.commands:
 			if isinstance(self.length, basestring):
-				if env.variables[self.length] != 'delay':
-					env.add_error('Not a delay', self.location)
+				try:
+					if env.variables[self.length] != 'delay':
+						env.add_error('Not a delay', self.location)
+				except KeyError:
+					env.add_error('Undeclared variable "{0}"'.format(self.length), self.location)
 			else:
 				if not self.length.assert_dimensions('s', exception=False):
 					env.add_error('Delay must be a time value', self.location)

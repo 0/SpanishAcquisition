@@ -242,7 +242,7 @@ class InvalidTreeTest(TestCase):
 			times repeat {
 				def2
 				ghi1:mno1
-				(ghi1 abc1 10 ns jkl2):mno1 (def2 jkl2 def2):pqr2
+				(ghi1 abc1 10 ns jkl2):mno1 (10 V def2 jkl2 def2):pqr2
 
 				acquire
 				mno1
@@ -266,7 +266,7 @@ class InvalidTreeTest(TestCase):
 		env.stage = env.stages.commands
 		env.traverse_tree(prog)
 
-		expected_errors = ['Not a d', 'Repeate', 'Repeti', 'Repeate', 'Delay mu']
+		expected_errors = ['Delay mu', 'Not a d', 'Repeate', 'Repeti', 'Repeate', 'Delay mu']
 
 		eq_(len(env.errors), len(expected_errors))
 

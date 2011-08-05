@@ -4,6 +4,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from unittest import main, TestCase
 
 from ...units import Quantity
+from ..parser import PulseSyntaxError
 
 from .. import program
 
@@ -33,6 +34,14 @@ class ProgramTest(TestCase):
 		p.set_value(('wobble', 'shape'), 'non-square')
 
 		eq_(p.missing_values, set([name for name, value in self.missing]))
+		eq_(set(p.variables), set(['bumps', 'bump_spacing', 'settle', 'end_delay', 'first_square', 'wobble', 'last_square', 'manipulator', 'f1', 'f2', '_acq_marker']))
+
+	def testInvalid(self):
+		"""
+		This program isn't syntactically correct.
+		"""
+
+		assert_raises(PulseSyntaxError, program.Program.from_file, path.join(resource_dir, '02.pulse'))
 
 	def testInvalidShapePath(self):
 		"""
@@ -67,7 +76,9 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		for name, value in self.missing:
 			p.set_value(name, value)
 
+		assert ('wobble', 'shape') not in p.values
 		p.set_value(('wobble', 'shape'), '01.pulse')
+		assert ('wobble', 'shape') in p.values
 
 		assert_raises(ValueError, p.generate_waveforms)
 
@@ -87,6 +98,7 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 		p.set_value(('wobble', 'shape'), 'non-square')
 
 		p.frequency = Quantity(1, 'GHz')
+		eq_(p.frequency, Quantity(1, 'GHz'))
 		waveforms = p.generate_waveforms()
 
 		eq_(set(waveforms.keys()), set(['f1', 'f2']))

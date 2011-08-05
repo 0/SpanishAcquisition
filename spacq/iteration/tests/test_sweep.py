@@ -1,9 +1,12 @@
 from functools import partial
 from nose.tools import eq_
+from os import path
 from threading import Thread
 from time import sleep, time
 from unittest import main, TestCase
 
+from spacq.devices.config import DeviceConfig
+from spacq.interface.pulse.program import Program
 from spacq.interface.resources import Resource
 from spacq.interface.units import Quantity
 from spacq.tool.box import flatten
@@ -11,6 +14,9 @@ from spacq.tool.box import flatten
 from ..variables import sort_variables, InputVariable, OutputVariable, LinSpaceConfig
 
 from .. import sweep
+
+
+resource_dir = path.join(path.dirname(__file__), 'resources')
 
 
 class SweepControllerTest(TestCase):
@@ -229,7 +235,6 @@ class SweepControllerTest(TestCase):
 		res = Resource(setter=setter)
 		var = OutputVariable(name='Var', order=1, enabled=True, const=0.0)
 		var.config = LinSpaceConfig(1.0, 4.0, 4)
-		var.smooth_from = True
 
 		vars, num_items = sort_variables([var])
 		ctrl = sweep.SweepController([(('Res', res),)], vars, num_items, [], [])
@@ -273,6 +278,48 @@ class SweepControllerTest(TestCase):
 		ctrl.run()
 
 		eq_(exceptions, [('Meas res', e)] * 4)
+
+	def testPulseProgram(self):
+		"""
+		Iterate with a pulse program.
+		"""
+
+		res_buf = []
+
+		def setter(value):
+			res_buf.append(value)
+
+		res = Resource(setter=setter)
+		var = OutputVariable(name='Var', order=1, enabled=True)
+		var.config = LinSpaceConfig(1.0, 4.0, 4)
+
+		p = Program.from_file(path.join(resource_dir, '01.pulse'))
+		p.frequency = Quantity(1, 'GHz')
+		p.set_value(('_acq_marker', 'marker_num'), 1)
+		p.set_value(('_acq_marker', 'output'), 'f1')
+
+		awg_cfg = DeviceConfig('awg')
+		awg_cfg.address_mode = awg_cfg.address_modes.gpib
+		awg_cfg.manufacturer = 'Tektronix'
+		awg_cfg.model = 'AWG5014B'
+		awg_cfg.mock = True
+		awg_cfg.connect()
+
+		osc_cfg = DeviceConfig('osc')
+		osc_cfg.address_mode = awg_cfg.address_modes.gpib
+		osc_cfg.manufacturer = 'Tektronix'
+		osc_cfg.model = 'DPO7104'
+		osc_cfg.mock = True
+		osc_cfg.connect()
+
+		pulse_config = sweep.PulseConfiguration(p, {'f1': 1}, awg_cfg.device, osc_cfg.device)
+
+		vars, num_items = sort_variables([var])
+		ctrl = sweep.SweepController([(('Res', res),)], vars, num_items, [], [], pulse_config)
+
+		ctrl.run()
+
+		eq_(res_buf, [1.0, 2.0, 3.0, 4.0])
 
 
 if __name__ == '__main__':

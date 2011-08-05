@@ -78,10 +78,9 @@ class Channel(AbstractSubdevice):
 	Output channel of the AWG.
 	"""
 
-	# Peak amplitude range.
-	# The values are supposed to be peak-to-peak, but the device seems to output twice the value.
-	min_amplitude = 0.02 # V
-	max_amplitude = 4.50 # V
+	# Zero-to-peak amplitude range.
+	min_amplitude = 0.01 # V
+	max_amplitude = 2.25 # V
 
 	def _setup(self):
 		AbstractSubdevice._setup(self)
@@ -140,14 +139,16 @@ class Channel(AbstractSubdevice):
 	@property
 	def amplitude(self):
 		"""
-		The amplitude of the channel in V.
+		The zero-to-peak amplitude of the channel in V.
 		"""
 
-		return float(self.device.ask('source{0}:voltage?'.format(self.channel)))
+		# Convert peak-to-peak to zero-to-peak.
+		return float(self.device.ask('source{0}:voltage?'.format(self.channel))) / 2
 
 	@amplitude.setter
 	def amplitude(self, v):
-		self.device.write('source{0}:voltage {1:E}'.format(self.channel, v))
+		# Convert zero-to-peak to peak-to-peak.
+		self.device.write('source{0}:voltage {1:E}'.format(self.channel, 2 * v))
 
 	def set_waveform(self, waveform, markers, name=None):
 		"""

@@ -150,7 +150,7 @@ class Channel(AbstractSubdevice):
 		# Convert zero-to-peak to peak-to-peak.
 		self.device.write('source{0}:voltage {1:E}'.format(self.channel, 2 * v))
 
-	def set_waveform(self, waveform, markers, name=None):
+	def set_waveform(self, waveform, markers=None, name=None):
 		"""
 		Set the waveform on this channel.
 
@@ -158,7 +158,7 @@ class Channel(AbstractSubdevice):
 		"""
 
 		if name is None:
-			name = 'channel{0}'.format(self.channel)
+			name = 'Channel {0}'.format(self.channel)
 
 		# Clear existing.
 		if name in self.device.waveform_names:

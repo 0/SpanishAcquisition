@@ -19,6 +19,12 @@ class DPO7104Test(DeviceServerTestCase):
 		"""
 
 		dpo = self.obtain_device()
+		dpo.reset()
+
+		dpo.autoset()
+
+		eq_(dpo.stopafter, 'runstop')
+		assert dpo.acquiring
 
 		ws = []
 

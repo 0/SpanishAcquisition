@@ -9,7 +9,10 @@ from ... import dm34410a
 
 class DM34410ATest(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, impl=dm34410a.DM34410A, model_name='DM34410A')
+		dev = DeviceServerTestCase.obtain_device(self, impl=dm34410a.DM34410A, model_name='DM34410A')
+		dev.reset()
+
+		return dev
 
 	def testAutoZero(self):
 		"""

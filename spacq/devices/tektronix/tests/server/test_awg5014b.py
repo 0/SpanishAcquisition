@@ -21,6 +21,7 @@ class AWG5014BTest(DeviceServerTestCase):
 		"""
 
 		awg = self.obtain_device()
+		awg.reset()
 
 		awg.channels[1].markers[1].delay = 1e-9 # s
 		awg.channels[1].markers[1].high = 0.5 # V
@@ -52,6 +53,9 @@ class AWG5014BTest(DeviceServerTestCase):
 		log = AssertHandler()
 
 		awg = self.obtain_device()
+		awg.reset()
+
+		assert not awg.enabled
 
 		# Setup
 		existing_waveforms = awg.waveform_names
@@ -60,36 +64,27 @@ class AWG5014BTest(DeviceServerTestCase):
 		data2 = linspace(1.0, -1.0, 21)
 
 		log.flush()
-		awg.create_waveform(
-			'Test 1',
-			data=data1,
-			markers={
-				1: ([1, 1, 1, 0, 0] * len(data1))[:len(data1)],
-				2: ([0, 0, 0, 1, 1] * len(data1))[:len(data1)],
-				3: [1, 2, 3, 4],
-			}
-		)
+		awg.channels[1].set_waveform(data1, {
+			1: ([1, 1, 1, 0, 0] * len(data1))[:len(data1)],
+			2: ([0, 0, 0, 1, 1] * len(data1))[:len(data1)],
+			3: [1, 2, 3, 4],
+		})
 		log.assert_logged('warning', 'marker 3 ignored: \[1, 2, 3, 4\]')
 
-		awg.create_waveform(
-			'Test 2',
-			data=data2
-		)
+		awg.channels[2].set_waveform(data2, name='Test 2')
 
 		awg.sampling_rate = 2e8 # Hz
 
-		awg.channels[1].waveform_name = 'Test 1'
 		awg.channels[1].enabled = True
 		awg.channels[1].amplitude = 0.8
 
-		awg.channels[2].waveform_name = 'Test 2'
 		awg.channels[2].enabled = True
 		awg.channels[2].amplitude = 0.4
 
 		awg.channels[3].waveform_name = 'Test 2'
 		awg.channels[3].enabled = True
 
-		awg.channels[4].waveform_name = 'Test 1'
+		awg.channels[4].waveform_name = 'Channel 1'
 
 		del awg.channels[3].waveform_name
 
@@ -99,9 +94,9 @@ class AWG5014BTest(DeviceServerTestCase):
 		# Verify
 		eq_(awg.sampling_rate, 2e8)
 
-		eq_(awg.waveform_names, existing_waveforms + ['Test 1', 'Test 2'])
+		eq_(awg.waveform_names, existing_waveforms + ['Channel 1', 'Test 2'])
 
-		assert_array_almost_equal(awg.get_waveform('Test 1'), data1, 4)
+		assert_array_almost_equal(awg.get_waveform('Channel 1'), data1, 4)
 		eq_(awg.channels[1].amplitude, 0.8)
 		assert_array_almost_equal(awg.get_waveform('Test 2'), data2, 4)
 		eq_(awg.channels[2].amplitude, 0.4)
@@ -112,7 +107,7 @@ class AWG5014BTest(DeviceServerTestCase):
 			eq_(awg.channels[ch].enabled, False)
 
 		for ch in [1, 4]:
-			eq_(awg.channels[ch].waveform_name, 'Test 1')
+			eq_(awg.channels[ch].waveform_name, 'Channel 1')
 		eq_(awg.channels[2].waveform_name, 'Test 2')
 		eq_(awg.channels[3].waveform_name, '')
 

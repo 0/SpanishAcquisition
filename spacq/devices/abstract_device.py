@@ -247,7 +247,7 @@ class AbstractDevice(SuperDevice):
 			raise ValueError('Multi-command message not started.')
 		elif not self.multi_command:
 			# No commands.
-			return
+			return []
 
 		commands = self.multi_command
 		# This ensures that write and ask will not buffer the real message.
@@ -264,6 +264,8 @@ class AbstractDevice(SuperDevice):
 			return result.split(';', self.responses_expected - 1)
 		else:
 			self.write(message)
+
+			return []
 
 	@Synchronized()
 	def write(self, message):

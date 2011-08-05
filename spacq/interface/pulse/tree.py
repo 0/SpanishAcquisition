@@ -286,9 +286,6 @@ class Assignment(ASTNode):
 		return 'Assignment\n' + draw_thing(self.target, depth + 1) + draw_thing(self.value, depth + 1)
 
 	def assign_value(self, env, target, value):
-		if isinstance(value, ASTNode):
-			value = value.visit(env)
-
 		try:
 			env.set_value(target, value)
 		except KeyError as e:

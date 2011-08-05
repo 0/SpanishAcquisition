@@ -115,6 +115,7 @@ class Program(object):
 
 		return self._env.waveforms
 
+	@property
 	def with_resources(self):
 		"""
 		Produce a copy object, with a cloned Environment, and with all resources which exist mutated to point to the corresponding values.
@@ -128,7 +129,6 @@ class Program(object):
 		result._env = deepcopy(self._env)
 
 		for parameter, label in self.resource_labels.items():
-			print parameter, label
 			def setter(x, parameter=parameter):
 				result._env.values[parameter] = x
 

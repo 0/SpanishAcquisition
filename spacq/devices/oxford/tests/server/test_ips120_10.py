@@ -34,6 +34,7 @@ class IPS120_10Test(DeviceServerTestCase):
 		ips.field = 0.005
 		elapsed_time = time() - start_time
 
+		eq_(ips.set_point, 0.005)
 		eq_(ips.field, 0.005)
 
 		expected_time = 60 * abs(0.005 - start_field) / 0.1

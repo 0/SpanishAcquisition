@@ -312,7 +312,7 @@ class SweepControllerTest(TestCase):
 		osc_cfg.mock = True
 		osc_cfg.connect()
 
-		pulse_config = sweep.PulseConfiguration(p, {'f1': 1}, awg_cfg.device, osc_cfg.device)
+		pulse_config = sweep.PulseConfiguration(p.with_resources, {'f1': 1}, awg_cfg.device, osc_cfg.device)
 
 		vars, num_items = sort_variables([var])
 		ctrl = sweep.SweepController([(('Res', res),)], vars, num_items, [], [], pulse_config)

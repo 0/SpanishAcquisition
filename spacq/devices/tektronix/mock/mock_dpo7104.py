@@ -38,7 +38,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 		self.mock_state['waveform_bytes'] = 2
 
 		self.mock_state['data_start'] = 1
-		self.mock_state['data_stop'] = self.record_length
+		self.mock_state['data_stop'] = self._record_length
 		self.mock_state['data_source'] = 1
 
 		self.mock_state['channels'] = [None] # There is no channel 0.
@@ -47,7 +47,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 		self.mock_state['channels'][1].enabled = True
 
 	@property
-	def record_length(self):
+	def _record_length(self):
 		return int(10 * self.mock_state['samplerate'] * self.mock_state['horizontal_scale'])
 
 	def write(self, message, result=None, done=False):
@@ -85,7 +85,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 							self.mock_state['horizontal_scale'] = float(args)
 						done = True
 					elif cmd[2] == 'recordlength' and query:
-						result = self.record_length
+						result = self._record_length
 						done = True
 			elif cmd[0] == 'data':
 				if cmd[1] == 'start':
@@ -107,7 +107,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 						self.mock_state['data_source'] = int(args[2])
 					done = True
 			elif cmd[0] == 'curve' and query:
-				result = BlockData.to_block_data('x' * self.record_length * self.mock_state['waveform_bytes'])
+				result = BlockData.to_block_data('x' * self._record_length * self.mock_state['waveform_bytes'])
 				done = True
 			elif cmd[0] == 'wfmoutpre':
 				if cmd[1] == 'byt_nr':

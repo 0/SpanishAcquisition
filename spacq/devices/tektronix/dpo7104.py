@@ -290,7 +290,6 @@ class DPO7104(AbstractDevice):
 		"""
 
 		self.acquiring = True
-		self.opc
 
 
 name = 'DPO7104'

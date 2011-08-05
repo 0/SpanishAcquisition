@@ -355,7 +355,7 @@ class DataCapturePanel(wx.Panel):
 		pulse_program = self.global_store.pulse_program
 
 		if pulse_program is not None:
-			pulse_program = pulse_program.with_resources()
+			pulse_program = pulse_program.with_resources
 
 			try:
 				pulse_program.generate_waveforms(dry_run=True)

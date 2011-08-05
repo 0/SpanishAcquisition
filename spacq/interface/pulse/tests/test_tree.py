@@ -242,7 +242,7 @@ class InvalidTreeTest(TestCase):
 			times repeat {
 				def2
 				ghi1:mno1
-				(ghi1 abc1 10 ns jkl2):mno1 (10 V def2 jkl2 def2):pqr2
+				(ghi1 abc1 10 ns jkl2):mno1 (10 V def2 jkl2 def2 pqr2):pqr2
 
 				acquire
 				mno1
@@ -266,7 +266,7 @@ class InvalidTreeTest(TestCase):
 		env.stage = env.stages.commands
 		env.traverse_tree(prog)
 
-		expected_errors = ['Delay mu', 'Not a d', 'Repeate', 'Repeti', 'Repeate', 'Delay mu']
+		expected_errors = ['Delay mu', 'Invali', 'Not a d', 'Repeate', 'Repeti', 'Repeate', 'Delay mu']
 
 		eq_(len(env.errors), len(expected_errors))
 
@@ -294,6 +294,59 @@ class InvalidTreeTest(TestCase):
 		env.stage = env.stages.waveforms
 
 		assert_raises(ValueError, env.traverse_tree, prog)
+
+
+class DrawThingTest(TestCase):
+	def testDrawTree(self):
+		"""
+		Try our hand at drawing.
+		"""
+
+		prog = Parser()("""
+			pulse p1 = {shape: 'something'}
+			output f1
+
+			p1.length = 5 ns
+
+			times 5 {
+				10 ns
+				p1:f1
+			}
+
+			acquire
+		""")
+
+		drawing = prog.draw()
+
+		eq_(drawing, """\
+Block
+ Declaration
+  pulse
+  Assignment
+   p1
+   Dictionary
+    'shape': 'something'
+ Declaration
+  output
+  Variable
+   f1
+ Assignment
+  Attribute
+   p1
+   length
+  5 ns
+ Loop
+  5
+  Block
+   Delay
+    10 ns
+   ParallelPulses
+    Pulse
+     PulseSequence
+      p1
+     f1
+  Acquire
+""")
 
 
 if __name__ == '__main__':

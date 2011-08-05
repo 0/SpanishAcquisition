@@ -1,4 +1,5 @@
-from nose.tools import assert_raises
+from nose.tools import assert_raises, eq_
+from pickle import dumps, loads
 from unittest import main
 
 from spacq.tests.tool.box import DeviceServerTestCase
@@ -55,6 +56,8 @@ class DeviceConfigTest(DeviceServerTestCase):
 
 		assert isinstance(cfg.device, AbstractDevice)
 
+		return cfg
+
 	def testConnectNoImplementation(self):
 		"""
 		Try to connect without an implementation.
@@ -80,6 +83,23 @@ class DeviceConfigTest(DeviceServerTestCase):
 		cfg.model = dev['model']
 
 		assert_raises(config.ConnectionError, cfg.connect)
+
+	def testPickle(self):
+		"""
+		Pickle and unpickle a device config.
+		"""
+
+		cfg = self.testConnectSuccessful()
+
+		expected = cfg.__dict__.copy()
+		del expected['_device']
+		del expected['resources']
+
+		actual = loads(dumps(cfg)).__dict__
+		del actual['_device']
+		del actual['resources']
+
+		eq_(actual, expected)
 
 
 if __name__ == '__main__':

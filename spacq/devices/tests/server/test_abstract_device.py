@@ -1,5 +1,5 @@
 from nose.plugins.skip import SkipTest
-from nose.tools import eq_
+from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
 from testconfig import config as tc
@@ -57,6 +57,15 @@ class AbstractDeviceTest(TestCase):
 
 			expected = ['1'] * 3 + [id]
 
+			assert_raises(ValueError, dev.multi_command_stop)
+
+			# Don't actually send anything.
+			dev.multi_command_start()
+			responses = dev.multi_command_stop()
+
+			eq_(responses, [])
+
+			# Expect a response.
 			dev.multi_command_start()
 			dev.opc
 			dev.opc
@@ -65,6 +74,32 @@ class AbstractDeviceTest(TestCase):
 			responses = dev.multi_command_stop()
 
 			eq_(responses, expected)
+
+			return
+
+		raise SkipTest('Could not connect to any device.')
+
+	def testClose(self):
+		"""
+		Close the device.
+		"""
+
+		# Use any device.
+		for name, device in tc['devices'].items():
+			if not (name.endswith('.eth') or name.endswith('.gpib')):
+				continue
+			if not 'address' in device:
+				continue
+
+			try:
+				dev = abstract_device.AbstractDevice(**device['address'])
+			except:
+				continue
+
+			dev.idn
+			dev.opc
+
+			dev.close()
 
 			return
 

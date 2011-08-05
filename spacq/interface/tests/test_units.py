@@ -1,3 +1,4 @@
+from copy import deepcopy
 from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
@@ -163,6 +164,14 @@ class QuantityTest(TestCase):
 			q = units.Quantity(value, orig_units)
 
 			eq_(str(q), proper_string)
+
+	def testDeepCopy(self):
+		"""
+		"""
+
+		q = units.Quantity('100 ns.V2')
+
+		eq_(deepcopy(q), units.Quantity('100 ns.V2'))
 
 
 if __name__ == '__main__':

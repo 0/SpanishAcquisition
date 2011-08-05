@@ -53,9 +53,6 @@ class MockIPS120_10(MockAbstractDevice, IPS120_10):
 				elif self.mock_state['activity'] == 1:
 					self.mock_state['output_field'] = self.mock_state['set_point']
 					done = True
-				elif self.mock_state['activity'] == 2:
-					self.mock_state['output_field'] = 0
-					done = True
 			elif cmd == 'H' and not query:
 				self.mock_state['heater_on'] = (args == '1')
 				if not self.mock_state['heater_on']:

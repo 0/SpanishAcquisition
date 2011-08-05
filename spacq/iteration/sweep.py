@@ -328,11 +328,13 @@ class SweepController(object):
 		"""
 
 		if self.pulse_config.channels:
-			# AWG
-			awg = self.pulse_config.awg
 			waveforms = self.pulse_config.program.generate_waveforms()
 
+			# AWG
+			awg = self.pulse_config.awg
 			awg.enabled = False
+
+			awg.clear_channels()
 
 			channels = []
 			for output, number in self.pulse_config.channels.items():

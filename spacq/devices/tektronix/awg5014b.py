@@ -418,6 +418,14 @@ class AWG5014B(AbstractDevice):
 
 		self.write('*trg')
 
+	def clear_channels(self):
+		"""
+		Delete all waveforms from all channels.
+		"""
+
+		for channel in self.channels[1:]:
+			del channel.waveform_name
+
 
 name = 'AWG5014B'
 implementation = AWG5014B

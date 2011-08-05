@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 from collections import namedtuple
 from numpy import append, array, interp, linspace
 
@@ -102,7 +105,11 @@ class Generator(object):
 		Convert a time value to a number of samples based on the frequency.
 		"""
 
-		return int(value.value * self.frequency.value)
+		log.debug('Parsing time "{0}" with frequency {1}'.format(repr(value), repr(self.frequency)))
+		result = int(value.value * self.frequency.value)
+		log.debug('Parsed time "{0}" as {1} samples'.format(repr(value), result))
+
+		return result
 
 	def _scale_waveform(self, data, amplitude=None, duration=None):
 		"""

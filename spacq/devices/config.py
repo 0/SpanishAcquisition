@@ -144,7 +144,7 @@ class DeviceConfig(object):
 			resources which appear
 			resources which change
 			resources which disappear
-		where all "resources" are label to resource object mappings.
+		where all "resources" are resource labels.
 		"""
 
 		old_labels, new_labels = set(self.resources), set(new.resources)

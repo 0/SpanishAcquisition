@@ -67,6 +67,7 @@ class ResourceTree(TreeListCtrl):
 				**kwargs)
 
 		self.root = None
+		self.resource_labels = []
 
 		self.col_name = 0
 		self.AddColumn('Name', 200)
@@ -230,6 +231,8 @@ class ResourceTree(TreeListCtrl):
 			if not (self.GetItemText(evt.Item, self.col_r) or
 					self.GetItemText(evt.Item, self.col_w)):
 				evt.Veto()
+			else:
+				self.old_label = self.GetItemText(evt.Item, self.col_label)
 		elif evt.Int == self.col_value:
 			# Can only write to writable resources.
 			if not self.GetItemText(evt.Item, self.col_w):
@@ -261,7 +264,22 @@ class ResourceTree(TreeListCtrl):
 			evt.Veto()
 
 	def OnEndLabelEdit(self, evt):
-		if self.editing_col == self.col_value:
+		if self.editing_col == self.col_label:
+			# Prevent duplicates.
+			value = evt.Label
+
+			# Don't do anything if unchanged.
+			if value != self.old_label:
+				if value not in self.resource_labels:
+					if self.old_label:
+						self.resource_labels.remove(self.old_label)
+					if value:
+						self.resource_labels.append(value)
+				else:
+					evt.Veto()
+					MessageDialog(self, str(value), 'Duplicate label').Show()
+					return
+		elif self.editing_col == self.col_value:
 			# Update the real value.
 			value = evt.Label
 
@@ -323,3 +341,5 @@ class DeviceResourcesPanel(wx.Panel):
 
 				if pydata.path == path:
 					self.tree.SetItemText(leaf, name, self.tree.col_label)
+
+		self.tree.resource_labels = resource_labels.values()

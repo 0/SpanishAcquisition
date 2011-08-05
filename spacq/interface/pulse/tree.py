@@ -1,7 +1,6 @@
 import logging
 log = logging.getLogger(__name__)
 
-from numpy import append
 from os import path
 
 from spacq.tool.box import Enum
@@ -71,8 +70,11 @@ class Environment(object):
 		# Whether to actually generate waveforms.
 		self.dry_run = False
 
-		# Waveforms generators for the output channels.
+		# Waveform generators for the output channels.
 		# Keys are output names.
+		self.generators = {}
+
+		# Generated waveforms.
 		self.waveforms = {}
 
 		# Where to look for shapes.
@@ -110,7 +112,7 @@ class Environment(object):
 
 			# Set up output waveform generators.
 			for output in self.waveforms:
-				self.waveforms[output] = Generator(frequency=self.frequency, dry_run=self.dry_run)
+				self.generators[output] = Generator(frequency=self.frequency, dry_run=self.dry_run)
 
 	def post_stage(self):
 		"""
@@ -120,6 +122,7 @@ class Environment(object):
 		if self.stage == self.stages.declarations:
 			# Prepare for output waveform generators.
 			for output in [var for var, type in self.variables.items() if type == 'output']:
+				self.generators[output] = None
 				self.waveforms[output] = None
 
 			# Generate labels for all necessary values.
@@ -133,6 +136,10 @@ class Environment(object):
 						self.all_values.add((name, attr))
 				elif type != 'output':
 					self.all_values.add((name,))
+		elif self.stage == self.stages.waveforms:
+			# Finalize waveform creation.
+			for output in self.generators:
+				self.waveforms[output] = self.generators[output].waveform
 
 	def set_value(self, target, value):
 		"""
@@ -266,7 +273,7 @@ class Acquire(ASTNode):
 			acq_marker = env.values[('_acq_marker', 'marker_num')]
 			acq_output = env.values[('_acq_marker', 'output')]
 
-			env.waveforms[acq_output].marker(acq_marker, 'high')
+			env.generators[acq_output].marker(acq_marker, 'high')
 
 
 class Assignment(ASTNode):
@@ -414,7 +421,7 @@ class Delay(ASTNode):
 			else:
 				length = self.length
 
-			for waveform in env.waveforms.values():
+			for waveform in env.generators.values():
 				waveform._set(0.0)
 				waveform.delay(length)
 
@@ -489,11 +496,11 @@ class ParallelPulses(ASTNode):
 		env.stack.pop()
 
 		if env.stage == env.stages.waveforms:
-			max_length = max(len(waveform.wave) for waveform in env.waveforms.values())
+			max_length = max(len(waveform._wave) for waveform in env.generators.values())
 
-			for waveform in env.waveforms.values():
-				if len(waveform.wave) < max_length:
-					waveform.wave = append(waveform.wave, [0.0] * (max_length - len(waveform.wave)))
+			for waveform in env.generators.values():
+				if len(waveform._wave) < max_length:
+					waveform.append([0.0] * (max_length - len(waveform._wave)))
 
 
 class Pulse(ASTNode):
@@ -507,7 +514,7 @@ class Pulse(ASTNode):
 
 	def visit(self, env):
 		if env.stage == env.stages.commands:
-			if self.target not in env.waveforms:
+			if self.target not in env.generators:
 				env.add_error('Undefined output "{0}"'.format(self.target), self.location)
 
 		env.stack.append(self)
@@ -538,7 +545,7 @@ class PulseSequence(ASTNode):
 					if type not in ['delay', 'pulse']:
 						env.add_error('Invalid command "{0}"'.format(item), self.location)
 		elif env.stage == env.stages.waveforms:
-			target = env.waveforms[env.stack[-1].target]
+			target = env.generators[env.stack[-1].target]
 
 			for item in self.items:
 				if isinstance(item, basestring):

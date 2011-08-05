@@ -1,8 +1,12 @@
+from collections import namedtuple
 from numpy import append, array, interp, linspace
 
 """
 A waveform generator.
 """
+
+
+Waveform = namedtuple('Waveform', 'data, markers')
 
 
 class Generator(object):
@@ -23,10 +27,31 @@ class Generator(object):
 		self.dry_run = dry_run
 
 		# The resulting wave, with each data point on the interval [-1.0, 1.0].
-		self.wave = array([])
+		self._wave = array([])
 
 		# The resulting marker channels, with each channel being a sparse list represented as a dictionary.
-		self.markers = {}
+		self._markers = {}
+
+	@property
+	def waveform(self):
+		"""
+		The waveform and marker data for the generated waveform.
+		"""
+
+		try:
+			last_marker_point = max(pos for data in self._markers.values() for pos in data.keys())
+		except ValueError:
+			last_marker_point = -1
+
+		extra_points = last_marker_point + 1 - len(self._wave)
+		if extra_points > 0:
+			resulting_wave = append(self._wave, [0.0] * extra_points)
+		else:
+			resulting_wave = self._wave
+
+		marker_data = dict((num, self._get_marker(num, len(resulting_wave))) for num in self._markers)
+
+		return Waveform(resulting_wave, marker_data)
 
 	def check_length(self, additional):
 		resulting_length = self.length + additional
@@ -38,26 +63,29 @@ class Generator(object):
 		self.length += len(values)
 
 		if not self.dry_run:
-			self.wave = append(self.wave, values)
+			self._wave = append(self._wave, values)
 
-	def get_marker(self, num):
+	def _get_marker(self, num, length):
 		"""
 		Get the marker values for all data points in the waveform.
 		"""
 
-		if num not in self.markers:
-			return [False] * len(self.wave)
+		result = []
 
-		result = [False]
+		def last_value():
+			try:
+				return result[-1]
+			except IndexError:
+				return False
 
-		for idx, value in sorted(self.markers[num].items()):
+		for idx, value in sorted(self._markers[num].items()):
 			if idx >= len(result):
-				result.extend([result[-1]] * (idx - len(result) + 1))
+				result.extend([last_value()] * (idx - len(result) + 1))
 
 			result[idx] = value
 
-		if len(result) < len(self.wave):
-			result.extend([result[-1]] * (len(self.wave) - len(result)))
+		if len(result) < length:
+			result.extend([last_value()] * (length - len(result)))
 
 		return result
 
@@ -115,7 +143,7 @@ class Generator(object):
 		self.check_length(delay_length)
 
 		try:
-			last_value = self.wave[-1]
+			last_value = self._wave[-1]
 		except IndexError:
 			last_value = 0.0
 
@@ -127,7 +155,7 @@ class Generator(object):
 		"""
 
 		try:
-			return_to = self.wave[-1]
+			return_to = self._wave[-1]
 		except IndexError:
 			return_to = 0.0
 
@@ -156,7 +184,7 @@ class Generator(object):
 		if self.dry_run:
 			return
 
-		if num not in self.markers:
-			self.markers[num] = {}
+		if num not in self._markers:
+			self._markers[num] = {}
 
-		self.markers[num][len(self.wave)] = (value == 'high')
+		self._markers[num][len(self._wave)] = (value == 'high')

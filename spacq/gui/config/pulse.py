@@ -395,12 +395,9 @@ class OutputPanel(ParameterPanel):
 
 				return
 
-			waveform = waveforms[parameter[0]]
-			markers = {}
-			for num in waveform.markers:
-				markers[num] = waveform.get_marker(num)
+			waveform, markers = waveforms[parameter[0]]
 
-			wx.CallAfter(show_frame, waveform.wave, markers, self.prog.frequency)
+			wx.CallAfter(show_frame, waveform, markers, self.prog.frequency)
 
 		thr = Thread(target=show_waveform)
 		thr.daemon = True

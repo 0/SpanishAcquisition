@@ -141,17 +141,18 @@ class ValidTreeTest(TestCase):
 		eq_(env.errors, [])
 
 		mno1 = env.waveforms['mno1']
-		non_square = mno1._scale_waveform([0.1, 0.5, 0.7, 1.0] + [4.2] * 3 + [3.6, 9.9],
+		mno1_gen = env.generators['mno1']
+		non_square = mno1_gen._scale_waveform([0.1, 0.5, 0.7, 1.0] + [4.2] * 3 + [3.6, 9.9],
 				Quantity(-1, 'mV').value, Quantity(8, 'ns'))
 		loop = [0.0] * 7 + non_square * 2 + [0.0] * 110 + [1.0] * 50 + [0.0]
-		assert_array_almost_equal(mno1.wave, [0.0] * 110 + loop * 2 + [0.0] * 5)
+		assert_array_almost_equal(mno1.data, [0.0] * 110 + loop * 2 + [0.0] * 5)
 
 		pqr2 = env.waveforms['pqr2']
 		loop = [0.0] * 22 + [1.0] * 50 + [0.0] * 112
-		assert_array_almost_equal(pqr2.wave, [0.0] * 110 + loop * 2 + [0.0] * 5)
+		assert_array_almost_equal(pqr2.data, [0.0] * 110 + loop * 2 + [0.0] * 5)
 
-		eq_(pqr2.get_marker(1), [False] * 483)
-		eq_(pqr2.get_marker(5), [False] * 478 + [True] * 5)
+		assert 1 not in pqr2.markers
+		eq_(pqr2.markers[5], [False] * 478 + [True] * 5)
 
 
 class InvalidTreeTest(TestCase):

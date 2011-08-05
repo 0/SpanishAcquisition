@@ -93,16 +93,17 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 
 		f1 = waveforms['f1']
 		loop = [0.0] * 10 + [0.5] + [0.0] * 7 + [0.5] + [0.0] * 7
-		assert_array_equal(f1.wave, [0.0] * 10 + [0.5] * 1 + [0.0] * 7 + loop * 2 + [0.0] * 20 + [-0.5] * 5 + [0.0] * 49)
-		eq_(f1.get_marker(1), [False] * 90 + [True] * 54)
+		assert_array_equal(f1.data, [0.0] * 10 + [0.5] * 1 + [0.0] * 7 + loop * 2 + [0.0] * 20 + [-0.5] * 5 + [0.0] * 49)
+		eq_(f1.markers[1], [False] * 90 + [True] * 54)
 
 		f2 = waveforms['f2']
+		f2_gen = p._env.generators['f2']
 		non_square = [0.1, 0.5, 0.7, 1.0] + [4.2] * 3 + [3.6, 9.9]
-		wobble = f2._scale_waveform(non_square, Quantity(-1, 'mV').value, Quantity(8, 'ns'))
-		manipulator = f2._scale_waveform(non_square, Quantity(1, 'V').value, Quantity(12, 'ns'))
+		wobble = f2_gen._scale_waveform(non_square, Quantity(-1, 'mV').value, Quantity(8, 'ns'))
+		manipulator = f2_gen._scale_waveform(non_square, Quantity(1, 'V').value, Quantity(12, 'ns'))
 		loop = [0.0] * 10 + wobble * 2
 		end = manipulator + [0.0] * 15
-		assert_array_almost_equal(f2.wave, [0.0] * 10 + wobble + loop * 2 + [0.0] * 20 + end * 2, 2)
+		assert_array_almost_equal(f2.data, [0.0] * 10 + wobble + loop * 2 + [0.0] * 20 + end * 2, 2)
 
 	def testWaveformsDryRun(self):
 		"""
@@ -129,12 +130,10 @@ error: File "this-shape-doesn't-exist" (due to "wobble") not found at column 17 
 
 		# But nothing there.
 		eq_(set(waveforms.keys()), set(['f1', 'f2']))
-		eq_(list(waveforms['f1'].wave), [])
-		eq_(waveforms['f1'].get_marker(1), [])
-		eq_(waveforms['f1'].get_marker(2), [])
-		eq_(list(waveforms['f2'].wave), [])
-		eq_(waveforms['f2'].get_marker(1), [])
-		eq_(waveforms['f2'].get_marker(2), [])
+		eq_(list(waveforms['f1'].data), [])
+		eq_(waveforms['f1'].markers, {})
+		eq_(list(waveforms['f2'].data), [])
+		eq_(waveforms['f2'].markers, {})
 
 
 if __name__ == '__main__':

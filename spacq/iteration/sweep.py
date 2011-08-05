@@ -338,11 +338,8 @@ class SweepController(object):
 			for output, number in self.pulse_config.channels.items():
 				channel = awg.channels[number]
 
-				markers = {}
-				for num in waveforms[output].markers:
-					markers[num] = waveforms[output].get_marker(num)
-
-				channel.set_waveform(waveforms[output].wave, markers, name=output)
+				waveform, markers = waveforms[output]
+				channel.set_waveform(waveform, markers, name=output)
 
 				channels.append(channel)
 

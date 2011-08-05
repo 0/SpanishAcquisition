@@ -15,7 +15,8 @@ class GeneratorTest(TestCase):
 
 		wg = waveform.Generator(frequency=Quantity(1, 'Hz'))
 
-		eq_(list(wg.wave), [])
+		eq_(list(wg.waveform.data), [])
+		eq_(wg.waveform.markers, {})
 
 	def testWaveform(self):
 		"""
@@ -34,10 +35,25 @@ class GeneratorTest(TestCase):
 
 		expected = [0.0, 0.0, 0.0, 1.0, 0.6, 0.2, -0.2, -0.6, -1.0, -0.5, -0.5, -0.5, -0.5, -1.0]
 
-		assert_array_almost_equal(wg.wave, expected, 4)
-		eq_(wg.get_marker(1), [False] * 3 + [True] * 6 + [False] * 5)
-		eq_(wg.get_marker(2), [False] * 3 + [True] * 11)
-		eq_(wg.get_marker(3), [False] * 14)
+		wave, markers = wg.waveform
+		assert_array_almost_equal(wave, expected, 4)
+		eq_(markers[1], [False] * 3 + [True] * 6 + [False] * 5)
+		eq_(markers[2], [False] * 3 + [True] * 11)
+		assert 3 not in markers
+
+	def testEndWithMarker(self):
+		"""
+		Marker data is longer than waveform data.
+		"""
+
+		wg = waveform.Generator(frequency=Quantity(1, 'mHz'))
+
+		wg.marker(1, 'high')
+		wg.marker(2, 'low')
+
+		wave, markers = wg.waveform
+		eq_(wave, [0.0])
+		eq_(markers, {1: [True], 2: [False]})
 
 	def testTooLong(self, dry_run=False):
 		"""

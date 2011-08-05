@@ -237,3 +237,11 @@ class Quantity(object):
 			return '{0:.10g} {1}'.format(value, symbol)
 		else:
 			raise NotImplementedError()
+
+	# FIXME: http://projects.scipy.org/numpy/ticket/1176
+	def __deepcopy__(self, memo):
+		"""
+		Rather than copying anything, simply create a new instance.
+		"""
+
+		return Quantity(str(self))

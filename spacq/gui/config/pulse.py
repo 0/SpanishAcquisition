@@ -105,10 +105,16 @@ class ParameterPanel(ScrolledPanel):
 
 		return str(self.values[parameter])
 
-	def add_row(self, parameter, input_type='text'):
+	@property
+	def posn(self):
+		return (self.cur_row, self.cur_col)
+
+	def add_row(self, parameter, input_type='text', increment_row=True):
 		"""
 		Add a parameter to the sizer and display the value if it is available.
 		"""
+
+		self.cur_col = 0
 
 		if not self.hide_variables:
 			if self.last_variable == parameter[0]:
@@ -117,12 +123,14 @@ class ParameterPanel(ScrolledPanel):
 				label = parameter[0]
 				self.last_variable = parameter[0]
 
-			self.panel_sizer.Add(wx.StaticText(self, label=label),
+			self.parameter_sizer.Add(wx.StaticText(self, label=label), self.posn,
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+			self.cur_col += 1
 
 		if self.attributes:
-			self.panel_sizer.Add(wx.StaticText(self, label=parameter[1]),
+			self.parameter_sizer.Add(wx.StaticText(self, label=parameter[1]), self.posn,
 					flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_LEFT)
+			self.cur_col += 1
 
 		if input_type == 'text':
 			input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
@@ -134,7 +142,8 @@ class ParameterPanel(ScrolledPanel):
 		else:
 			raise ValueError('Unrecognized type "{0}"'.format(input_type))
 
-		self.panel_sizer.Add(input, flag=wx.EXPAND)
+		self.parameter_sizer.Add(input, self.posn, flag=wx.EXPAND)
+		self.cur_col += 1
 
 		if self.default_background_color is None:
 			self.default_background_color = input.BackgroundColour
@@ -146,6 +155,9 @@ class ParameterPanel(ScrolledPanel):
 			pass
 		else:
 			input.SetBackgroundColour(self.ok_background_color)
+
+		if increment_row:
+			self.cur_row += 1
 
 	def converter(self, parameter, x):
 		"""
@@ -161,19 +173,19 @@ class ParameterPanel(ScrolledPanel):
 		self.values = prog.values
 
 		self.last_variable = None
+		self.cur_row, self.cur_col = 0, 0
 
 		parameters = self.extract_parameters(prog)
 
 		# Panel.
-		self.panel_sizer = wx.FlexGridSizer(rows=len(parameters), cols=self.num_cols, hgap=5)
-
-		self.panel_sizer.AddGrowableCol(self.input_col, 1)
+		self.parameter_sizer = wx.GridBagSizer(hgap=5)
+		self.parameter_sizer.AddGrowableCol(self.input_col, 1)
 
 		## Parameter inputs.
 		for parameter in parameters:
 			self.add_row(parameter)
 
-		self.SetSizer(self.panel_sizer)
+		self.SetSizer(self.parameter_sizer)
 		self.SetupScrolling()
 
 	def set_value(self, parameter, value):
@@ -275,11 +287,14 @@ class OutputPanel(ParameterPanel):
 			raise KeyError(parameter[0])
 
 	def add_row(self, parameter):
-		ParameterPanel.add_row(self, parameter)
+		ParameterPanel.add_row(self, parameter, increment_row=False)
 
 		view_button = wx.Button(self, label='View')
-		self.panel_sizer.Add(view_button)
+		self.parameter_sizer.Add(view_button, self.posn)
+		self.cur_col += 1
 		self.Bind(wx.EVT_BUTTON, partial(self.OnView, parameter), view_button)
+
+		self.cur_row += 1
 
 	def converter(self, parameter, x):
 		if x == '':
@@ -290,16 +305,16 @@ class OutputPanel(ParameterPanel):
 	def __init__(self, *args, **kwargs):
 		ParameterPanel.__init__(self, *args, **kwargs)
 
-		# Spacers.
-		for _ in xrange(self.num_cols):
-			self.panel_sizer.Add((-1, self.spacer_height))
+		# Spacer.
+		self.parameter_sizer.Add((-1, self.spacer_height), (self.cur_row, 0))
+		self.cur_row += 1
 
 		# Frequency input.
-		self.panel_sizer.Add(wx.StaticText(self, label='Sampling rate'),
+		self.parameter_sizer.Add(wx.StaticText(self, label='Sampling rate'), (self.cur_row, 0),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.freq_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
-		self.panel_sizer.Add(self.freq_input, flag=wx.EXPAND)
-		self.panel_sizer.Add((-1, -1))
+		self.parameter_sizer.Add(self.freq_input, (self.cur_row, 1), flag=wx.EXPAND)
+		self.cur_row += 1
 
 		self.freq_input.Value = str(self.prog.frequency)
 		self.freq_input.BackgroundColour = self.ok_background_color
@@ -307,16 +322,16 @@ class OutputPanel(ParameterPanel):
 		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnFrequencyInput, self.freq_input)
 
-		# Spacers.
-		for _ in xrange(self.num_cols):
-			self.panel_sizer.Add((-1, self.spacer_height))
+		# Spacer.
+		self.parameter_sizer.Add((-1, self.spacer_height), (self.cur_row, 0))
+		self.cur_row += 1
 
 		# AWG input.
-		self.panel_sizer.Add(wx.StaticText(self, label='AWG'),
+		self.parameter_sizer.Add(wx.StaticText(self, label='AWG'), (self.cur_row, 0),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.awg_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
-		self.panel_sizer.Add(self.awg_input, flag=wx.EXPAND)
-		self.panel_sizer.Add((-1, -1))
+		self.parameter_sizer.Add(self.awg_input, (self.cur_row, 1), flag=wx.EXPAND)
+		self.cur_row += 1
 
 		self.awg_input.Value = self.prog.awg
 		self.awg_input.BackgroundColour = self.ok_background_color
@@ -325,11 +340,11 @@ class OutputPanel(ParameterPanel):
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnAWGInput, self.awg_input)
 
 		# Oscilloscope input.
-		self.panel_sizer.Add(wx.StaticText(self, label='Oscilloscope'),
+		self.parameter_sizer.Add(wx.StaticText(self, label='Oscilloscope'), (self.cur_row, 0),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.oscilloscope_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
-		self.panel_sizer.Add(self.oscilloscope_input, flag=wx.EXPAND)
-		self.panel_sizer.Add((-1, -1))
+		self.parameter_sizer.Add(self.oscilloscope_input, (self.cur_row, 1), flag=wx.EXPAND)
+		self.cur_row += 1
 
 		self.oscilloscope_input.Value = self.prog.oscilloscope
 		self.oscilloscope_input.BackgroundColour = self.ok_background_color

@@ -6,6 +6,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 from spacq.interface.pulse.parser import PulseError, PulseSyntaxError
 from spacq.interface.pulse.program import Program
+from spacq.interface.resources import Resource
 from spacq.interface.units import IncompatibleDimensions, Quantity
 
 from ..display.waveform import WaveformFrame
@@ -50,6 +51,7 @@ class ParameterPanel(ScrolledPanel):
 
 	attributes = False
 	hide_variables = False
+	use_resource_labels = False
 
 	default_background_color = None
 	ok_background_color = 'PALE GREEN'
@@ -87,6 +89,10 @@ class ParameterPanel(ScrolledPanel):
 		if self.hide_variables:
 			cols -= 1
 
+		# Also resource label input field.
+		if self.use_resource_labels:
+			cols += 1
+
 		return cols
 
 	@property
@@ -95,8 +101,12 @@ class ParameterPanel(ScrolledPanel):
 		The 0-based position of the growable input column.
 		"""
 
-		# Last column.
-		return self.num_cols - 1
+		if self.use_resource_labels:
+			# Second-to-last column.
+			return self.num_cols - 2
+		else:
+			# Last column.
+			return self.num_cols - 1
 
 	def get_value(self, parameter):
 		"""
@@ -105,9 +115,55 @@ class ParameterPanel(ScrolledPanel):
 
 		return str(self.values[parameter])
 
+	def get_resource_label(self, parameter):
+		"""
+		Get the resource label for a parameter, or empty string if not available.
+		"""
+
+		try:
+			return self.resource_labels[parameter]
+		except KeyError:
+			return ''
+
 	@property
 	def posn(self):
 		return (self.cur_row, self.cur_col)
+
+	def add_headings(self):
+		"""
+		Add column headings.
+		"""
+
+		if self.use_resource_labels:
+			# Default value.
+			self.parameter_sizer.Add(wx.StaticText(self, label='Default value'), (self.cur_row, self.input_col),
+					flag=wx.EXPAND)
+
+			# Resource label.
+			self.parameter_sizer.Add(wx.StaticText(self, label='Resource label'), (self.cur_row, self.input_col + 1),
+					flag=wx.EXPAND)
+		else:
+			self.parameter_sizer.Add(wx.StaticText(self, label=''), (self.cur_row, 0),
+					flag=wx.EXPAND)
+
+		self.cur_row += 1
+
+	def add_resource_label(self, parameter):
+		"""
+		Add a resource label input.
+		"""
+
+		resource_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.Bind(wx.EVT_TEXT, partial(self.OnResourceChange, parameter), resource_input)
+		self.Bind(wx.EVT_TEXT_ENTER, partial(self.OnResourceInput, parameter), resource_input)
+
+		self.parameter_sizer.Add(resource_input, self.posn, flag=wx.EXPAND)
+		self.cur_col += 1
+
+		label = self.get_resource_label(parameter)
+		resource_input.ChangeValue(label)
+		if label:
+			resource_input.SetBackgroundColour(self.ok_background_color)
 
 	def add_row(self, parameter, input_type='text', increment_row=True):
 		"""
@@ -156,6 +212,9 @@ class ParameterPanel(ScrolledPanel):
 		else:
 			input.SetBackgroundColour(self.ok_background_color)
 
+		if self.use_resource_labels:
+			self.add_resource_label(parameter)
+
 		if increment_row:
 			self.cur_row += 1
 
@@ -166,11 +225,15 @@ class ParameterPanel(ScrolledPanel):
 
 		return x
 
-	def __init__(self, parent, prog, *args, **kwargs):
+	def __init__(self, parent, global_store, prog, *args, **kwargs):
 		ScrolledPanel.__init__(self, parent, *args, **kwargs)
 
+		self.global_store = global_store
 		self.prog = prog
+
 		self.values = prog.values
+		self.resource_labels = prog.resource_labels
+		self.resources = prog.resources
 
 		self.last_variable = None
 		self.cur_row, self.cur_col = 0, 0
@@ -179,7 +242,13 @@ class ParameterPanel(ScrolledPanel):
 
 		# Panel.
 		self.parameter_sizer = wx.GridBagSizer(hgap=5)
+
 		self.parameter_sizer.AddGrowableCol(self.input_col, 1)
+		if self.use_resource_labels:
+			self.parameter_sizer.AddGrowableCol(self.input_col + 1, 1)
+
+		## Headings.
+		self.add_headings()
 
 		## Parameter inputs.
 		for parameter in parameters:
@@ -197,6 +266,20 @@ class ParameterPanel(ScrolledPanel):
 		except KeyError:
 			pass
 
+	def set_resource_label(self, parameter, value, resource):
+		self.resource_labels[parameter] = value
+		self.resources[parameter] = resource
+
+	def del_resource_label(self, parameter):
+		try:
+			label = self.resource_labels[parameter]
+		except KeyError:
+			pass
+		else:
+			del self.resource_labels[parameter]
+			del self.resources[parameter]
+			del self.global_store.resources[label]
+
 	def OnChange(self, parameter, evt):
 		# Awaiting validation.
 		self.del_value(parameter)
@@ -213,6 +296,30 @@ class ParameterPanel(ScrolledPanel):
 
 		# Validated.
 		self.set_value(parameter, value)
+
+		evt.EventObject.BackgroundColour = self.ok_background_color
+
+	def OnResourceChange(self, parameter, evt):
+		# Awaiting validation.
+		self.del_resource_label(parameter)
+
+		evt.EventObject.BackgroundColour = self.default_background_color
+
+	def OnResourceInput(self, parameter, evt):
+		label = evt.String
+
+		# The actual setter is generated when the program is cloned.
+		resource = Resource(setter=lambda x: None)
+
+		try:
+			self.global_store.resources[label] = resource
+		except KeyError as e:
+			MessageDialog(self, str(e[0]), 'Resource label conflicts').Show()
+
+			return
+
+		# Validated.
+		self.set_resource_label(parameter, label, resource)
 
 		evt.EventObject.BackgroundColour = self.ok_background_color
 
@@ -241,6 +348,7 @@ class AcqMarkerPanel(ParameterPanel):
 class DelayPanel(ParameterPanel):
 	type = 'delay'
 	name = 'Delays'
+	use_resource_labels = True
 
 	def converter(self, parameter, x):
 		x = ParameterPanel.converter(self, parameter, x)
@@ -251,6 +359,7 @@ class DelayPanel(ParameterPanel):
 class IntPanel(ParameterPanel):
 	type = 'int'
 	name = 'Integers'
+	use_resource_labels = True
 
 	def converter(self, parameter, x):
 		x = ParameterPanel.converter(self, parameter, x)
@@ -423,6 +532,13 @@ class PulsePanel(ParameterPanel):
 	type = 'pulse'
 	name = 'Pulses'
 	attributes = True
+	use_resource_labels = True
+
+	def add_resource_label(self, parameter):
+		if parameter[1] == 'shape':
+			self.cur_col += 1
+		else:
+			ParameterPanel.add_resource_label(self, parameter)
 
 	def add_row(self, parameter):
 		kwargs = {}
@@ -450,12 +566,12 @@ class PulseProgramPanel(wx.Panel):
 	panel_types = {'acq_marker': AcqMarkerPanel, 'delay': DelayPanel, 'int': IntPanel,
 			'output': OutputPanel, 'pulse': PulsePanel}
 
-	def __init__(self, parent, *args, **kwargs):
+	def __init__(self, parent, global_store, *args, **kwargs):
 		wx.Panel.__init__(self, parent, *args, **kwargs)
 
-		self.prog = None
+		self.global_store = global_store
 
-		self.parameter_panels = []
+		self.prog = None
 
 		# Panel.
 		panel_box = wx.BoxSizer(wx.VERTICAL)
@@ -472,13 +588,12 @@ class PulseProgramPanel(wx.Panel):
 
 		for type in sorted(types):
 			try:
-				result = self.panel_types[type](self.parameter_notebook, prog)
+				result = self.panel_types[type](self.parameter_notebook, self.global_store, prog)
 			except KeyError:
 				MessageDialog('Unrecognized variable type "{0}"'.format(type)).Show()
 
 				return
 
-			self.parameter_panels.append(result)
 			self.parameter_notebook.AddPage(result, result.name)
 
 	def OnOpen(self, prog):
@@ -490,7 +605,6 @@ class PulseProgramPanel(wx.Panel):
 		self.prog = None
 
 		self.parameter_notebook.DeleteAllPages()
-		self.parameter_panels = []
 
 
 class PulseProgramFrame(wx.Frame):
@@ -525,7 +639,7 @@ class PulseProgramFrame(wx.Frame):
 		# Frame.
 		frame_box = wx.BoxSizer(wx.VERTICAL)
 
-		self.pulse_panel = PulseProgramPanel(self)
+		self.pulse_panel = PulseProgramPanel(self, self.global_store)
 		frame_box.Add(self.pulse_panel, proportion=1, flag=wx.EXPAND)
 
 		self.SetSizerAndFit(frame_box)

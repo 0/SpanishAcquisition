@@ -30,7 +30,7 @@ class DataCaptureDialog(Dialog, SweepController):
 		'next': 'Getting next values',
 		'transition': 'Smooth setting',
 		'write': 'Writing to devices',
-		'dwell': 'Waiting for devices to settle',
+		'dwell': 'Waiting for resources to settle',
 		'pulse': 'Running pulse program',
 		'read': 'Taking measurements',
 		'ramp_down': 'Smooth setting',
@@ -355,6 +355,8 @@ class DataCapturePanel(wx.Panel):
 		pulse_program = self.global_store.pulse_program
 
 		if pulse_program is not None:
+			pulse_program = pulse_program.with_resources()
+
 			try:
 				pulse_program.generate_waveforms(dry_run=True)
 			except PulseError as e:

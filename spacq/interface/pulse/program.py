@@ -1,3 +1,4 @@
+from copy import copy, deepcopy
 from os.path import basename, dirname
 
 from .parser import Parser, PulseError, PulseSyntaxError
@@ -63,6 +64,10 @@ class Program(object):
 		self.awg = ''
 		self.oscilloscope = ''
 
+		# Same structure as values, but optional string-only resource labels and matching Resource objects.
+		self.resource_labels = {}
+		self.resources = {}
+
 	@property
 	def all_values(self):
 		return self._env.all_values
@@ -109,3 +114,24 @@ class Program(object):
 			raise PulseError(self._env.format_errors())
 
 		return self._env.waveforms
+
+	def with_resources(self):
+		"""
+		Produce a copy object, with a cloned Environment, and with all resources which exist mutated to point to the corresponding values.
+
+		Note: Because the Resource objects must be shared between copies, there may only ever exist one copy at a time.
+		"""
+
+		result = copy(self)
+
+		# We plan to modify the values in the Environment.
+		result._env = deepcopy(self._env)
+
+		for parameter, label in self.resource_labels.items():
+			print parameter, label
+			def setter(x, parameter=parameter):
+				result._env.values[parameter] = x
+
+			result.resources[parameter].setter = setter
+
+		return result

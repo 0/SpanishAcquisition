@@ -214,12 +214,18 @@ class Quantity(object):
 
 	# FIXME: Python 2.7 provides functools.total_ordering()
 	def __eq__(self, other):
-		self.assert_dimensions(other.dimensions)
+		try:
+			self.assert_dimensions(other.dimensions)
+		except AttributeError:
+			raise TypeError('Expected dimensions for "{0!r}"'.format(other))
 
 		return allclose(self.value, other.value)
 
 	def __lt__(self, other):
-		self.assert_dimensions(other.dimensions)
+		try:
+			self.assert_dimensions(other.dimensions)
+		except AttributeError:
+			raise TypeError('Expected dimensions for "{0!r}"'.format(other))
 
 		return self.value < other.value
 
@@ -235,6 +241,42 @@ class Quantity(object):
 	def __gt__(self, other):
 		return not self <= other
 
+	def __abs__(self):
+		if self.value < 0:
+			return Quantity(abs(self.original_value), self.original_units)
+		else:
+			return self
+
+	def __add__(self, other):
+		"""
+		Addition with matching dimensions.
+		"""
+
+		try:
+			self.assert_dimensions(other.dimensions)
+		except AttributeError:
+			raise TypeError('Expected dimensions for "{0!r}"'.format(other))
+
+		result = deepcopy(self)
+		result._q += other._q
+
+		return result
+
+	def __sub__(self, other):
+		"""
+		Subtraction with matching dimensions.
+		"""
+
+		try:
+			self.assert_dimensions(other.dimensions)
+		except AttributeError:
+			raise TypeError('Expected dimensions for "{0!r}"'.format(other))
+
+		result = deepcopy(self)
+		result._q -= other._q
+
+		return result
+
 	def __mul__(self, other):
 		"""
 		Multiplication by reals.
@@ -247,6 +289,16 @@ class Quantity(object):
 
 	def __rmul__(self, other):
 		return self * other
+
+	def __div__(self, other):
+		"""
+		Division by reals.
+		"""
+
+		result = deepcopy(self)
+		result._q /= other
+
+		return result
 
 	def __repr__(self):
 		return '{0}(\'{1}\')'.format(self.__class__.__name__, str(self))

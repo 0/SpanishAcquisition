@@ -40,7 +40,7 @@ class BlockData(object):
 		Note: Does not produce indefinitely-formatted block data.
 		"""
 
-		log.debug('Converting to block data: {0}'.format(repr(data)))
+		log.debug('Converting to block data: {0!r}'.format(data))
 
 		length = len(data)
 		length_length = len(str(length))
@@ -55,7 +55,7 @@ class BlockData(object):
 		As per section 7.7.6 of IEEE Std 488.2-1992.
 		"""
 
-		log.debug('Converting from block data: {0}'.format(repr(block_data)))
+		log.debug('Converting from block data: {0!r}'.format(block_data))
 
 		# Must have at least "#0\n" or "#XX".
 		if len(block_data) < 3:
@@ -95,7 +95,7 @@ class BlockData(object):
 				raise BlockDataError('Not enough data.')
 			elif data_end < len(block_data):
 				if block_data[data_end:] != '\n':
-					log.warning('Extra data ignored: {0}'.format(repr(block_data[data_end:])))
+					log.warning('Extra data ignored: {0!r}'.format(block_data[data_end:]))
 
 			return block_data[data_start:data_end]
 
@@ -121,7 +121,7 @@ class BinaryEncoder(object):
 		# Convert to bytes.
 		msg_encoded = ''.join([chr(int(x, 16)) for x in msg_paired])
 
-		log.debug('Encoded to: {0}'.format(repr(msg_encoded)))
+		log.debug('Encoded to: {0!r}'.format(msg_encoded))
 
 		return msg_encoded
 
@@ -131,7 +131,7 @@ class BinaryEncoder(object):
 		Convert a byte string to a string of hexadecimal digits.
 		"""
 
-		log.debug('Decoding from byte string: {0}'.format(repr(msg)))
+		log.debug('Decoding from byte string: {0!r}'.format(msg))
 
 		# Get the hex string for each byte.
 		msg_decoded = ['{0:02x}'.format(ord(x)) for x in msg]

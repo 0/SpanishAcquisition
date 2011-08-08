@@ -95,7 +95,7 @@ class MockAbstractDevice(AbstractDevice):
 		Act on what is being written.
 		"""
 
-		log.debug('Writing to device: {0}'.format(repr(message)))
+		log.debug('Writing to device: {0!r}'.format(message))
 
 		if not done:
 			if message == '*idn?':
@@ -112,7 +112,7 @@ class MockAbstractDevice(AbstractDevice):
 				done = True
 
 		if not done:
-			raise NotImplementedError('Cannot understand message: {0}'.format(repr(message)))
+			raise NotImplementedError('Cannot understand message: {0!r}'.format(message))
 
 		if result is None:
 			self.output = None
@@ -124,7 +124,7 @@ class MockAbstractDevice(AbstractDevice):
 		Return the result of the last write operation.
 		"""
 
-		log.debug('Read from device: {0}'.format(repr(self.output)))
+		log.debug('Read from device: {0!r}'.format(self.output))
 
 		return self.output
 

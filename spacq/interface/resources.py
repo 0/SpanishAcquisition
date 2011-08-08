@@ -233,7 +233,7 @@ class AcquisitionThread(Thread):
 					try:
 						value = self.resource.value
 					except Exception as e:
-						log.error('Could not obtain resource value: {0}'.format(repr(e)))
+						log.error('Could not obtain resource value: {0!r}'.format(e))
 					else:
 						self.callback(value)
 

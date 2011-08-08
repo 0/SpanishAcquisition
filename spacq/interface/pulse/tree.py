@@ -235,7 +235,7 @@ class ASTNode(object):
 			else:
 				tok = None
 
-		log.debug('Received tokens: {0}'.format(repr(tok)))
+		log.debug('Received tokens: {0!r}'.format(tok))
 
 		if self.is_list:
 			self.items = list(tok)
@@ -280,7 +280,7 @@ class Assignment(ASTNode):
 	names = ['target', 'value']
 
 	def __repr__(self):
-		return '{0} = {1}'.format(repr(self.target), repr(self.value))
+		return '{0!r} = {1!r}'.format(self.target, self.value)
 
 	def draw(self, depth):
 		return 'Assignment\n' + draw_thing(self.target, depth + 1) + draw_thing(self.value, depth + 1)
@@ -324,7 +324,7 @@ class Attribute(ASTNode):
 	names = ['variable', 'name']
 
 	def __repr__(self):
-		return '{0}.{1}'.format(repr(self.variable), repr(self.name))
+		return '{0!r}.{1!r}'.format(self.variable, self.name)
 
 	def draw(self, depth):
 		return 'Attribute\n' + draw_thing(self.variable, depth + 1) + draw_thing(self.name, depth + 1)
@@ -361,7 +361,7 @@ class Declaration(ASTNode):
 	names = ['type', 'variables']
 
 	def __repr__(self):
-		return '{0} {1}'.format(repr(self.type), ', '.join(repr(variable) for variable in self.variables))
+		return '{0!r} {1}'.format(self.type, ', '.join(repr(variable) for variable in self.variables))
 
 	def draw(self, depth):
 		result = ['Declaration\n' + draw_thing(self.type, depth + 1)]
@@ -399,7 +399,7 @@ class Delay(ASTNode):
 	names = ['length']
 
 	def __repr__(self):
-		return '{0}'.format(repr(self.length))
+		return '{0!r}'.format(self.length)
 
 	def draw(self, depth):
 		return 'Delay\n' + draw_thing(self.length, depth + 1)
@@ -440,7 +440,7 @@ class DictionaryItem(ASTNode):
 	names = ['key', 'value']
 
 	def __repr__(self):
-		return '{0}: {1}'.format(repr(self.key), repr(self.value))
+		return '{0!r}: {1!r}'.format(self.key, self.value)
 
 	def draw(self, depth):
 		return repr(self) + '\n'
@@ -453,7 +453,7 @@ class Loop(ASTNode):
 	names = ['times', 'block']
 
 	def __repr__(self):
-		return 'times {0} {1}'.format(repr(self.times), repr(self.block))
+		return 'times {0!r} {1!r}'.format(self.times, self.block)
 
 	def draw(self, depth):
 		return 'Loop\n' + draw_thing(self.times, depth + 1) + draw_thing(self.block, depth + 1)
@@ -507,7 +507,7 @@ class Pulse(ASTNode):
 	names = ['sequence', 'target']
 
 	def __repr__(self):
-		return '{0}:{1}'.format(repr(self.sequence), repr(self.target))
+		return '{0!r}:{1!r}'.format(self.sequence, self.target)
 
 	def draw(self, depth):
 		return 'Pulse\n' + draw_thing(self.sequence, depth + 1) + draw_thing(self.target, depth + 1)
@@ -593,7 +593,7 @@ class Variable(ASTNode):
 	names = ['name']
 
 	def __repr__(self):
-		return '{0}'.format(repr(self.name))
+		return '{0!r}'.format(self.name)
 
 	def draw(self, depth):
 		return 'Variable\n' + draw_thing(self.name, depth + 1)

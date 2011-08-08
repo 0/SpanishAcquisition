@@ -105,9 +105,9 @@ class Generator(object):
 		Convert a time value to a number of samples based on the frequency.
 		"""
 
-		log.debug('Parsing time "{0}" with frequency {1}'.format(repr(value), repr(self.frequency)))
+		log.debug('Parsing time "{0!r}" with frequency {1!r}'.format(value, self.frequency))
 		result = int(value.value * self.frequency.value)
-		log.debug('Parsed time "{0}" as {1} samples'.format(repr(value), result))
+		log.debug('Parsed time "{0!r}" as {1} samples'.format(value, result))
 
 		return result
 

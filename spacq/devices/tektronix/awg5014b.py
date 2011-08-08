@@ -313,7 +313,7 @@ class AWG5014B(AbstractDevice):
 			range_diff = max_value - min_value
 			data = [2.0 * (x - min_value) / range_diff - 1.0 for x in data]
 
-			log.debug('Got waveform "{0}" from device "{1}": {2}'.format(name, self.name, repr(data)))
+			log.debug('Got waveform "{0}" from device "{1}": {2!r}'.format(name, self.name, data))
 
 			return data
 		finally:
@@ -330,7 +330,7 @@ class AWG5014B(AbstractDevice):
 		self.status.append('Creating waveform "{0}"'.format(name))
 
 		try:
-			log.debug('Creating waveform "{0}" on device "{1}" with data: {2}'.format(name, self.name, repr(data)))
+			log.debug('Creating waveform "{0}" on device "{1}" with data: {2!r}'.format(name, self.name, data))
 
 			min_value, max_value = self.value_range
 			range_diff = max_value - min_value
@@ -346,21 +346,21 @@ class AWG5014B(AbstractDevice):
 						for i, marker_datum in enumerate(markers[marker_num]):
 							if marker_datum:
 								data[i] += marker_bit
-						log.debug('Added marker {0} to waveform "{1}" device "{1}": {2}'.format(marker_num,
-								name, self.name, repr(markers[marker_num])))
+						log.debug('Added marker {0} to waveform "{1}" device "{1}": {2!r}'.format(marker_num,
+								name, self.name, markers[marker_num]))
 					except KeyError:
 						pass
 
 				extra_markers = set(markers) - set([1, 2])
 				for extra in extra_markers:
-					log.warning('Marker {0} ignored: {1}'.format(extra, repr(markers[extra])))
+					log.warning('Marker {0} ignored: {1!r}'.format(extra, markers[extra]))
 
 			# Always 16-bit, unsigned, little-endian.
 			packed_data = struct.pack('<{0}H'.format(waveform_length), *data)
 			block_data = BlockData.to_block_data(packed_data)
 
-			log.debug('Sending packed block waveform data for "{0}" on device "{1}": {1}'.format(name,
-					self.name, repr(block_data)))
+			log.debug('Sending packed block waveform data for "{0}" on device "{1!r}": {2}'.format(name,
+					self.name, block_data))
 
 			self.write('wlist:waveform:data "{0}", {1}'.format(name, block_data))
 		finally:

@@ -107,12 +107,11 @@ class OutputVariable(Variable):
 
 		self._wait = wait
 
-	@property
-	def iterator(self):
+	def __iter__(self):
 		if self.use_const:
-			return [self.const]
+			return iter([self.const])
 		else:
-			return self.config.to_iterator()
+			return iter(self.config)
 
 	def __len__(self):
 		if self.use_const:
@@ -121,7 +120,7 @@ class OutputVariable(Variable):
 			return len(self.config)
 
 	def __str__(self):
-		found_values = list(islice(self.iterator, 0, self.search_values + 1))
+		found_values = list(islice(iter(self), 0, self.search_values + 1))
 
 		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
 
@@ -158,8 +157,8 @@ class LinSpaceConfig(object):
 
 		self._steps = value
 
-	def to_iterator(self):
-		return numpy.linspace(self.initial, self.final, self.steps)
+	def __iter__(self):
+		return iter(numpy.linspace(self.initial, self.final, self.steps))
 
 	def __len__(self):
 		return self.steps
@@ -173,8 +172,8 @@ class ArbitraryConfig(object):
 	def __init__(self, values):
 		self.values = values
 
-	def to_iterator(self):
-		return self.values
+	def __iter__(self):
+		return iter(self.values)
 
 	def __len__(self):
 		return len(self.values)

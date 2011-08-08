@@ -130,7 +130,7 @@ class LinSpaceConfigTest(TestCase):
 		# Non-const.
 		eq_(len(var), 5)
 
-		it1 = var.iterator
+		it1 = iter(var)
 		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
 
 		# Const.
@@ -138,7 +138,7 @@ class LinSpaceConfigTest(TestCase):
 
 		eq_(len(var), 1)
 
-		it2 = var.iterator
+		it2 = iter(var)
 		eq_(list(it2), [10.0])
 
 
@@ -155,7 +155,7 @@ class ArbitraryConfigTest(TestCase):
 
 		eq_(len(var), len(values))
 
-		it = var.iterator
+		it = iter(var)
 		eq_(list(it), values)
 
 

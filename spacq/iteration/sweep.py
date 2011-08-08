@@ -77,7 +77,7 @@ class SweepController(object):
 		Create an iterator for an order of variables.
 		"""
 
-		return izip(*(var.iterator for var in self.variables[pos]))
+		return izip(*(iter(var) for var in self.variables[pos]))
 
 	def ramp(self, resources, values_from, values_to, steps):
 		"""

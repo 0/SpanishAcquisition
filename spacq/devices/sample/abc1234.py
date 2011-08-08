@@ -5,6 +5,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice
+from ..tools import quantity_wrapped
 
 """
 Sample ABC1234 Device
@@ -30,6 +31,7 @@ class ABC1234(AbstractDevice):
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		self.resources['reading'].units = 'A'
 		self.resources['setting'].allowed_values = self.allowed_settings
 
 	@Synchronized()
@@ -59,6 +61,7 @@ class ABC1234(AbstractDevice):
 		self.write('some:setting {0}'.format(value))
 
 	@property
+	@quantity_wrapped('A')
 	@Synchronized()
 	def reading(self):
 		"""

@@ -2,6 +2,7 @@ from nose.tools import eq_
 from time import time
 from unittest import main
 
+from spacq.interface.units import Quantity
 from spacq.tests.tool.box import DeviceServerTestCase
 
 from ... import ips120_10
@@ -28,16 +29,18 @@ class IPS120_10Test(DeviceServerTestCase):
 		start_field = ips.field
 
 		# Sweep slowly.
-		ips.sweep_rate = 0.1
+		ips.sweep_rate = Quantity(0.1 / 60, 'T.s-1')
+
+		field1 = Quantity(0.005, 'T')
 
 		start_time = time()
-		ips.field = 0.005
+		ips.field = field1
 		elapsed_time = time() - start_time
 
-		eq_(ips.set_point, 0.005)
-		eq_(ips.field, 0.005)
+		eq_(ips.set_point, field1)
+		eq_(ips.field, field1)
 
-		expected_time = 60 * abs(0.005 - start_field) / 0.1
+		expected_time = 60 * abs(field1 - start_field).value / 0.1
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 		# Make sure it stayed on.
@@ -47,15 +50,17 @@ class IPS120_10Test(DeviceServerTestCase):
 		ips.perma_hot = False
 
 		# Sweep quickly.
-		ips.sweep_rate = 0.5
+		ips.sweep_rate = Quantity(0.5 / 60, 'T.s-1')
+
+		field2 = Quantity(-0.015, 'T')
 
 		start_time = time()
-		ips.field = -0.015
+		ips.field = field2
 		elapsed_time = time() - start_time
 
-		eq_(ips.field, -0.015)
+		eq_(ips.field, field2)
 
-		expected_time = 60 * abs(-0.015 - 0.005) / 0.5
+		expected_time = 60 * abs(field2 - field1).value / 0.5
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 		# Make sure it turned off.
@@ -64,13 +69,15 @@ class IPS120_10Test(DeviceServerTestCase):
 		ips.perma_hot = True
 
 		# Reset back to zero.
+		field3 = Quantity(0.0, 'T')
+
 		start_time = time()
-		ips.field = 0.0
+		ips.field = field3
 		elapsed_time = time() - start_time
 
-		eq_(ips.field, 0.0)
+		eq_(ips.field, field3)
 
-		expected_time = 60 * abs(0.0 - (-0.015)) / 0.5
+		expected_time = 60 * abs(field3 - field2).value / 0.5
 		assert elapsed_time >= expected_time, 'Took {0} s, expected at least {1} s.'.format(elapsed_time, expected_time)
 
 

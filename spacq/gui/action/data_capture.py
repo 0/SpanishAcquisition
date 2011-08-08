@@ -424,6 +424,19 @@ class DataCapturePanel(wx.Panel):
 				else:
 					unreadable_resources.append(name)
 
+		mismatched_resources = []
+		for (res_name, resource), var in zip(flatten(resources), flatten(output_variables)):
+			if resource is None:
+				continue
+
+			if resource.units is not None:
+				if not (var.type == 'quantity' and
+						resource.verify_dimensions(var.units, exception=False, from_string=True)):
+					mismatched_resources.append((res_name, var.name))
+			else:
+				if var.type not in ['float', 'integer']:
+					mismatched_resources.append((res_name, var.name))
+
 		if missing_resources:
 			MessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
 		if unreadable_resources:
@@ -432,7 +445,10 @@ class DataCapturePanel(wx.Panel):
 			MessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
 		if missing_devices:
 			MessageDialog(self, ', '.join(missing_devices), 'Missing devices').Show()
-		if missing_resources or unreadable_resources or unwritable_resources or missing_devices:
+		if mismatched_resources:
+			MessageDialog(self, ', '.join('{0}/{1}'.format(x[0], x[1]) for x in mismatched_resources),
+					'Mismatched resources').Show()
+		if missing_resources or unreadable_resources or unwritable_resources or missing_devices or mismatched_resources:
 			return
 
 		exporting = False
@@ -470,6 +486,7 @@ class DataCapturePanel(wx.Panel):
 
 		dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources,
 				input_variables, pulse_config, continuous=continuous)
+		dlg.SetMinSize((500, -1))
 
 		for name in measurement_resource_names:
 			pub.sendMessage('data_capture.start', name=name)

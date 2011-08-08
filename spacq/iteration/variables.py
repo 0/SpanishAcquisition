@@ -96,6 +96,9 @@ class OutputVariable(Variable):
 		self.smooth_to = False
 		self.smooth_transition = False
 
+		self.type = 'float'
+		self.units = None
+
 	@property
 	def wait(self):
 		return str(self._wait)
@@ -110,8 +113,13 @@ class OutputVariable(Variable):
 	def __iter__(self):
 		if self.use_const:
 			return iter([self.const])
-		else:
+		elif self.type == 'integer':
+			return (int(x) for x in iter(self.config))
+		elif self.units is None:
+			# Unitless float.
 			return iter(self.config)
+		else:
+			return (Quantity(x, self.units) for x in self.config)
 
 	def __len__(self):
 		if self.use_const:
@@ -121,6 +129,9 @@ class OutputVariable(Variable):
 
 	def __str__(self):
 		found_values = list(islice(iter(self), 0, self.search_values + 1))
+
+		if isinstance(found_values[0], Quantity):
+			found_values = [x.original_value for x in found_values]
 
 		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
 
@@ -133,7 +144,8 @@ class OutputVariable(Variable):
 
 		smooth_from = '(' if not self.use_const and self.smooth_from else '['
 		smooth_to = ')' if not self.use_const and self.smooth_to else ']'
-		return '{0}{1}{2}'.format(smooth_from, shown_values, smooth_to)
+		units = ' {0}'.format(self.units) if self.units is not None else ''
+		return '{0}{1}{2}{3}'.format(smooth_from, shown_values, smooth_to, units)
 
 
 class LinSpaceConfig(object):

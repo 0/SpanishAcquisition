@@ -6,6 +6,8 @@ from numpy import linspace
 from threading import Thread
 import time
 
+from .units import IncompatibleDimensions, Quantity
+
 from spacq.tool.box import Without
 
 """
@@ -62,8 +64,40 @@ class Resource(object):
 
 		self.wrappers = []
 
+		# Dimensions (specified as unit symbol strings) which values for this resource must match.
+		self.units = None
+
 		# Resources marked slow should not be fetched implicitly.
 		self.slow = False
+
+	def verify_dimensions(self, value, exception=True, from_string=False):
+		"""
+		Ensure that the type and dimensions of the value are as expected.
+
+		If from_string is True, the value is expected to be a unit symbol string.
+		"""
+
+		if from_string:
+			value = Quantity(1, value)
+
+		try:
+			if self.units is not None:
+				try:
+					value.assert_dimensions(self.units)
+				except AttributeError:
+					raise TypeError('Expected a Quantity, not "{0}"'.format(value))
+				except IncompatibleDimensions:
+					raise TypeError('Expected dimensions matching "{0}", not "{1}"'.format(self.units, value))
+			else:
+				if isinstance(value, Quantity):
+					raise TypeError('Unexpected Quantity "{0}"'.format(value))
+		except Exception:
+			if exception:
+				raise
+			else:
+				return False
+
+		return True
 
 	@property
 	def value(self):
@@ -81,12 +115,15 @@ class Resource(object):
 		else:
 			raise NotReadable('Cannot read from resource.')
 
+		self.verify_dimensions(result)
+
 		# Apply the wrappers.
 		for _, getter_filter, _ in self.wrappers:
 			if getter_filter is None:
 				continue
 
 			result = getter_filter(result)
+			self.verify_dimensions(result)
 
 		return result
 
@@ -95,12 +132,15 @@ class Resource(object):
 		if self.setter is None:
 			raise NotWritable('Resource not writable.')
 
+		self.verify_dimensions(v)
+
 		# Apply the wrappers.
 		for _, _, setter_filter in self.wrappers:
 			if setter_filter is None:
 				continue
 
 			v = setter_filter(v)
+			self.verify_dimensions(v)
 
 		if self.allowed_values is not None and v not in self.allowed_values:
 			raise ValueError('Disallowed value: {0}'.format(v))
@@ -113,8 +153,17 @@ class Resource(object):
 			raise NotWritable('Cannot write to resource.')
 
 	def convert(self, value):
+		"""
+		Either use the specified converter, treat as a quantity, or do nothing.
+		"""
+
 		if self.converter is not None:
 			return self.converter(value)
+		elif self.units is not None:
+			q = Quantity(value)
+			q.assert_dimensions(self.units)
+
+			return q
 		else:
 			return value
 
@@ -182,6 +231,14 @@ class Resource(object):
 		"""
 		Sweep the Resource slowly over a linear space.
 		"""
+
+		# Check for dimension mismatches.
+		if isinstance(value_from, Quantity) and not isinstance(value_to, Quantity) and value_to == 0:
+			value_to = Quantity(0, value_from.original_units)
+		elif isinstance(value_to, Quantity) and not isinstance(value_from, Quantity) and value_from == 0:
+			value_from = Quantity(0, value_to.original_units)
+		elif isinstance(value_from, Quantity) and isinstance(value_to, Quantity):
+			value_from.assert_dimensions(value_to)
 
 		for value in linspace(value_from, value_to, steps):
 			try:

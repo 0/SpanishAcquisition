@@ -5,6 +5,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice
+from ..tools import quantity_wrapped
 
 """
 Agilent 34410A Digital Multimeter
@@ -35,6 +36,7 @@ class DM34410A(AbstractDevice):
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
+		self.resources['reading'].units = 'V'
 		self.resources['integration_time'].converter = float
 		self.resources['integration_time'].allowed_values = self.allowed_nplc
 		self.resources['auto_zero'].allowed_values = self.allowed_auto_zero
@@ -91,10 +93,11 @@ class DM34410A(AbstractDevice):
 		self.write('sense:voltage:dc:zero:auto {0}'.format(value))
 
 	@property
+	@quantity_wrapped('V')
 	@Synchronized()
 	def reading(self):
 		"""
-		The value measured by the device.
+		The value measured by the device, as a quantity in V.
 		"""
 
 		self.status.append('Taking reading')

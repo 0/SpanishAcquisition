@@ -1,7 +1,10 @@
 import logging
 log = logging.getLogger(__name__)
 
+from functools import wraps
 import string
+
+from spacq.interface.units import Quantity
 
 """
 Tools for working with hardware devices.
@@ -15,6 +18,37 @@ def str_to_bool(value):
 	"""
 
 	return bool(value) and value.lower() != 'false'
+
+
+def quantity_wrapped(units, multiplier=1.0):
+	"""
+	A decorator for getters to wrap the plain device value into a quantity with a unit.
+	"""
+
+	def wrap(f):
+		@wraps(f)
+		def wrapped(self):
+			return Quantity(f(self) * multiplier, units)
+
+		return wrapped
+
+	return wrap
+
+def quantity_unwrapped(units, multiplier=1.0):
+	"""
+	A decorator for setters to extract the plain device value from the quantity.
+	"""
+
+	def wrap(f):
+		@wraps(f)
+		def wrapped(self, value):
+			value.assert_dimensions(units)
+
+			return f(self, value.value * multiplier)
+
+		return wrapped
+
+	return wrap
 
 
 class BlockDataError(Exception):

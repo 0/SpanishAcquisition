@@ -8,7 +8,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
-from ..tools import BlockData, str_to_bool
+from ..tools import str_to_bool, quantity_wrapped, quantity_unwrapped, BlockData
 
 """
 Tektronix DPO7104 Digital Phosphor Oscilloscope
@@ -133,8 +133,8 @@ class DPO7104(AbstractDevice):
 		self.resources['stopafter'].allowed_values = self.allowed_stopafters
 		self.resources['waveform_bytes'].allowed_values = self.allowed_waveform_bytes
 		self.resources['waveform_bytes'].converter = int
-		self.resources['sample_rate'].converter = float
-		self.resources['horizontal_scale'].converter = float
+		self.resources['sample_rate'].units = 'Hz'
+		self.resources['horizontal_scale'].units = 's'
 		self.resources['acquiring'].converter = str_to_bool
 
 	@Synchronized()
@@ -211,6 +211,7 @@ class DPO7104(AbstractDevice):
 		self.write('acquire:state {0}'.format(str(int(value))))
 
 	@property
+	@quantity_wrapped('Hz')
 	def sample_rate(self):
 		"""
 		The sample rate in s-1.
@@ -219,10 +220,12 @@ class DPO7104(AbstractDevice):
 		return float(self.ask('horizontal:mode:samplerate?'))
 
 	@sample_rate.setter
+	@quantity_unwrapped('Hz')
 	def sample_rate(self, value):
 		self.write('horizontal:mode:samplerate {0}'.format(value))
 
 	@property
+	@quantity_wrapped('s')
 	def horizontal_scale(self):
 		"""
 		The horizontal time scale for each division in s.
@@ -233,6 +236,7 @@ class DPO7104(AbstractDevice):
 		return float(self.ask('horizontal:mode:scale?'))
 
 	@horizontal_scale.setter
+	@quantity_unwrapped('s')
 	def horizontal_scale(self, value):
 		self.write('horizontal:mode:scale {0}'.format(value))
 

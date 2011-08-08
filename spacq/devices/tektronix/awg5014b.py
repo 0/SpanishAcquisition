@@ -5,10 +5,11 @@ import re
 import struct
 
 from spacq.interface.resources import Resource
+from spacq.interface.units import Quantity
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
-from ..tools import BlockData, str_to_bool
+from ..tools import str_to_bool, quantity_wrapped, quantity_unwrapped, BlockData
 
 """
 Tektronix AWG5014B Arbitrary Waveform Generator
@@ -30,6 +31,10 @@ class Marker(AbstractSubdevice):
 		for name in read_write_float:
 			self.resources[name] = Resource(self, name, name, converter=float)
 
+		self.resources['delay'].units = 's'
+		self.resources['high'].units = 'V'
+		self.resources['low'].units = 'V'
+
 	def __init__(self, device, channel, number, *args, **kwargs):
 		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
@@ -37,38 +42,44 @@ class Marker(AbstractSubdevice):
 		self.number = number
 
 	@property
+	@quantity_wrapped('s')
 	def delay(self):
 		"""
-		The marker delay in s.
+		The marker delay, as a quantity in s.
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:delay?'.format(self.channel, self.number)))
 
 	@delay.setter
+	@quantity_unwrapped('s')
 	def delay(self, v):
 		self.device.write('source{0}:marker{1}:delay {2}'.format(self.channel, self.number, v))
 
 	@property
+	@quantity_wrapped('V')
 	def high(self):
 		"""
-		The marker high voltage in V.
+		The marker high voltage, as a quantity in V.
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:voltage:high?'.format(self.channel, self.number)))
 
 	@high.setter
+	@quantity_unwrapped('V')
 	def high(self, v):
 		self.device.write('source{0}:marker{1}:voltage:high {2}'.format(self.channel, self.number, v))
 
 	@property
+	@quantity_wrapped('V')
 	def low(self):
 		"""
-		The marker low voltage in V.
+		The marker low voltage, as a quantity in V.
 		"""
 
 		return float(self.device.ask('source{0}:marker{1}:voltage:low?'.format(self.channel, self.number)))
 
 	@low.setter
+	@quantity_unwrapped('V')
 	def low(self, v):
 		self.device.write('source{0}:marker{1}:voltage:low {2}'.format(self.channel, self.number, v))
 
@@ -97,7 +108,7 @@ class Channel(AbstractSubdevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['enabled'].converter = str_to_bool
-		self.resources['amplitude'].converter = float
+		self.resources['amplitude'].units = 'V'
 
 	def __init__(self, device, channel, *args, **kwargs):
 		self.channel = channel
@@ -137,6 +148,7 @@ class Channel(AbstractSubdevice):
 		self.device.write('output{0}:state {1}'.format(self.channel, int(v)))
 
 	@property
+	@quantity_wrapped('V')
 	def amplitude(self):
 		"""
 		The zero-to-peak amplitude of the channel in V.
@@ -146,6 +158,7 @@ class Channel(AbstractSubdevice):
 		return float(self.device.ask('source{0}:voltage?'.format(self.channel))) / 2
 
 	@amplitude.setter
+	@quantity_unwrapped('V')
 	def amplitude(self, v):
 		# Convert zero-to-peak to peak-to-peak.
 		self.device.write('source{0}:voltage {1:E}'.format(self.channel, 2 * v))
@@ -174,7 +187,7 @@ class Channel(AbstractSubdevice):
 
 			waveform = [x / max_amp for x in waveform]
 
-			self.amplitude = max_amp
+			self.amplitude = Quantity(max_amp, 'V')
 
 		# Create new.
 		self.device.create_waveform(name, waveform, markers)
@@ -207,7 +220,7 @@ class AWG5014B(AbstractDevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['waveform_names'].slow = True
-		self.resources['sampling_rate'].converter = float
+		self.resources['sampling_rate'].units = 'Hz'
 		self.resources['run_mode'].allowed_values = self.allowed_run_modes
 		self.resources['enabled'].converter = str_to_bool
 
@@ -238,6 +251,7 @@ class AWG5014B(AbstractDevice):
 		return (0, 2 ** self.data_bits - 1)
 
 	@property
+	@quantity_wrapped('Hz')
 	def sampling_rate(self):
 		"""
 		The sampling rate of the AWG in Hz.
@@ -246,6 +260,7 @@ class AWG5014B(AbstractDevice):
 		return float(self.ask('source1:frequency?'))
 
 	@sampling_rate.setter
+	@quantity_unwrapped('Hz')
 	def sampling_rate(self, value):
 		if value < 1e7 or value > 1.2e9:
 			raise ValueError('Sampling rate must be between 1e7 Hz and 1.2e9 Hz, not {0:n} Hz'.format(value))

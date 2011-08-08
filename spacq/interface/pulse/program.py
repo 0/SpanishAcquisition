@@ -132,6 +132,19 @@ class Program(object):
 			def setter(x, parameter=parameter):
 				result._env.values[parameter] = x
 
-			result.resources[parameter].setter = setter
+			res = result.resources[parameter]
+			res.setter = setter
+
+			# Type checking.
+			var_type = result._env.variables[parameter[0]]
+			if var_type == 'delay':
+				res.units = 's'
+			elif var_type == 'int':
+				pass
+			elif var_type == 'pulse':
+				if parameter[1] == 'amplitude':
+					res.units = 'V'
+				elif parameter[1] == 'length':
+					res.units = 's'
 
 		return result

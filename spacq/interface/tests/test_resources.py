@@ -302,6 +302,70 @@ class ResourceTest(TestCase):
 		eq_(buf, list(linspace(9.0, 10.0, 2)))
 		eq_(exceptions, [(11.0,), (-15.0,)])
 
+	def testDimensions(self):
+		"""
+		Ensure that dimensions for values are verified in both directions.
+		"""
+
+		value = []
+
+		res1 = resources.Resource(getter=lambda: value[-1], setter=lambda x: value.append(x))
+		res1.units = 'ns.V2.pJ-1'
+
+		# Valid.
+		## Without wrapping.
+		res1.value = Quantity(12.34, 'kg.m2.s-3.A-2')
+		eq_(res1.value, Quantity(12340, 'g.m2.s-3.A-2'))
+
+		## With wrapping.
+		res2 = res1.wrapped('w1', getter_filter=lambda x: 2 * x, setter_filter=lambda x: 3 * x)
+		res2.value = Quantity(12.34, 'kg.m2.s-3.A-2')
+		eq_(res2.value, Quantity(74040, 'g.m2.s-3.A-2'))
+
+		# Invalid.
+		## Dimensions.
+		try:
+			res1.value = Quantity(12.34, 's')
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		## Not even a quantity.
+		try:
+			res1.value = 12.34
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		## Also on read.
+		value.append(12.34)
+
+		try:
+			res1.value
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		## And with wrapping.
+		res2 = res1.wrapped('w2', getter_filter=lambda x: Quantity(-9.1, 'A'), setter_filter=lambda x: 6.3)
+
+		try:
+			res2.value
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		try:
+			res2.value = Quantity(12.34, 'ns.V2.pJ-1')
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
 
 class AcquisitionThreadTest(TestCase):
 	def testWithoutResource(self):

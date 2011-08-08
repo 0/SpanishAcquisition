@@ -6,6 +6,7 @@ from numpy import linspace
 from numpy.testing import assert_array_almost_equal
 from unittest import main
 
+from spacq.interface.units import Quantity
 from spacq.tests.tool.box import AssertHandler, DeviceServerTestCase
 
 from ... import awg5014b
@@ -23,25 +24,25 @@ class AWG5014BTest(DeviceServerTestCase):
 		awg = self.obtain_device()
 		awg.reset()
 
-		awg.channels[1].markers[1].delay = 1e-9 # s
-		awg.channels[1].markers[1].high = 0.5 # V
-		awg.channels[1].markers[2].delay = 0.1e-9 # s
-		awg.channels[2].markers[1].low = -0.1 # V
+		awg.channels[1].markers[1].delay = Quantity(1, 'ns')
+		awg.channels[1].markers[1].high = Quantity(0.5, 'V')
+		awg.channels[1].markers[2].delay = Quantity(0.1, 'ns')
+		awg.channels[2].markers[1].low = Quantity(-100, 'mV')
 
-		eq_(awg.channels[1].markers[1].delay, 1e-9)
-		eq_(awg.channels[1].markers[2].delay, 0.1e-9)
-		eq_(awg.channels[2].markers[1].delay, 0)
-		eq_(awg.channels[2].markers[2].delay, 0)
+		eq_(awg.channels[1].markers[1].delay.value, 1e-9)
+		eq_(awg.channels[1].markers[2].delay.value, 0.1e-9)
+		eq_(awg.channels[2].markers[1].delay.value, 0)
+		eq_(awg.channels[2].markers[2].delay.value, 0)
 
-		eq_(awg.channels[1].markers[1].high, 0.5)
-		eq_(awg.channels[1].markers[2].high, 1)
-		eq_(awg.channels[2].markers[1].high, 1)
-		eq_(awg.channels[2].markers[2].high, 1)
+		eq_(awg.channels[1].markers[1].high.value, 0.5)
+		eq_(awg.channels[1].markers[2].high.value, 1)
+		eq_(awg.channels[2].markers[1].high.value, 1)
+		eq_(awg.channels[2].markers[2].high.value, 1)
 
-		eq_(awg.channels[1].markers[1].low, 0)
-		eq_(awg.channels[1].markers[2].low, 0)
-		eq_(awg.channels[2].markers[1].low, -0.1)
-		eq_(awg.channels[2].markers[2].low, 0)
+		eq_(awg.channels[1].markers[1].low.value, 0)
+		eq_(awg.channels[1].markers[2].low.value, 0)
+		eq_(awg.channels[2].markers[1].low.value, -0.1)
+		eq_(awg.channels[2].markers[2].low.value, 0)
 
 	def testScenario(self):
 		"""
@@ -73,13 +74,13 @@ class AWG5014BTest(DeviceServerTestCase):
 
 		awg.channels[2].set_waveform(data2, name='Test 2')
 
-		awg.sampling_rate = 2e8 # Hz
+		awg.sampling_rate = Quantity(200, 'MHz')
 
 		awg.channels[1].enabled = True
-		awg.channels[1].amplitude = 0.8
+		awg.channels[1].amplitude = Quantity(0.8, 'V')
 
 		awg.channels[2].enabled = True
-		awg.channels[2].amplitude = 0.4
+		awg.channels[2].amplitude = Quantity(0.4, 'V')
 
 		awg.channels[3].waveform_name = 'Test 2'
 		awg.channels[3].enabled = True
@@ -92,14 +93,14 @@ class AWG5014BTest(DeviceServerTestCase):
 		awg.enabled = True
 
 		# Verify
-		eq_(awg.sampling_rate, 2e8)
+		eq_(awg.sampling_rate.value, 2e8)
 
 		eq_(awg.waveform_names, existing_waveforms + ['Channel 1', 'Test 2'])
 
 		assert_array_almost_equal(awg.get_waveform('Channel 1'), data1, 4)
-		eq_(awg.channels[1].amplitude, 0.8)
+		eq_(awg.channels[1].amplitude.value, 0.8)
 		assert_array_almost_equal(awg.get_waveform('Test 2'), data2, 4)
-		eq_(awg.channels[2].amplitude, 0.4)
+		eq_(awg.channels[2].amplitude.value, 0.4)
 
 		for ch in [1, 2]:
 			eq_(awg.channels[ch].enabled, True)

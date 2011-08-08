@@ -1,6 +1,7 @@
 import ObjectListView
 import wx
 
+from spacq.interface.units import Quantity
 from spacq.iteration.variables import OutputVariable, LinSpaceConfig, ArbitraryConfig
 
 from ..tool.box import Dialog, MessageDialog, load_pickled, save_pickled
@@ -156,6 +157,28 @@ class VariableEditor(Dialog):
 		self.smooth_transition_checkbox = wx.CheckBox(self, label='Transition')
 		smooth_box.Add(self.smooth_transition_checkbox, flag=wx.CENTER|wx.ALL, border=5)
 
+		## Type.
+		type_static_box = wx.StaticBox(self, label='Type')
+		type_box = wx.StaticBoxSizer(type_static_box, wx.HORIZONTAL)
+		dialog_box.Add(type_box, flag=wx.CENTER|wx.ALL, border=5)
+
+		self.type_float = wx.RadioButton(self, label='Float', style=wx.RB_GROUP)
+		type_box.Add(self.type_float, flag=wx.CENTER|wx.ALL, border=5)
+
+		self.type_integer = wx.RadioButton(self, label='Integer')
+		type_box.Add(self.type_integer, flag=wx.CENTER|wx.ALL, border=5)
+
+		### Units.
+		quantity_static_box = wx.StaticBox(self, label='Quantity')
+		quantity_box = wx.StaticBoxSizer(quantity_static_box, wx.HORIZONTAL)
+		type_box.Add(quantity_box)
+
+		self.type_quantity = wx.RadioButton(self)
+		quantity_box.Add(self.type_quantity, flag=wx.CENTER)
+
+		self.units_input = wx.TextCtrl(self)
+		quantity_box.Add(self.units_input)
+
 		## End buttons.
 		button_box = wx.BoxSizer(wx.HORIZONTAL)
 		dialog_box.Add(button_box, flag=wx.CENTER|wx.ALL, border=5)
@@ -170,18 +193,39 @@ class VariableEditor(Dialog):
 		self.SetSizerAndFit(dialog_box)
 
 	def GetValue(self):
+		if self.type_float.Value:
+			type = 'float'
+			units = None
+		elif self.type_integer.Value:
+			type = 'integer'
+			units = None
+		else:
+			type = 'quantity'
+			units = self.units_input.Value
+
+			# Ensure that the units are valid.
+			Quantity(1, units)
+
 		return (self.config_notebook.CurrentPage.GetValue(), self.smooth_steps_input.Value,
 				self.smooth_from_checkbox.Value, self.smooth_to_checkbox.Value,
-				self.smooth_transition_checkbox.Value)
+				self.smooth_transition_checkbox.Value, type, units)
 
-	def SetValue(self, config, smooth_steps, smooth_from, smooth_to, smooth_transition):
-		type = self.config_panel_types.index(config.__class__)
-		self.config_notebook.ChangeSelection(type)
+	def SetValue(self, config, smooth_steps, smooth_from, smooth_to, smooth_transition, type, units):
+		config_type = self.config_panel_types.index(config.__class__)
+		self.config_notebook.ChangeSelection(config_type)
 		self.config_notebook.CurrentPage.SetValue(config)
 
 		(self.smooth_steps_input.Value, self.smooth_from_checkbox.Value,
 				self.smooth_to_checkbox.Value,
 				self.smooth_transition_checkbox.Value) = smooth_steps, smooth_from, smooth_to, smooth_transition
+
+		if type == 'float':
+			self.type_float.Value = True
+		elif type == 'integer':
+			self.type_integer.Value = True
+		else:
+			self.type_quantity.Value = True
+			self.units_input.Value = units if units is not None else ''
 
 	def OnOk(self, evt=None):
 		if self.ok_callback(self):
@@ -279,12 +323,13 @@ class VariablesPanel(wx.Panel):
 					return False
 
 				(var.config, var.smooth_steps, var.smooth_from, var.smooth_to,
-						var.smooth_transition) = values
+						var.smooth_transition, var.type, var.units) = values
 
 				return True
 
 			dlg = VariableEditor(self, ok_callback)
-			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to, var.smooth_transition)
+			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to, var.smooth_transition,
+					var.type, var.units)
 			dlg.Show()
 
 			# No need to use the default editor.

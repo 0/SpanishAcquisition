@@ -8,7 +8,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
-from ..tools import BinaryEncoder
+from ..tools import quantity_unwrapped, BinaryEncoder
 
 """
 Custom voltage source
@@ -60,7 +60,7 @@ class Port(AbstractSubdevice):
 		for name in write_only:
 			self.resources[name] = Resource(self, None, name)
 
-		self.resources['voltage'].converter = float
+		self.resources['voltage'].units = 'V'
 
 	@Synchronized()
 	def _connected(self):
@@ -182,9 +182,10 @@ class Port(AbstractSubdevice):
 		# Write 16 bits to the top of the DIR: 0010 0100 xx10 0000 101x 00xx
 		self.write_to_dac('24 {0:04x}'.format(0x20a0 | flags))
 
+	@quantity_unwrapped('V')
 	def set_voltage(self, voltage):
 		"""
-		Set the voltage on this port.
+		Set the voltage on this port, as a quantity in V.
 		"""
 
 		# Left-align the bits within the value:

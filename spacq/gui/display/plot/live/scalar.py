@@ -365,6 +365,12 @@ class ScalarLiveViewPanel(wx.Panel):
 		Update the plot with a new value.
 		"""
 
+		# Extract the value of a Quantity.
+		try:
+			value = value.value
+		except AttributeError:
+			pass
+
 		# Update values.
 		try:
 			self._points = numpy.append(self._points, self._points[-1] + 1)

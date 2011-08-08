@@ -139,6 +139,20 @@ class QuantityTest(TestCase):
 
 		# TODO: Compare arrays.
 
+	def testArithmetic(self):
+		"""
+		Perform arithmetic on quantities.
+		"""
+
+		# Multiplication by real.
+		q = units.Quantity(1.5, 'N.m')
+
+		q_mul = 2 * q
+		q_mul = q_mul * 3
+
+		eq_(q, units.Quantity(1.5, 'J'))
+		eq_(q_mul, units.Quantity(9, 'J'))
+
 	def testRepr(self):
 		"""
 		Ensure that repr() gives a useful value.

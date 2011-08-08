@@ -1,6 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from copy import deepcopy
 from math import log10
 from numpy import allclose, array
 import quantities as pq
@@ -225,6 +226,19 @@ class Quantity(object):
 
 	def __gt__(self, other):
 		return not self <= other
+
+	def __mul__(self, other):
+		"""
+		Multiplication by reals.
+		"""
+
+		result = deepcopy(self)
+		result._q *= other
+
+		return result
+
+	def __rmul__(self, other):
+		return self * other
 
 	def __repr__(self):
 		return '{0}(\'{1}\')'.format(self.__class__.__name__, str(self))

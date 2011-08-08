@@ -413,6 +413,7 @@ class DataCapturePanel(wx.Panel):
 			resources.append(tuple(group_resources))
 
 		measurement_resources = []
+		measurement_units = []
 		for name in measurement_resource_names:
 			if name not in self.global_store.resources:
 				missing_resources.append(name)
@@ -421,6 +422,7 @@ class DataCapturePanel(wx.Panel):
 
 				if resource.readable:
 					measurement_resources.append((name, resource))
+					measurement_units.append(resource.units)
 				else:
 					unreadable_resources.append(name)
 
@@ -479,8 +481,11 @@ class DataCapturePanel(wx.Panel):
 			self.last_file_name.Value = file_path
 
 			# Write the header.
-			export_csv.writerow(['__time__'] + [var.name for var in flatten(output_variables)] +
-					[var.name for var in input_variables])
+			export_csv.writerow(['__time__ (s)'] +
+					['{0.name} ({0.units})'.format(var) if var.units is not None else var.name
+							for var in flatten(output_variables)] +
+					['{0.name} ({1})'.format(var, units) if units is not None else var.name
+						for var, units in zip(input_variables, measurement_units)])
 
 		self.capture_dialogs += 1
 
@@ -507,9 +512,13 @@ class DataCapturePanel(wx.Panel):
 			for name, value in zip(measurement_resource_names, measurement_values):
 				pub.sendMessage('data_capture.data', name=name, value=value)
 
+			# Extract values out of quantities, since the units have already been taken care of in the header.
+			values = [x.original_value if hasattr(x, 'original_value') else x for x in values]
+			measurement_values = [x.original_value if hasattr(x, 'original_value') else x for x in measurement_values]
+
 			if exporting:
 				with buf_lock:
-					buf.append((cur_time,) + values + measurement_values)
+					buf.append([cur_time] + values + measurement_values)
 
 					if len(buf) >= max_buf_size:
 						flush()

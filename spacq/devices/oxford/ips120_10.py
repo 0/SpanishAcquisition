@@ -2,7 +2,6 @@ import logging
 log = logging.getLogger(__name__)
 
 from collections import namedtuple
-from nose.tools import eq_
 from time import sleep
 
 from spacq.interface.resources import Resource
@@ -215,11 +214,10 @@ class IPS120_10(AbstractDevice):
 	@Synchronized()
 	def field(self, value):
 		status = self.device_status
-		eq_(status.system_status, 0)
-		eq_(status.limits, 0)
-		eq_(status.mode_sweep, 0)
-
-		eq_(self.activity, 'hold')
+		assert status.system_status == 0, 'System status: {0}'.format(status.system_status)
+		assert status.limits == 0, 'Limits: {0}'.format(status.limits)
+		assert status.mode_sweep == 0, 'Mode sweep: {0}'.format(status.mode_sweep)
+		assert self.activity == 'hold', 'Activity: {0}'.format(self.activity)
 
 		# Return to the last field.
 		if not self.heater_on:

@@ -72,6 +72,9 @@ class SweepController(object):
 		self.aborting = False
 		self.abort_fatal = False
 
+		self.sweep_start_time = time()
+		self.first_time_point = None
+
 	def create_iterator(self, pos):
 		"""
 		Create an iterator for an order of variables.
@@ -182,8 +185,6 @@ class SweepController(object):
 		self.last_values = None
 
 		self.item = -1
-
-		self.sweep_start_time = time()
 
 		if not self.devices_configured:
 			log.debug('Configuring devices')
@@ -385,7 +386,13 @@ class SweepController(object):
 			thr.join()
 
 		if self.data_callback is not None:
-			self.data_callback(time(), tuple(flatten(self.current_values)), tuple(measurements))
+			if self.first_time_point is None:
+				cur_time = 0
+				self.first_time_point = time()
+			else:
+				cur_time = time() - self.first_time_point
+
+			self.data_callback(cur_time, tuple(flatten(self.current_values)), tuple(measurements))
 
 		if self.item == self.num_items - 1:
 			self.item += 1

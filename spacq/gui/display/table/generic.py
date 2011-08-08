@@ -95,19 +95,6 @@ class TabularDisplayPanel(wx.Panel):
 		else:
 			headers, rows = [''] * len(values[0]), array(values)
 
-		# Calculate relative times.
-		if headers[0] == '__time__':
-			try:
-				times = rows[:,0].astype(float)
-			except ValueError:
-				# Pretend we never tried.
-				pass
-			else:
-				min_time = min(times)
-
-				for i in xrange(len(times)):
-					rows[i,0] = times[i] - min_time
-
 		# Ensure that all columns have a header.
 		for i, header in enumerate(headers):
 			if not header:

@@ -176,7 +176,7 @@ class Quantity(object):
 	@property
 	def value(self):
 		"""
-		The magnitude of the quantity.
+		The magnitude of the quantity, normalized to the base units.
 		"""
 
 		result = self._q.magnitude
@@ -185,6 +185,14 @@ class Quantity(object):
 			return result
 		else:
 			return result.tolist()
+
+	@property
+	def original_value(self):
+		"""
+		The magnitude of the quantity that matches the units.
+		"""
+
+		return self._q.magnitude / (10 ** self.original_multiplier)
 
 	def assert_dimensions(self, other, exception=True):
 		"""
@@ -244,7 +252,7 @@ class Quantity(object):
 		return '{0}(\'{1}\')'.format(self.__class__.__name__, str(self))
 
 	def __str__(self):
-		value = self._q.magnitude / (10 ** self.original_multiplier)
+		value = self.original_value
 		symbol = self.original_units
 
 		if isinstance(value, float):

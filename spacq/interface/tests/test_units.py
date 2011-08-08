@@ -38,6 +38,7 @@ class QuantityTest(TestCase):
 
 			eq_(q, units.Quantity(value, orig_units))
 			eq_(q.value, value * 10 ** multiplier)
+			eq_(q.original_value, value)
 
 	def testArray(self):
 		"""

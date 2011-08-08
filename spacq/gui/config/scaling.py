@@ -1,6 +1,8 @@
 import wx
 from wx.lib.agw.floatspin import FloatSpin
 
+from spacq.interface.units import Quantity
+
 from ..tool.box import Dialog
 
 """
@@ -24,7 +26,12 @@ class ScalingSettings(object):
 		Perform a transform according to the scaling.
 		"""
 
-		return self.linear_scale * x * (10 ** self.exponential_scale) + self.offset
+		if self.offset == 0:
+			return self.linear_scale * x * (10 ** self.exponential_scale)
+		elif isinstance(x, Quantity):
+			return self.linear_scale * x * (10 ** self.exponential_scale) + Quantity(self.offset, x.original_units)
+		else:
+			return self.linear_scale * x * (10 ** self.exponential_scale) + self.offset
 
 
 class ScalingSettingsDialog(Dialog):

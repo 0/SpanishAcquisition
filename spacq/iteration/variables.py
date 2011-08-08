@@ -96,6 +96,9 @@ class OutputVariable(Variable):
 		self.smooth_to = False
 		self.smooth_transition = False
 
+		self.type = 'float'
+		self.units = None
+
 	@property
 	def wait(self):
 		return str(self._wait)
@@ -107,12 +110,16 @@ class OutputVariable(Variable):
 
 		self._wait = wait
 
-	@property
-	def iterator(self):
+	def __iter__(self):
 		if self.use_const:
-			return [self.const]
+			return iter([self.const])
+		elif self.type == 'integer':
+			return (int(x) for x in iter(self.config))
+		elif self.units is None:
+			# Unitless float.
+			return iter(self.config)
 		else:
-			return self.config.to_iterator()
+			return (Quantity(x, self.units) for x in self.config)
 
 	def __len__(self):
 		if self.use_const:
@@ -121,7 +128,10 @@ class OutputVariable(Variable):
 			return len(self.config)
 
 	def __str__(self):
-		found_values = list(islice(self.iterator, 0, self.search_values + 1))
+		found_values = list(islice(iter(self), 0, self.search_values + 1))
+
+		if isinstance(found_values[0], Quantity):
+			found_values = [x.original_value for x in found_values]
 
 		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
 
@@ -134,7 +144,8 @@ class OutputVariable(Variable):
 
 		smooth_from = '(' if not self.use_const and self.smooth_from else '['
 		smooth_to = ')' if not self.use_const and self.smooth_to else ']'
-		return '{0}{1}{2}'.format(smooth_from, shown_values, smooth_to)
+		units = ' {0}'.format(self.units) if self.units is not None else ''
+		return '{0}{1}{2}{3}'.format(smooth_from, shown_values, smooth_to, units)
 
 
 class LinSpaceConfig(object):
@@ -158,8 +169,8 @@ class LinSpaceConfig(object):
 
 		self._steps = value
 
-	def to_iterator(self):
-		return numpy.linspace(self.initial, self.final, self.steps)
+	def __iter__(self):
+		return iter(numpy.linspace(self.initial, self.final, self.steps))
 
 	def __len__(self):
 		return self.steps
@@ -173,8 +184,8 @@ class ArbitraryConfig(object):
 	def __init__(self, values):
 		self.values = values
 
-	def to_iterator(self):
-		return self.values
+	def __iter__(self):
+		return iter(self.values)
 
 	def __len__(self):
 		return len(self.values)

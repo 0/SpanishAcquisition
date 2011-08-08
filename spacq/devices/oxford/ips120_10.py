@@ -8,7 +8,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice
-from ..tools import str_to_bool
+from ..tools import str_to_bool, quantity_wrapped, quantity_unwrapped
 
 """
 Oxford Instruments IPS120-10 Superconducting Magnet Power Supply
@@ -40,8 +40,8 @@ class IPS120_10(AbstractDevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['perma_hot'].converter = str_to_bool
-		self.resources['sweep_rate'].converter = float
-		self.resources['field'].converter = float
+		self.resources['sweep_rate'].units = 'T.s-1'
+		self.resources['field'].units = 'T'
 
 	@Synchronized()
 	def _connected(self):
@@ -131,14 +131,17 @@ class IPS120_10(AbstractDevice):
 		self._perma_hot = value
 
 	@property
+	# The value used on the device is in T/min.
+	@quantity_wrapped('T.s-1', 1./60)
 	def sweep_rate(self):
 		"""
-		The rate of the field sweep in T/min.
+		The rate of the field sweep, as a quantity in T/s.
 		"""
 
 		return float(self.ask('R9')[1:])
 
 	@sweep_rate.setter
+	@quantity_unwrapped('T.s-1', 60)
 	def sweep_rate(self, value):
 		if value <= 0:
 			raise ValueError('Sweep rate must be positive, not {0}.'.format(value))
@@ -146,37 +149,41 @@ class IPS120_10(AbstractDevice):
 		self.write('$T{0:f}'.format(value))
 
 	@property
+	@quantity_wrapped('T')
 	def persistent_field(self):
 		"""
-		The output field when the heater was last disabled, in T.
+		The output field when the heater was last disabled, as a quantity in T.
 		"""
 
 		return float(self.ask('R18')[1:])
 
 	@property
+	@quantity_wrapped('T')
 	def output_field(self):
 		"""
-		The actual field due to the output current, in T.
+		The actual field due to the output current in T.
 		"""
 
 		return float(self.ask('R7')[1:])
 
 	@property
+	@quantity_wrapped('T')
 	def set_point(self):
 		"""
-		The set point in T.
+		The set point, as a quantity in T.
 		"""
 
 		return float(self.ask('R8')[1:])
 
 	@set_point.setter
+	@quantity_unwrapped('T')
 	def set_point(self, value):
 		self.write('$J{0}'.format(value))
 
 	@property
 	def field(self):
 		"""
-		The magnetic field in T.
+		The magnetic field, as a quantity in T.
 		"""
 
 		return self.output_field
@@ -192,7 +199,7 @@ class IPS120_10(AbstractDevice):
 		self.status.append('Setting field to {0} T'.format(value))
 
 		try:
-			set_delay = 60.0 * abs(value - self.output_field) / self.sweep_rate # s
+			set_delay = abs(value - self.output_field).value / self.sweep_rate.value # s
 
 			self.set_point = value
 			self.activity = 'to_set'

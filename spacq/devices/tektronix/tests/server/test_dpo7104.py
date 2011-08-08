@@ -4,6 +4,7 @@ log = logging.getLogger(__name__)
 from nose.tools import eq_
 from unittest import main
 
+from spacq.interface.units import Quantity
 from spacq.tests.tool.box import DeviceServerTestCase
 
 from ... import dpo7104
@@ -33,31 +34,31 @@ class DPO7104Test(DeviceServerTestCase):
 		dpo.channels[4].enabled = True
 
 		# Many records.
-		dpo.horizontal_scale = 1e-7
-		dpo.sample_rate = 4e10
+		dpo.horizontal_scale = Quantity(100, 'ns')
+		dpo.sample_rate = Quantity(40, 'GHz')
 		eq_(dpo.record_length, 4e4)
 
 		dpo.acquire()
 		ws.append(dpo.channels[1].waveform)
 		ws.append(dpo.channels[4].waveform)
 
-		eq_(dpo.horizontal_scale, 1e-7)
-		eq_(dpo.sample_rate, 4e10)
+		eq_(dpo.horizontal_scale.value, 1e-7)
+		eq_(dpo.sample_rate.value, 4e10)
 
 		eq_(len(ws[0]), 4e4)
 		eq_(len(ws[1]), 4e4)
 
 		# Long sample.
-		dpo.horizontal_scale = 1e0
-		dpo.sample_rate = 1e2
+		dpo.horizontal_scale = Quantity(1, 's')
+		dpo.sample_rate = Quantity(0.1, 'kHz')
 		eq_(dpo.record_length, 1e3)
 
 		dpo.acquire()
 		ws.append(dpo.channels[1].waveform)
 		ws.append(dpo.channels[4].waveform)
 
-		eq_(dpo.horizontal_scale, 1e0)
-		eq_(dpo.sample_rate, 1e2)
+		eq_(dpo.horizontal_scale.value, 1e0)
+		eq_(dpo.sample_rate.value, 1e2)
 		eq_(len(ws[2]), 1e3)
 		eq_(len(ws[3]), 1e3)
 

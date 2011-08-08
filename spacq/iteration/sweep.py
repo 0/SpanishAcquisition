@@ -77,7 +77,7 @@ class SweepController(object):
 		Create an iterator for an order of variables.
 		"""
 
-		return izip(*(var.iterator for var in self.variables[pos]))
+		return izip(*(iter(var) for var in self.variables[pos]))
 
 	def ramp(self, resources, values_from, values_to, steps):
 		"""
@@ -192,7 +192,7 @@ class SweepController(object):
 				# AWG
 				awg = self.pulse_config.awg
 
-				awg.sampling_rate = self.pulse_config.program.frequency.value
+				awg.sampling_rate = self.pulse_config.program.frequency
 				awg.run_mode = 'triggered'
 
 			self.devices_configured = True

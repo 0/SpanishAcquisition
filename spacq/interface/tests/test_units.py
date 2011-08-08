@@ -38,6 +38,7 @@ class QuantityTest(TestCase):
 
 			eq_(q, units.Quantity(value, orig_units))
 			eq_(q.value, value * 10 ** multiplier)
+			eq_(q.original_value, value)
 
 	def testArray(self):
 		"""
@@ -138,6 +139,64 @@ class QuantityTest(TestCase):
 			assert False, 'Expected IncompatibleDimensions.'
 
 		# TODO: Compare arrays.
+
+	def testArithmetic(self):
+		"""
+		Perform arithmetic on quantities.
+		"""
+
+		# Absolute value.
+		q1 = units.Quantity(123, 'T')
+		q2 = units.Quantity(0, 'T')
+		q3 = units.Quantity(-123, 'T')
+
+		eq_(abs(q1), q1)
+		eq_(abs(q2), q2)
+		eq_(abs(q3), q1)
+
+		# Addition & subtraction.
+		## Matching units.
+		q1 = units.Quantity(5, 's')
+		q2 = units.Quantity(-4, 'ms')
+		q3 = units.Quantity(4.996, 's')
+		q4 = units.Quantity(5.004, 's')
+
+		eq_(q1 + q2, q3)
+		eq_(q1 - q2, q4)
+
+		## Non-matching units.
+		q2 = units.Quantity(-4, 'mHz')
+
+		try:
+			q1 + q2
+		except units.IncompatibleDimensions:
+			pass
+		else:
+			assert False, 'Expected IncompatibleDimensions'
+
+		try:
+			q1 - q2
+		except units.IncompatibleDimensions:
+			pass
+		else:
+			assert False, 'Expected IncompatibleDimensions'
+
+		# Multiplication by real.
+		q = units.Quantity(1.5, 'N.m')
+
+		q_mul = 2 * q
+		q_mul = q_mul * 3
+
+		eq_(q, units.Quantity(1.5, 'J'))
+		eq_(q_mul, units.Quantity(9, 'J'))
+
+		# Division by real.
+		q = units.Quantity(-1.5, 'N.m')
+
+		q_mul = q / -3
+
+		eq_(q, units.Quantity(-1.5, 'J'))
+		eq_(q_mul, units.Quantity(0.5, 'J'))
 
 	def testRepr(self):
 		"""

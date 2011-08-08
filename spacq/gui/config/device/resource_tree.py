@@ -1,8 +1,10 @@
+from functools import partial
 from threading import Thread
 import wx
 from wx.gizmos import TreeListCtrl
 
 from spacq.interface.resources import NotReadable
+from spacq.interface.units import IncompatibleDimensions
 
 from ...tool.box import MessageDialog
 
@@ -193,7 +195,7 @@ class ResourceTree(TreeListCtrl):
 		if root == self.root:
 			self.spawn_fetch_thread(self.GetChildren(self.root))
 
-	def set_value(self, item, value):
+	def set_value(self, item, value, error_callback=None):
 		"""
 		Set the value of a resource, as well as the displayed value.
 		"""
@@ -202,7 +204,18 @@ class ResourceTree(TreeListCtrl):
 		resource = pydata.resource
 
 		def update():
-			resource.value = resource.convert(value)
+			try:
+				resource.value = resource.convert(value)
+			except IncompatibleDimensions:
+				if error_callback is not None:
+					error_callback(ValueError('Expected dimensions to match "{0}"'.format(resource.units)))
+				else:
+					raise
+			except Exception as e:
+				if error_callback is not None:
+					error_callback(e)
+				else:
+					raise
 
 			try:
 				true_value = str(resource.value)
@@ -283,11 +296,10 @@ class ResourceTree(TreeListCtrl):
 			# Update the real value.
 			value = evt.Label
 
-			try:
-				self.set_value(evt.Item, value)
-			except ValueError as e:
+			def error_callback(e):
 				MessageDialog(self, str(e), 'Invalid value').Show()
-				return
+
+			self.set_value(evt.Item, value, error_callback=partial(wx.CallAfter, error_callback))
 
 	def OnActivated(self, evt):
 		"""

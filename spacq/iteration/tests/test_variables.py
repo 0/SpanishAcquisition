@@ -1,7 +1,7 @@
 from nose.tools import eq_
 from unittest import main, TestCase
 
-from spacq.interface.units import IncompatibleDimensions
+from spacq.interface.units import IncompatibleDimensions, Quantity
 
 from .. import variables
 
@@ -117,6 +117,18 @@ class OutputVariableTest(TestCase):
 		var.smooth_to = True
 		eq_(str(var), '(0, 1, 2, 3, ...)')
 
+	def testUnits(self):
+		"""
+		Ensure that values are wrapped with units.
+		"""
+
+		var = variables.OutputVariable(name='Name', order=1)
+		var.units = 'g.m.s-1'
+		var.config = variables.LinSpaceConfig(0.0, -5.0, 3)
+
+		eq_(list(var), [Quantity(x, 'g.m.s-1') for x in [0, -2.5, -5]])
+		eq_(str(var), '[0, -2.5, -5] g.m.s-1')
+
 
 class LinSpaceConfigTest(TestCase):
 	def testIterator(self):
@@ -130,7 +142,7 @@ class LinSpaceConfigTest(TestCase):
 		# Non-const.
 		eq_(len(var), 5)
 
-		it1 = var.iterator
+		it1 = iter(var)
 		eq_(list(it1), [-1.0, -1.5, -2.0, -2.5, -3.0])
 
 		# Const.
@@ -138,7 +150,7 @@ class LinSpaceConfigTest(TestCase):
 
 		eq_(len(var), 1)
 
-		it2 = var.iterator
+		it2 = iter(var)
 		eq_(list(it2), [10.0])
 
 
@@ -155,7 +167,7 @@ class ArbitraryConfigTest(TestCase):
 
 		eq_(len(var), len(values))
 
-		it = var.iterator
+		it = iter(var)
 		eq_(list(it), values)
 
 

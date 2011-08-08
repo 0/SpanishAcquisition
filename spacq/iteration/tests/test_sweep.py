@@ -97,6 +97,7 @@ class SweepControllerTest(TestCase):
 
 		# Output.
 		res0 = Resource(setter=partial(setter, 0))
+		res0.units = 'cm-1'
 		res1 = Resource(setter=partial(setter, 1))
 		res2 = Resource(setter=partial(setter, 2))
 		res3 = Resource(setter=partial(setter, 3))
@@ -105,6 +106,7 @@ class SweepControllerTest(TestCase):
 		var0.config = LinSpaceConfig(-1.0, -2.0, 2)
 		var0.smooth_steps = 2
 		var0.smooth_from, var0.smooth_to, var0.smooth_transition = [True] * 3
+		var0.units = 'cm-1'
 
 		var1 = OutputVariable(name='Var 1', order=1, enabled=True, const=-1.0)
 		var1.config = LinSpaceConfig(1.0, 4.0, 4)
@@ -172,16 +174,19 @@ class SweepControllerTest(TestCase):
 		expected_res2 = [-1.0, 0.0, 1.0, 2.0]
 
 		expected_inner_writes = list(flatten(((3, 0, x), (3, 1, x - 2.0)) for x in [1.0, 2.0, 3.0, 4.0]))
-		expected_writes = [(0, 0, 1.23), (1, 0, -10.0)] + list(flatten([(2, 0, x)] + expected_inner_writes for x in [-1.0, -2.0]))
+		expected_writes = [(0, 0, 1.23), (1, 0, -10.0)] + list(flatten([(2, 0, x)] + expected_inner_writes
+				for x in [Quantity(x, 'cm-1') for x in [-1.0, -2.0]]))
 
 		eq_(res_bufs, [
-			[0.0, -1.0, -1.0, -2.0, -2.0, 0.0],
+			[Quantity(x, 'cm-1') for x in [0.0, -1.0, -1.0, -2.0, -2.0, 0.0]],
 			[-1.0, 0.0, 1.0] + expected_res1 + [4.0, 2.5, 1.0] + expected_res1 + [4.0, 1.5, -1.0],
 			[1.23],
 			[-9.0, -1.0] + expected_res2 + expected_res2 + [2.0, -9.0],
 		])
 		eq_(measurement_counts, [8, -8])
-		eq_(actual_values, [(1.23, -10.0, x, y, y - 2.0) for x in [-1.0, -2.0] for y in [1.0, 2.0, 3.0, 4.0]])
+		eq_(actual_values, [(1.23, -10.0, x, y, y - 2.0)
+				for x in [Quantity(x, 'cm-1') for x in [-1.0, -2.0]]
+				for y in [1.0, 2.0, 3.0, 4.0]])
 		eq_(actual_measurement_values, [(x, -x) for x in xrange(1, 9)])
 		eq_(actual_writes, expected_writes)
 		eq_(actual_reads, list(flatten(((0, x), (1, -x)) for x in xrange(1, 9))))

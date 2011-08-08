@@ -3,6 +3,7 @@ log = logging.getLogger(__name__)
 
 from unittest import main
 
+from spacq.interface.units import Quantity
 from spacq.tests.tool.box import DeviceServerTestCase
 
 from ... import voltage_source
@@ -34,7 +35,7 @@ class VoltageSourceTest(DeviceServerTestCase):
 		test_voltages = list(xrange(-10, 10 + 1, 2)) + list(xrange(5, 0, -1))
 
 		for port, voltage in zip(xrange(16), test_voltages):
-			vsrc.ports[port].voltage = voltage
+			vsrc.ports[port].voltage = Quantity(voltage, 'V')
 
 
 if __name__ == '__main__':

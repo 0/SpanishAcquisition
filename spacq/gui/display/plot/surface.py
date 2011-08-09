@@ -14,20 +14,14 @@ class SurfacePlot(object):
 	A surface plot.
 	"""
 
-	def __init__(self, parent, surface_data, x_bounds, y_bounds):
-		# Number of values along each axis.
-		y_num, x_num = surface_data.shape
-		# The equally-spaced values along each axis.
-		x_values = numpy.linspace(*x_bounds, num=x_num)
-		y_values = numpy.linspace(*y_bounds, num=y_num)
-		# The meshgrid of values.
-		x, y = numpy.meshgrid(x_values, y_values)
+	alpha = 0.8
 
+	def __init__(self, parent):
 		self.figure = pyplot.figure()
 		self.canvas = FigureCanvas(parent, wx.ID_ANY, self.figure)
 
 		self.axes = axes3d.Axes3D(self.figure)
-		self.axes.plot_surface(x, y, surface_data, alpha=0.8)
+		self.surface = None
 
 	@property
 	def control(self):
@@ -44,29 +38,56 @@ class SurfacePlot(object):
 
 		pyplot.close(self.figure.number)
 
-	def set_x_label(self, value):
+	def set_surface_data(self, data):
 		"""
-		Set the x axis label.
+		Set the surface data based on the data tuple.
 		"""
 
+		surface_data, x_bounds, y_bounds = data
+
+		# Number of values along each axis.
+		y_num, x_num = surface_data.shape
+		# The equally-spaced values along each axis.
+		x_values = numpy.linspace(*x_bounds, num=x_num)
+		y_values = numpy.linspace(*y_bounds, num=y_num)
+		# The meshgrid of values.
+		x, y = numpy.meshgrid(x_values, y_values)
+
+		if self.surface is not None:
+			self.axes.collections.remove(self.surface)
+		self.surface = self.axes.plot_surface(x, y, surface_data, alpha=self.alpha)
+
+	surface_data = property(fset=set_surface_data)
+
+	@property
+	def x_label(self):
+		"""
+		The x axis label.
+		"""
+		return self.axes.get_xlabel()
+
+	@x_label.setter
+	def x_label(self, value):
 		self.axes.set_xlabel(value)
 
-	x_label = property(fset=set_x_label)
-
-	def set_y_label(self, value):
+	@property
+	def y_label(self):
 		"""
-		Set the y axis label.
+		The y axis label.
 		"""
+		return self.axes.get_ylabel()
 
+	@y_label.setter
+	def y_label(self, value):
 		self.axes.set_ylabel(value)
 
-	y_label = property(fset=set_y_label)
-
-	def set_z_label(self, value):
+	@property
+	def z_label(self):
 		"""
-		Set the z axis label.
+		The z axis label.
 		"""
+		return self.axes.get_zlabel()
 
+	@z_label.setter
+	def z_label(self, value):
 		self.axes.set_zlabel(value)
-
-	z_label = property(fset=set_z_label)

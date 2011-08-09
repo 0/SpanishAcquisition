@@ -16,12 +16,13 @@ class SurfacePlotPanel(wx.Panel):
 		panel_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Plot.
-		self.plot = SurfacePlot(self, surface_data, x_bounds, y_bounds)
+		self.plot = SurfacePlot(self)
 		panel_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
 
 		self.SetSizer(panel_box)
 
 		self.plot.x_label, self.plot.y_label, self.plot.z_label = x_label, y_label, z_label
+		self.plot.surface_data = (surface_data, x_bounds, y_bounds)
 
 
 class SurfacePlotFrame(wx.Frame):

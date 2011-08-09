@@ -163,6 +163,7 @@ class DPO7104(AbstractDevice):
 
 	allowed_stopafters = ['runstop', 'sequence']
 	allowed_waveform_bytes = [1, 2] # Channel data only.
+	allowed_acquisition_modes = set(['sample', 'peakdetect', 'hires', 'average', 'wfmdb', 'envelope'])
 
 	def _setup(self):
 		AbstractDevice._setup(self)
@@ -178,7 +179,7 @@ class DPO7104(AbstractDevice):
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
-		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'time_scale', 'acquiring']
+		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'time_scale', 'acquiring', 'acquisition_mode']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -188,6 +189,7 @@ class DPO7104(AbstractDevice):
 		self.resources['sample_rate'].units = 'Hz'
 		self.resources['time_scale'].units = 's'
 		self.resources['acquiring'].converter = str_to_bool
+		self.resources['acquisition_mode'].allowed_values = self.allowed_acquisition_modes
 
 	@Synchronized()
 	def reset(self):
@@ -344,6 +346,40 @@ class DPO7104(AbstractDevice):
 		"""
 
 		self.acquiring = True
+
+	@property
+	def acquisition_mode(self):
+		result = self.ask('acquire:mode?').lower()
+
+		if result.startswith('sam'):
+			return 'sample'
+		elif result.startswith('peak'):
+			return 'peakdetect'
+		elif result.startswith('hir'):
+			return 'hires'
+		elif result.startswith('ave'):
+			return 'average'
+		elif result.startswith('wfmdb'):
+			return 'wfmdb'
+		elif result.startswith('env'):
+			return 'envelope'
+		else:
+			ValueError('Unknown mode: {0}'.format(result))
+
+	@acquisition_mode.setter
+	def acquisition_mode(self, value):
+		if value not in self.allowed_acquisition_modes:
+			raise ValueError('Invalid acquisition mode: {0}'.format(value))
+
+		self.write('acquire:mode {0}'.format(value))
+
+	@property
+	def times_average(self):
+		return int(self.ask('acquire:numavg?'))
+
+	@times_average.setter
+	def times_average(self, value):
+		self.write('acquire:numavg {0:d}'.format(value))
 
 
 name = 'DPO7104'

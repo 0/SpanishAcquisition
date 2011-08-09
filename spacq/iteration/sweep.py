@@ -353,11 +353,21 @@ class SweepController(object):
 
 			# Oscilloscope
 			osc = self.pulse_config.oscilloscope
+
+			if self.pulse_config.program.times_average > 1:
+				osc.acquisition_mode = 'average'
+				osc.times_average = self.pulse_config.program.times_average
+			else:
+				osc.acquisition_mode = 'sample'
+
 			osc.stopafter = 'sequence'
 			osc.acquiring = True
 
 			# All together now!
-			awg.trigger()
+			for _ in xrange(self.pulse_config.program.times_average):
+				awg.trigger()
+
+				sleep(self.pulse_config.program.acq_delay.value)
 
 		return self.read
 

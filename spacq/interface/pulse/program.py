@@ -1,6 +1,7 @@
 from copy import copy, deepcopy
 from os.path import basename, dirname
 
+from ..units import Quantity
 from .parser import Parser, PulseError, PulseSyntaxError
 from .tree import Environment
 
@@ -67,6 +68,10 @@ class Program(object):
 		# Same structure as values, but optional string-only resource labels and matching Resource objects.
 		self.resource_labels = {}
 		self.resources = {}
+
+		# Program averaging.
+		self.times_average = 1
+		self.acq_delay = Quantity(0, 's')
 
 	@property
 	def all_values(self):

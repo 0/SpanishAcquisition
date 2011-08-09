@@ -53,6 +53,8 @@ class ParameterPanel(ScrolledPanel):
 	hide_variables = False
 	use_resource_labels = False
 
+	spacer_height = 15
+
 	def extract_variables(self, prog):
 		"""
 		By default, extract the variables which pertain to the current type.
@@ -341,6 +343,71 @@ class AcqMarkerPanel(ParameterPanel):
 			except KeyError:
 				raise ValueError('Expected valid output name')
 
+	def __init__(self, *args, **kwargs):
+		ParameterPanel.__init__(self, *args, **kwargs)
+
+		# Spacer.
+		self.parameter_sizer.Add((-1, self.spacer_height), (self.cur_row, 0))
+		self.cur_row += 1
+
+		# Times to average.
+		self.parameter_sizer.Add(wx.StaticText(self, label='Times to average'), (self.cur_row, 0),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.times_average_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.parameter_sizer.Add(self.times_average_input, (self.cur_row, 1), flag=wx.EXPAND)
+		self.cur_row += 1
+
+		self.times_average_input.Value = str(self.prog.times_average)
+		self.times_average_input.default_background_color = self.times_average_input.BackgroundColour
+		self.times_average_input.BackgroundColour = OK_BACKGROUND_COLOR
+
+		self.Bind(wx.EVT_TEXT, self.OnTimesAverageChange, self.times_average_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnTimesAverageInput, self.times_average_input)
+
+		# Post-acquisition delay.
+		self.parameter_sizer.Add(wx.StaticText(self, label='Post-acquisition delay'), (self.cur_row, 0),
+				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
+		self.delay_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
+		self.parameter_sizer.Add(self.delay_input, (self.cur_row, 1), flag=wx.EXPAND)
+		self.cur_row += 1
+
+		self.delay_input.Value = str(self.prog.acq_delay)
+		self.delay_input.default_background_color = self.delay_input.BackgroundColour
+		self.delay_input.BackgroundColour = OK_BACKGROUND_COLOR
+
+		self.Bind(wx.EVT_TEXT, self.OnDelayChange, self.delay_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnDelayInput, self.delay_input)
+
+	def OnTimesAverageChange(self, evt=None):
+		self.times_average_input.BackgroundColour = self.times_average_input.default_background_color
+
+	def OnTimesAverageInput(self, evt=None):
+		try:
+			value = pos_int_converter(self.times_average_input.Value)
+		except ValueError as e:
+			MessageDialog(self, str(e), 'Invalid value').Show()
+
+			return
+
+		self.prog.times_average = value
+
+		self.times_average_input.BackgroundColour = OK_BACKGROUND_COLOR
+
+	def OnDelayChange(self, evt=None):
+		self.delay_input.BackgroundColour = self.delay_input.default_background_color
+
+	def OnDelayInput(self, evt=None):
+		try:
+			value = quantity_converter(self.delay_input.Value, 's', 'time')
+		except ValueError as e:
+			MessageDialog(self, str(e), 'Invalid value').Show()
+
+			return
+
+		self.prog.acq_delay = value
+
+		self.delay_input.BackgroundColour = OK_BACKGROUND_COLOR
+
 
 class DelayPanel(ParameterPanel):
 	type = 'delay'
@@ -370,8 +437,6 @@ class IntPanel(ParameterPanel):
 class OutputPanel(ParameterPanel):
 	type = 'output'
 	name = 'Outputs'
-
-	spacer_height = 15
 
 	def extract_parameters(self, prog):
 		return sorted([(x,) for x in self.extract_variables(prog)])

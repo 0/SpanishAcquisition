@@ -43,6 +43,13 @@ class SurfacePlot(object):
 		Set the surface data based on the data tuple.
 		"""
 
+		if self.surface is not None:
+			self.axes.collections.remove(self.surface)
+			self.surface = None
+
+		if data is None:
+			return
+
 		surface_data, x_bounds, y_bounds = data
 
 		# Number of values along each axis.
@@ -53,8 +60,6 @@ class SurfacePlot(object):
 		# The meshgrid of values.
 		x, y = numpy.meshgrid(x_values, y_values)
 
-		if self.surface is not None:
-			self.axes.collections.remove(self.surface)
 		self.surface = self.axes.plot_surface(x, y, surface_data, alpha=self.alpha)
 
 	surface_data = property(fset=set_surface_data)
@@ -91,3 +96,6 @@ class SurfacePlot(object):
 	@z_label.setter
 	def z_label(self, value):
 		self.axes.set_zlabel(value)
+
+	def redraw(self):
+		self.canvas.draw()

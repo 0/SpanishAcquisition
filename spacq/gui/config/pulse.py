@@ -159,8 +159,9 @@ class ParameterPanel(ScrolledPanel):
 
 		label = self.get_resource_label(parameter)
 		resource_input.ChangeValue(label)
+		resource_input.default_background_color = resource_input.BackgroundColour
 		if label:
-			resource_input.SetBackgroundColour(OK_BACKGROUND_COLOR)
+			resource_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def add_row(self, parameter, input_type='text', increment_row=True):
 		"""

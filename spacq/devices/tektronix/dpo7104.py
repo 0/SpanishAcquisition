@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from math import ceil
+from numpy import linspace
 import struct
 
 from spacq.interface.resources import Resource
@@ -42,15 +43,34 @@ class Channel(AbstractSubdevice):
 
 		AbstractSubdevice.__init__(self, device, *args, **kwargs)
 
-	def normalize_waveform(self, waveform):
+	@property
+	def acquisition_window(self):
 		"""
-		Transform some curve data onto the amplitude interval [-1.0, 1.0].
+		The minimum and maximum obtainable values in V.
+		"""
+
+		# 10 divisions total.
+		max_value = 5 * self.scale.value
+		min_value = -max_value
+
+		offset = self.offset.value
+
+		return (min_value + offset, max_value + offset)
+
+	def transform_waveform(self, waveform):
+		"""
+		Transform some curve data onto the true amplitude interval in V, and intermix time values in s.
 		"""
 
 		value_min, value_max = self.device.value_range
 		value_diff = value_max - value_min
 
-		return [2 * float(x - value_min) / value_diff - 1.0 for x in waveform]
+		real_min, real_max = self.acquisition_window
+		real_diff = real_max - real_min
+
+		times = linspace(0, self.device.time_scale.value, len(waveform))
+
+		return [(time, real_diff * float(x - value_min) / value_diff + real_min) for time, x in zip(times, waveform)]
 
 	@property
 	def enabled(self):
@@ -70,6 +90,8 @@ class Channel(AbstractSubdevice):
 	def waveform(self):
 		"""
 		A waveform acquired by the scope.
+
+		Values are returned in the format [(time1, value1), (time2, value2), ...].
 		"""
 
 		self.device.status.append('Getting waveform for channel {0}'.format(self.channel))
@@ -94,9 +116,39 @@ class Channel(AbstractSubdevice):
 			format_code = self.device.byte_format_letters[self.device.waveform_bytes]
 			curve_data = struct.unpack('!{0}{1}'.format(num_data_points, format_code), curve)
 
-			return self.normalize_waveform(curve_data)
+			return self.transform_waveform(curve_data)
 		finally:
 			self.device.status.pop()
+
+	@property
+	@quantity_wrapped('V')
+	def scale(self):
+		"""
+		Vertical scale for the channel, as a quantity in V.
+
+		Note: This is for a single division, of which there are 10.
+		"""
+
+		return float(self.device.ask('ch{0}:scale?'.format(self.channel)))
+
+	@scale.setter
+	@quantity_unwrapped('V')
+	def scale(self, value):
+		self.device.write('ch{0}:scale {1}'.format(self.channel, value))
+
+	@property
+	@quantity_wrapped('V')
+	def offset(self):
+		"""
+		Vertical offset for the channel, as a quantity in V.
+		"""
+
+		return float(self.device.ask('ch{0}:offset?'.format(self.channel)))
+
+	@offset.setter
+	@quantity_unwrapped('V')
+	def offset(self, value):
+		self.device.write('ch{0}:offset {1}'.format(self.channel, value))
 
 
 class DPO7104(AbstractDevice):
@@ -126,7 +178,7 @@ class DPO7104(AbstractDevice):
 		for name in read_only:
 			self.resources[name] = Resource(self, name)
 
-		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'horizontal_scale', 'acquiring']
+		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'time_scale', 'acquiring']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
@@ -134,7 +186,7 @@ class DPO7104(AbstractDevice):
 		self.resources['waveform_bytes'].allowed_values = self.allowed_waveform_bytes
 		self.resources['waveform_bytes'].converter = int
 		self.resources['sample_rate'].units = 'Hz'
-		self.resources['horizontal_scale'].units = 's'
+		self.resources['time_scale'].units = 's'
 		self.resources['acquiring'].converter = str_to_bool
 
 	@Synchronized()
@@ -226,19 +278,17 @@ class DPO7104(AbstractDevice):
 
 	@property
 	@quantity_wrapped('s')
-	def horizontal_scale(self):
+	def time_scale(self):
 		"""
-		The horizontal time scale for each division in s.
-
-		Note: There are 10 divisions, so a waveform will be 10 times as long.
+		The length for a waveform.
 		"""
 
-		return float(self.ask('horizontal:mode:scale?'))
+		return float(self.ask('horizontal:divisions?')) * float(self.ask('horizontal:mode:scale?'))
 
-	@horizontal_scale.setter
+	@time_scale.setter
 	@quantity_unwrapped('s')
-	def horizontal_scale(self, value):
-		self.write('horizontal:mode:scale {0}'.format(value))
+	def time_scale(self, value):
+		self.write('horizontal:mode:scale {0}'.format(value / float(self.ask('horizontal:divisions?'))))
 
 	@property
 	def data_source(self):

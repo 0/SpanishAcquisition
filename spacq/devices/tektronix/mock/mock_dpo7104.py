@@ -16,6 +16,8 @@ class MockChannel(object):
 
 	def __init__(self):
 		self.enabled = False
+		self.scale = 0.5
+		self.offset = 0.0
 
 
 class MockDPO7104(MockAbstractDevice, DPO7104):
@@ -87,6 +89,9 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 					elif cmd[2] == 'recordlength' and query:
 						result = self._record_length
 						done = True
+				elif cmd[1] == 'divisions' and query:
+					result = 10
+					done = True
 			elif cmd[0] == 'data':
 				if cmd[1] == 'start':
 					if query:
@@ -124,6 +129,21 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 						result = str(int(self.mock_state['channels'][channel].enabled))
 					else:
 						self.mock_state['channels'][channel].enabled = (args == 'on')
+					done = True
+			elif cmd[0].startswith('ch'):
+				channel = int(cmd[0][2])
+
+				if cmd[1] == 'scale':
+					if query:
+						result = self.mock_state['channels'][channel].scale
+					else:
+						self.mock_state['channels'][channel].scale = float(args)
+					done = True
+				elif cmd[1] == 'offset':
+					if query:
+						result = self.mock_state['channels'][channel].offset
+					else:
+						self.mock_state['channels'][channel].offset = float(args)
 					done = True
 
 		MockAbstractDevice.write(self, message, result, done)

@@ -33,23 +33,26 @@ class DPO7104Test(DeviceServerTestCase):
 		# 2 and 3 are disabled by default.
 		dpo.channels[4].enabled = True
 
+		dpo.channels[1].scale = dpo.channels[4].scale = Quantity(500, 'mV')
+		dpo.channels[1].offset = dpo.channels[4].offset = Quantity(1, 'V')
+
 		# Many records.
-		dpo.horizontal_scale = Quantity(100, 'ns')
+		dpo.time_scale = Quantity(100, 'ns')
 		dpo.sample_rate = Quantity(40, 'GHz')
-		eq_(dpo.record_length, 4e4)
+		eq_(dpo.record_length, 4e3)
 
 		dpo.acquire()
 		ws.append(dpo.channels[1].waveform)
 		ws.append(dpo.channels[4].waveform)
 
-		eq_(dpo.horizontal_scale.value, 1e-7)
+		eq_(dpo.time_scale.value, 1e-7)
 		eq_(dpo.sample_rate.value, 4e10)
 
-		eq_(len(ws[0]), 4e4)
-		eq_(len(ws[1]), 4e4)
+		eq_(len(ws[0]), 4e3)
+		eq_(len(ws[1]), 4e3)
 
 		# Long sample.
-		dpo.horizontal_scale = Quantity(1, 's')
+		dpo.time_scale = Quantity(10, 's')
 		dpo.sample_rate = Quantity(0.1, 'kHz')
 		eq_(dpo.record_length, 1e3)
 
@@ -57,7 +60,7 @@ class DPO7104Test(DeviceServerTestCase):
 		ws.append(dpo.channels[1].waveform)
 		ws.append(dpo.channels[4].waveform)
 
-		eq_(dpo.horizontal_scale.value, 1e0)
+		eq_(dpo.time_scale.value, 1e1)
 		eq_(dpo.sample_rate.value, 1e2)
 		eq_(len(ws[2]), 1e3)
 		eq_(len(ws[3]), 1e3)
@@ -68,7 +71,7 @@ class DPO7104Test(DeviceServerTestCase):
 		assert not dpo.channels[3].enabled
 		assert     dpo.channels[4].enabled
 		# Check the data.
-		assert all(x >= -1.0 and x <= 1.0 for w in ws for x in w)
+		assert all(x >= -1.5 and x <= 3.5 for w in ws for _, x in w)
 
 
 if __name__ == '__main__':

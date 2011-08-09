@@ -1,7 +1,6 @@
 import logging
 log = logging.getLogger(__name__)
 
-import re
 import struct
 
 from spacq.interface.resources import Resource
@@ -273,15 +272,15 @@ class AWG5014B(AbstractDevice):
 		The run mode of the AWG. One of: continuous, triggered, gated, sequence.
 		"""
 
-		mode = self.ask('awgcontrol:rmode?')
+		mode = self.ask('awgcontrol:rmode?').lower()
 
-		if re.match('^cont', mode, re.IGNORECASE):
+		if mode.startswith('cont'):
 			return 'continuous'
-		elif re.match('^trig', mode, re.IGNORECASE):
+		elif mode.startswith('trig'):
 			return 'triggered'
-		elif re.match('^gat', mode, re.IGNORECASE):
+		elif mode.startswith('gat'):
 			return 'gated'
-		elif re.match('^seq', mode, re.IGNORECASE):
+		elif mode.startswith('seq'):
 			return 'sequence'
 		else:
 			ValueError('Unknown mode: {0}'.format(mode))

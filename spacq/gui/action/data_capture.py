@@ -347,10 +347,10 @@ class DataCapturePanel(wx.Panel):
 
 		continuous = self.continuous_checkbox.Value
 
-		missing_resources = []
-		unreadable_resources = []
-		unwritable_resources = []
-		missing_devices = []
+		missing_resources = set()
+		unreadable_resources = set()
+		unwritable_resources = set()
+		missing_devices = set()
 
 		pulse_program = self.global_store.pulse_program
 
@@ -372,7 +372,7 @@ class DataCapturePanel(wx.Panel):
 			try:
 				pulse_awg = self.global_store.devices[pulse_program.awg].device
 			except KeyError:
-				missing_devices.append(pulse_program.awg)
+				missing_devices.add(pulse_program.awg)
 			else:
 				# Gather used channel numbers.
 				pulse_channels = dict((k, v) for k, v in pulse_program.output_channels.items() if v is not None)
@@ -387,7 +387,7 @@ class DataCapturePanel(wx.Panel):
 			try:
 				pulse_oscilloscope = self.global_store.devices[pulse_program.oscilloscope].device
 			except KeyError:
-				missing_devices.append(pulse_program.oscilloscope)
+				missing_devices.add(pulse_program.oscilloscope)
 
 			pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_awg, pulse_oscilloscope)
 		else:
@@ -401,14 +401,14 @@ class DataCapturePanel(wx.Panel):
 				if name == '':
 					group_resources.append((str(len(resources)), None))
 				elif name not in self.global_store.resources:
-					missing_resources.append(name)
+					missing_resources.add(name)
 				else:
 					resource = self.global_store.resources[name]
 
 					if resource.writable:
 						group_resources.append((name, resource))
 					else:
-						unwritable_resources.append(name)
+						unwritable_resources.add(name)
 
 			resources.append(tuple(group_resources))
 
@@ -416,7 +416,7 @@ class DataCapturePanel(wx.Panel):
 		measurement_units = []
 		for name in measurement_resource_names:
 			if name not in self.global_store.resources:
-				missing_resources.append(name)
+				missing_resources.add(name)
 			else:
 				resource = self.global_store.resources[name]
 
@@ -424,7 +424,7 @@ class DataCapturePanel(wx.Panel):
 					measurement_resources.append((name, resource))
 					measurement_units.append(resource.units)
 				else:
-					unreadable_resources.append(name)
+					unreadable_resources.add(name)
 
 		mismatched_resources = []
 		for (res_name, resource), var in zip(flatten(resources), flatten(output_variables)):
@@ -439,17 +439,19 @@ class DataCapturePanel(wx.Panel):
 				if var.type not in ['float', 'integer']:
 					mismatched_resources.append((res_name, var.name))
 
-		if missing_resources:
-			MessageDialog(self, ', '.join(missing_resources), 'Missing resources').Show()
-		if unreadable_resources:
-			MessageDialog(self, ', '.join(unreadable_resources), 'Unreadable resources').Show()
-		if unwritable_resources:
-			MessageDialog(self, ', '.join(unwritable_resources), 'Unwritable resources').Show()
-		if missing_devices:
-			MessageDialog(self, ', '.join(missing_devices), 'Missing devices').Show()
+		for items, msg in [
+			(missing_resources, 'Missing resources'),
+			(unreadable_resources, 'Unreadable resources'),
+			(unwritable_resources, 'Unwritable resources'),
+			(missing_devices, 'Missing devices')]:
+
+			if items:
+				MessageDialog(self, ', '.join('"{0}"'.format(x) for x in sorted(items)), msg).Show()
+
 		if mismatched_resources:
 			MessageDialog(self, ', '.join('{0}/{1}'.format(x[0], x[1]) for x in mismatched_resources),
 					'Mismatched resources').Show()
+
 		if missing_resources or unreadable_resources or unwritable_resources or missing_devices or mismatched_resources:
 			return
 

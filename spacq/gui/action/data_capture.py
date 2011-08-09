@@ -21,6 +21,8 @@ class DataCaptureDialog(Dialog, SweepController):
 	A progress dialog which runs over iterators, sets the corresponding resources, and captures the measured data.
 	"""
 
+	max_value_len = 50 # characters
+
 	timer_delay = 50 # ms
 	stall_time = 2 # s
 
@@ -60,11 +62,11 @@ class DataCaptureDialog(Dialog, SweepController):
 		self.cancelling = False
 
 		def write_callback(pos, i, value):
-			self.value_outputs[pos][i].Value = str(value)
+			self.value_outputs[pos][i].Value = str(value)[:self.max_value_len]
 		self.write_callback = partial(wx.CallAfter, write_callback)
 
 		def read_callback(i, value):
-			self.value_inputs[i].Value = str(value)
+			self.value_inputs[i].Value = str(value)[:self.max_value_len]
 		self.read_callback = partial(wx.CallAfter, read_callback)
 
 		self.general_exception_handler = partial(wx.CallAfter, self._general_exception_handler)
@@ -171,8 +173,8 @@ class DataCaptureDialog(Dialog, SweepController):
 		"""
 
 		msg = 'Resource: {0}\nError: {1}'.format(resource_name, str(e))
-		dir = 'to' if write else 'from'
-		MessageDialog(self.parent, msg, 'Error writing {0} resource'.format(dir)).Show()
+		dir = 'writing to' if write else 'reading from'
+		MessageDialog(self.parent, msg, 'Error {0} resource'.format(dir)).Show()
 
 		self.abort(fatal=write)
 

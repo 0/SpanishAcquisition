@@ -5,6 +5,7 @@ import numpy
 import time
 
 from spacq.interface.resources import Resource
+from spacq.interface.units import Quantity
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
@@ -235,9 +236,9 @@ class Port(AbstractSubdevice):
 			measured = []
 
 			for x in real:
-				self.voltage = x
+				self.voltage = Quantity(x, 'V')
 				time.sleep(0.2)
-				measured.append(voltage_resource.value)
+				measured.append(voltage_resource.value.value)
 
 			# Solve.
 			A = numpy.vstack([measured, numpy.ones(len(measured))]).T
@@ -249,7 +250,7 @@ class Port(AbstractSubdevice):
 				self.gain, self.offset = old_gain, old_offset
 
 			# Set the voltage after the gain and offset, so that it is potentially more correct.
-			self.voltage = final_value
+			self.voltage = Quantity(final_value, 'V')
 
 			return (gain, offset)
 		finally:

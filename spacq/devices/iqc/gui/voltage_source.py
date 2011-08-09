@@ -6,6 +6,7 @@ import wx
 from wx.lib.agw.floatspin import FloatSpin
 
 from spacq.gui.tool.box import load_csv, save_csv, Dialog, MessageDialog
+from spacq.interface.units import Quantity
 
 """
 Configuration for a VoltageSource.
@@ -187,6 +188,8 @@ class VoltageSourceSettingsPanel(wx.Panel):
 			self.port_value_inputs.append(spin)
 			port_box.Add(spin)
 
+			port_box.Add(wx.StaticText(self, label='V'))
+
 			set_button = wx.Button(self, label='Set', style=wx.BU_EXACTFIT)
 			set_button.Bind(wx.EVT_BUTTON, partial(self.OnSetVoltage, port))
 			port_box.Add(set_button)
@@ -244,11 +247,11 @@ class VoltageSourceSettingsPanel(wx.Panel):
 
 	def zero_all(self):
 		for port in self.vsrc.ports:
-			port.voltage = 0.0
+			port.voltage = Quantity(0.0, 'V')
 
 	def OnSetVoltage(self, port_num, evt=None):
 		try:
-			self.vsrc.ports[port_num].voltage = self.port_value_inputs[port_num].GetValue()
+			self.vsrc.ports[port_num].voltage = Quantity(self.port_value_inputs[port_num].GetValue(), 'V')
 		except ValueError as e:
 			MessageDialog(self, str(e), 'Invalid value').Show()
 

@@ -10,7 +10,7 @@ from spacq.interface.resources import Resource
 from spacq.interface.units import IncompatibleDimensions, Quantity
 
 from ..display.waveform import WaveformFrame
-from ..tool.box import determine_wildcard, MessageDialog
+from ..tool.box import OK_BACKGROUND_COLOR, determine_wildcard, MessageDialog
 
 
 class FileBrowseButton(filebrowsebutton.FileBrowseButton):
@@ -52,9 +52,6 @@ class ParameterPanel(ScrolledPanel):
 	attributes = False
 	hide_variables = False
 	use_resource_labels = False
-
-	default_background_color = None
-	ok_background_color = 'PALE GREEN'
 
 	def extract_variables(self, prog):
 		"""
@@ -163,7 +160,7 @@ class ParameterPanel(ScrolledPanel):
 		label = self.get_resource_label(parameter)
 		resource_input.ChangeValue(label)
 		if label:
-			resource_input.SetBackgroundColour(self.ok_background_color)
+			resource_input.SetBackgroundColour(OK_BACKGROUND_COLOR)
 
 	def add_row(self, parameter, input_type='text', increment_row=True):
 		"""
@@ -201,8 +198,7 @@ class ParameterPanel(ScrolledPanel):
 		self.parameter_sizer.Add(input, self.posn, flag=wx.EXPAND)
 		self.cur_col += 1
 
-		if self.default_background_color is None:
-			self.default_background_color = input.BackgroundColour
+		input.default_background_color = input.BackgroundColour
 
 		try:
 			input.ChangeValue(self.get_value(parameter))
@@ -210,7 +206,7 @@ class ParameterPanel(ScrolledPanel):
 			# No default value set.
 			pass
 		else:
-			input.SetBackgroundColour(self.ok_background_color)
+			input.SetBackgroundColour(OK_BACKGROUND_COLOR)
 
 		if self.use_resource_labels:
 			self.add_resource_label(parameter)
@@ -284,7 +280,7 @@ class ParameterPanel(ScrolledPanel):
 		# Awaiting validation.
 		self.del_value(parameter)
 
-		evt.EventObject.BackgroundColour = self.default_background_color
+		evt.EventObject.BackgroundColour = evt.EventObject.default_background_color
 
 	def OnInput(self, parameter, evt):
 		try:
@@ -297,13 +293,13 @@ class ParameterPanel(ScrolledPanel):
 		# Validated.
 		self.set_value(parameter, value)
 
-		evt.EventObject.BackgroundColour = self.ok_background_color
+		evt.EventObject.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def OnResourceChange(self, parameter, evt):
 		# Awaiting validation.
 		self.del_resource_label(parameter)
 
-		evt.EventObject.BackgroundColour = self.default_background_color
+		evt.EventObject.BackgroundColour = evt.EventObject.default_background_color
 
 	def OnResourceInput(self, parameter, evt):
 		label = evt.String
@@ -321,7 +317,7 @@ class ParameterPanel(ScrolledPanel):
 		# Validated.
 		self.set_resource_label(parameter, label, resource)
 
-		evt.EventObject.BackgroundColour = self.ok_background_color
+		evt.EventObject.BackgroundColour = OK_BACKGROUND_COLOR
 
 
 class AcqMarkerPanel(ParameterPanel):
@@ -426,7 +422,8 @@ class OutputPanel(ParameterPanel):
 		self.cur_row += 1
 
 		self.freq_input.Value = str(self.prog.frequency)
-		self.freq_input.BackgroundColour = self.ok_background_color
+		self.freq_input.default_background_color = self.freq_input.BackgroundColour
+		self.freq_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 		self.Bind(wx.EVT_TEXT, self.OnFrequencyChange, self.freq_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnFrequencyInput, self.freq_input)
@@ -443,7 +440,8 @@ class OutputPanel(ParameterPanel):
 		self.cur_row += 1
 
 		self.awg_input.Value = self.prog.awg
-		self.awg_input.BackgroundColour = self.ok_background_color
+		self.awg_input.default_background_color = self.awg_input.BackgroundColour
+		self.awg_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 		self.Bind(wx.EVT_TEXT, self.OnAWGChange, self.awg_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnAWGInput, self.awg_input)
@@ -456,7 +454,8 @@ class OutputPanel(ParameterPanel):
 		self.cur_row += 1
 
 		self.oscilloscope_input.Value = self.prog.oscilloscope
-		self.oscilloscope_input.BackgroundColour = self.ok_background_color
+		self.oscilloscope_input.default_background_color = self.oscilloscope_input.BackgroundColour
+		self.oscilloscope_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 		self.Bind(wx.EVT_TEXT, self.OnOscilloscopeChange, self.oscilloscope_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnOscilloscopeInput, self.oscilloscope_input)
@@ -468,7 +467,7 @@ class OutputPanel(ParameterPanel):
 		self.prog.output_channels[parameter[0]] = value
 
 	def OnFrequencyChange(self, evt=None):
-		self.freq_input.BackgroundColour = self.default_background_color
+		self.freq_input.BackgroundColour = self.freq_input.default_background_color
 
 	def OnFrequencyInput(self, evt=None):
 		try:
@@ -480,23 +479,23 @@ class OutputPanel(ParameterPanel):
 
 		self.prog.frequency = value
 
-		self.freq_input.BackgroundColour = self.ok_background_color
+		self.freq_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def OnAWGChange(self, evt=None):
-		self.awg_input.BackgroundColour = self.default_background_color
+		self.awg_input.BackgroundColour = self.awg_input.default_background_color
 
 	def OnAWGInput(self, evt=None):
 		self.prog.awg = self.awg_input.Value
 
-		self.awg_input.BackgroundColour = self.ok_background_color
+		self.awg_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def OnOscilloscopeChange(self, evt=None):
-		self.oscilloscope_input.BackgroundColour = self.default_background_color
+		self.oscilloscope_input.BackgroundColour = self.oscilloscope_input.default_background_color
 
 	def OnOscilloscopeInput(self, evt=None):
 		self.prog.oscilloscope = self.oscilloscope_input.Value
 
-		self.oscilloscope_input.BackgroundColour = self.ok_background_color
+		self.oscilloscope_input.BackgroundColour = OK_BACKGROUND_COLOR
 
 	def OnView(self, parameter, evt=None):
 		def show_frame(waveform, markers, frequency):

@@ -3,6 +3,9 @@ import pickle
 import wx
 
 
+OK_BACKGROUND_COLOR = 'PALE GREEN'
+
+
 def determine_wildcard(extension=None, file_type=None):
 	"""
 	Assemble a wildcard string of the form:

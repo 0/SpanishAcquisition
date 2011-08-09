@@ -338,7 +338,7 @@ class DataCapturePanel(wx.Panel):
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
 
 		if not output_variables:
-			output_variables.append(OutputVariable(order=0, name='', enabled=True))
+			output_variables.append(OutputVariable(order=0, name='<Dummy>', enabled=True))
 
 		output_variables, num_items = sort_variables(output_variables)
 
@@ -371,6 +371,8 @@ class DataCapturePanel(wx.Panel):
 
 			try:
 				pulse_awg = self.global_store.devices[pulse_program.awg].device
+				if pulse_awg is None:
+					raise KeyError
 			except KeyError:
 				missing_devices.add(pulse_program.awg)
 			else:
@@ -386,6 +388,8 @@ class DataCapturePanel(wx.Panel):
 
 			try:
 				pulse_oscilloscope = self.global_store.devices[pulse_program.oscilloscope].device
+				if pulse_oscilloscope is None:
+					raise KeyError
 			except KeyError:
 				missing_devices.add(pulse_program.oscilloscope)
 

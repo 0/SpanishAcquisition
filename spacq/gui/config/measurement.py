@@ -2,7 +2,7 @@ from pubsub import pub
 import wx
 
 from spacq.iteration.variables import InputVariable
-from spacq.gui.tool.box import MessageDialog
+from spacq.gui.tool.box import OK_BACKGROUND_COLOR, MessageDialog
 
 from ..display.plot.live.scalar import ScalarLiveViewPanel
 from .scaling import ScalingSettings, ScalingSettingsDialog
@@ -51,6 +51,8 @@ class MeasurementConfigFrame(wx.Frame):
 		self.enabled_checkbox.Value = self.var.enabled
 		configuration_box.Add(self.enabled_checkbox, flag=wx.CENTER|wx.RIGHT, border=15)
 
+		self.Bind(wx.EVT_CHECKBOX, self.OnCaptureChecked, self.enabled_checkbox)
+
 		### Names.
 		names_box = wx.FlexGridSizer(rows=2, cols=2, hgap=5)
 		names_box.AddGrowableCol(1, 1)
@@ -58,17 +60,23 @@ class MeasurementConfigFrame(wx.Frame):
 
 		names_box.Add(wx.StaticText(self, label='Resource name:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.resource_name_input = wx.TextCtrl(self, value=self.var.resource_name)
+		self.resource_name_input = wx.TextCtrl(self, value=self.var.resource_name, style=wx.TE_PROCESS_ENTER)
+		self.resource_name_input.default_background_color = self.resource_name_input.BackgroundColour
+		self.resource_name_input.BackgroundColour = OK_BACKGROUND_COLOR
 		names_box.Add(self.resource_name_input, flag=wx.EXPAND)
+
+		self.Bind(wx.EVT_TEXT, self.OnResourceNameChange, self.resource_name_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnResourceNameInput, self.resource_name_input)
 
 		names_box.Add(wx.StaticText(self, label='Measurement name:'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-		self.measurement_name_input = wx.TextCtrl(self, value=self.var.name)
+		self.measurement_name_input = wx.TextCtrl(self, value=self.var.name, style=wx.TE_PROCESS_ENTER)
+		self.measurement_name_input.default_background_color = self.measurement_name_input.BackgroundColour
+		self.measurement_name_input.BackgroundColour = OK_BACKGROUND_COLOR
 		names_box.Add(self.measurement_name_input, flag=wx.EXPAND)
 
-		set_button = wx.Button(self, label='Set', style=wx.BU_EXACTFIT)
-		self.Bind(wx.EVT_BUTTON, self.OnSet, set_button)
-		configuration_box.Add(set_button, flag=wx.EXPAND)
+		self.Bind(wx.EVT_TEXT, self.OnMeasurementNameChange, self.measurement_name_input)
+		self.Bind(wx.EVT_TEXT_ENTER, self.OnMeasurementNameInput, self.measurement_name_input)
 
 		### Scaling.
 		scaling_button = wx.Button(self, label='Scaling...', style=wx.BU_EXACTFIT)
@@ -84,7 +92,7 @@ class MeasurementConfigFrame(wx.Frame):
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
-		self.OnSet()
+		self.set_title()
 
 		# Subscriptions.
 		pub.subscribe(self.msg_resource, 'resource.added')
@@ -122,14 +130,18 @@ class MeasurementConfigFrame(wx.Frame):
 		self.resource = None
 		self.unwrapping = False
 
-	def OnSet(self, evt=None):
-		if self.live_view_panel.capturing_data:
-			msg = 'Cannot change values, as a sweep is currently in progress.'
-			MessageDialog(self, msg, 'Sweep in progress').Show()
+	def set_title(self):
+		self.Title = '{0} ({1}){2}'.format(self.var.name, self.var.resource_name,
+				'' if self.var.enabled else ' [Disabled]')
 
-			return
+	def OnCaptureChecked(self, evt=None):
+		self.var.enabled = self.live_view_panel.enabled = self.enabled_checkbox.Value
+		self.set_title()
 
-		# Update variable.
+	def OnResourceNameChange(self, evt=None):
+		self.resource_name_input.BackgroundColour = self.resource_name_input.default_background_color
+
+	def OnResourceNameInput(self, evt=None):
 		if self.var.resource_name != self.resource_name_input.Value:
 			# Ensure that the resource is unwrapped before releasing it.
 			self.unwrap_with_scaling()
@@ -147,10 +159,13 @@ class MeasurementConfigFrame(wx.Frame):
 			else:
 				self.wrap_with_scaling(name, self.resource)
 
-		self.var.enabled = self.enabled_checkbox.Value
-		self.live_view_panel.enabled = self.enabled_checkbox.Value
+		self.resource_name_input.BackgroundColour = OK_BACKGROUND_COLOR
+		self.set_title()
 
-		# Move variable.
+	def OnMeasurementNameChange(self, evt=None):
+		self.measurement_name_input.BackgroundColour = self.measurement_name_input.default_background_color
+
+	def OnMeasurementNameInput(self, evt=None):
 		if self.var.name != self.measurement_name_input.Value:
 			# Attempt to add a new entry first.
 			var_new_name = self.measurement_name_input.Value
@@ -164,8 +179,8 @@ class MeasurementConfigFrame(wx.Frame):
 
 			self.var.name = var_new_name
 
-		self.Title = '{0} ({1}){2}'.format(self.var.name, self.var.resource_name,
-				'' if self.var.enabled else ' [Disabled]')
+		self.measurement_name_input.BackgroundColour = OK_BACKGROUND_COLOR
+		self.set_title()
 
 	def OnScaling(self, evt=None):
 		def ok_callback(dlg):
@@ -191,7 +206,7 @@ class MeasurementConfigFrame(wx.Frame):
 		evt.Skip()
 
 	def msg_resource(self, name, value=None):
-		resource_name = self.live_view_panel.measurement_resource_name
+		resource_name = self.var.resource_name
 
 		if name == resource_name:
 			self.resource = value

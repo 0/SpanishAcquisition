@@ -4,21 +4,23 @@ import wx
 from spacq.iteration.variables import InputVariable
 from spacq.gui.tool.box import OK_BACKGROUND_COLOR, MessageDialog
 
-from ..display.plot.live.scalar import ScalarLiveViewPanel
 from .scaling import ScalingSettings, ScalingSettingsDialog
 
 
-class MeasurementConfigFrame(wx.Frame):
+class MeasurementConfigPanel(wx.Panel):
 	"""
-	Measurement configuration and live view frame.
+	Measurement configuration panel.
 	"""
 
-	def __init__(self, parent, global_store, *args, **kwargs):
-		wx.Frame.__init__(self, parent, *args, **kwargs)
+	def __init__(self, parent, global_store, scaling=True, *args, **kwargs):
+		wx.Panel.__init__(self, parent, *args, **kwargs)
 
+		self.parent = parent
 		self.global_store = global_store
+		self.scaling = scaling
 
-		self.scaling_settings = ScalingSettings()
+		if self.scaling:
+			self.scaling_settings = ScalingSettings()
 
 		# Ensure that we get a unique name.
 		with self.global_store.variables.lock:
@@ -36,16 +38,17 @@ class MeasurementConfigFrame(wx.Frame):
 					done = True
 
 		# Keep track of the scaling wrapper and resource.
-		self.scaling_wrap_token = '{0}.{1}'.format(self.__class__.__name__, self.wrap_with_scaling.__name__)
+		if self.scaling:
+			self.scaling_wrap_token = '{0}.{1}'.format(self.__class__.__name__, self.wrap_with_scaling.__name__)
 		self.resource = None
 		self.unwrapping = False
 
-		# Frame.
-		frame_box = wx.BoxSizer(wx.VERTICAL)
+		# Panel.
+		panel_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Configuration.
 		configuration_box = wx.BoxSizer(wx.HORIZONTAL)
-		frame_box.Add(configuration_box, flag=wx.EXPAND|wx.ALL, border=5)
+		panel_box.Add(configuration_box, flag=wx.EXPAND|wx.ALL, border=5)
 
 		self.enabled_checkbox = wx.CheckBox(self, label='Capture')
 		self.enabled_checkbox.Value = self.var.enabled
@@ -79,16 +82,12 @@ class MeasurementConfigFrame(wx.Frame):
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnMeasurementNameInput, self.measurement_name_input)
 
 		### Scaling.
-		scaling_button = wx.Button(self, label='Scaling...', style=wx.BU_EXACTFIT)
-		self.Bind(wx.EVT_BUTTON, self.OnScaling, scaling_button)
-		configuration_box.Add(scaling_button, flag=wx.EXPAND|wx.LEFT, border=10)
+		if self.scaling:
+			scaling_button = wx.Button(self, label='Scaling...', style=wx.BU_EXACTFIT)
+			self.Bind(wx.EVT_BUTTON, self.OnScaling, scaling_button)
+			configuration_box.Add(scaling_button, flag=wx.EXPAND|wx.LEFT, border=10)
 
-		## Live view.
-		self.live_view_panel = ScalarLiveViewPanel(self, global_store)
-		self.live_view_panel.SetMinSize((-1, 400))
-		frame_box.Add(self.live_view_panel, proportion=1, flag=wx.EXPAND)
-
-		self.SetSizerAndFit(frame_box)
+		self.SetSizerAndFit(panel_box)
 
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
@@ -98,7 +97,14 @@ class MeasurementConfigFrame(wx.Frame):
 		pub.subscribe(self.msg_resource, 'resource.added')
 		pub.subscribe(self.msg_resource, 'resource.removed')
 
+	@property
+	def live_view_panel(self):
+		return self.parent.live_view_panel
+
 	def wrap_with_scaling(self, name, resource):
+		if not self.scaling:
+			return
+
 		# Don't double-wrap.
 		if resource.is_wrapped_by(self.scaling_wrap_token):
 			return
@@ -114,6 +120,9 @@ class MeasurementConfigFrame(wx.Frame):
 			self.global_store.resources[name] = wrapped_resource
 
 	def unwrap_with_scaling(self):
+		if not self.scaling:
+			return
+
 		if self.resource is None:
 			return
 
@@ -131,7 +140,7 @@ class MeasurementConfigFrame(wx.Frame):
 		self.unwrapping = False
 
 	def set_title(self):
-		self.Title = '{0} ({1}){2}'.format(self.var.name, self.var.resource_name,
+		self.parent.Title = '{0} ({1}){2}'.format(self.var.name, self.var.resource_name,
 				'' if self.var.enabled else ' [Disabled]')
 
 	def OnCaptureChecked(self, evt=None):

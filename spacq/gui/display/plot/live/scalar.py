@@ -10,6 +10,7 @@ from wx.lib.agw import floatspin
 from spacq.interface.resources import AcquisitionThread
 from spacq.interface.units import Quantity
 
+from ....config.measurement import MeasurementConfigPanel
 from ....tool.box import Dialog, MessageDialog
 from ..two_dimensional import TwoDimensionalPlot
 
@@ -522,3 +523,22 @@ class ScalarLiveViewPanel(wx.Panel):
 
 				if self.restart_live_view:
 					self.OnRun()
+
+
+class ScalarMeasurementFrame(wx.Frame):
+	def __init__(self, parent, global_store, *args, **kwargs):
+		wx.Frame.__init__(self, parent, *args, **kwargs)
+
+		# Frame.
+		frame_box = wx.BoxSizer(wx.VERTICAL)
+
+		## Measurement setup.
+		self.measurement_config_panel = MeasurementConfigPanel(self, global_store)
+		frame_box.Add(self.measurement_config_panel, flag=wx.EXPAND)
+
+		## Live view.
+		self.live_view_panel = ScalarLiveViewPanel(self, global_store)
+		self.live_view_panel.SetMinSize((-1, 400))
+		frame_box.Add(self.live_view_panel, proportion=1, flag=wx.EXPAND)
+
+		self.SetSizerAndFit(frame_box)

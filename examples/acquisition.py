@@ -6,9 +6,9 @@ import wx
 from spacq.gui.action.data_capture import DataCapturePanel
 from spacq.gui.action.smooth_reset import SmoothResetPanel
 from spacq.gui.config.devices import DeviceConfigFrame
-from spacq.gui.config.measurement import MeasurementConfigFrame
 from spacq.gui.config.pulse import PulseProgramFrame
 from spacq.gui.config.variables import VariablesPanel
+from spacq.gui.display.plot.live.scalar import ScalarMeasurementFrame
 from spacq.gui.global_store import GlobalStore
 from spacq.gui.tool.box import MessageDialog
 
@@ -112,7 +112,7 @@ class AcquisitionApp(wx.App):
 		self.device_config_frame.Raise()
 
 	def OnMenuConfigurationMeasurementsAddScalar(self, evt=None):
-		measurement_frame = MeasurementConfigFrame(self.acq_frame, self.global_store)
+		measurement_frame = ScalarMeasurementFrame(self.acq_frame, self.global_store)
 		measurement_frame.Show()
 
 	def OnMenuConfigurationPulseProgram(self, evt=None):

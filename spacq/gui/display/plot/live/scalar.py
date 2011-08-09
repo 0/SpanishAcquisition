@@ -219,7 +219,7 @@ class ScalarLiveViewPanel(wx.Panel):
 		numeric_display_box.Add(self.numeric_display)
 
 		### Capture.
-		capture_static_box = wx.StaticBox(self, label='Capture control')
+		capture_static_box = wx.StaticBox(self, label='Control')
 		capture_box = wx.StaticBoxSizer(capture_static_box)
 		controls_box.Add(capture_box, flag=wx.CENTER|wx.LEFT, border=10)
 
@@ -542,3 +542,18 @@ class ScalarMeasurementFrame(wx.Frame):
 		frame_box.Add(self.live_view_panel, proportion=1, flag=wx.EXPAND)
 
 		self.SetSizerAndFit(frame_box)
+
+		self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+	def OnClose(self, evt):
+		if self.live_view_panel.capturing_data:
+			msg = 'Cannot close, as a sweep is currently in progress.'
+			MessageDialog(self, msg, 'Sweep in progress').Show()
+
+			evt.Veto()
+			return
+
+		self.live_view_panel.close()
+		self.measurement_config_panel.close()
+
+		evt.Skip()

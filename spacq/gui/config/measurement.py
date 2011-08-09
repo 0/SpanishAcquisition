@@ -89,13 +89,12 @@ class MeasurementConfigPanel(wx.Panel):
 
 		self.SetSizerAndFit(panel_box)
 
-		self.Bind(wx.EVT_CLOSE, self.OnClose)
-
 		self.set_title()
 
 		# Subscriptions.
-		pub.subscribe(self.msg_resource, 'resource.added')
-		pub.subscribe(self.msg_resource, 'resource.removed')
+		if self.scaling:
+			pub.subscribe(self.msg_resource, 'resource.added')
+			pub.subscribe(self.msg_resource, 'resource.removed')
 
 	@property
 	def live_view_panel(self):
@@ -142,6 +141,11 @@ class MeasurementConfigPanel(wx.Panel):
 	def set_title(self):
 		self.parent.Title = '{0} ({1}){2}'.format(self.var.name, self.var.resource_name,
 				'' if self.var.enabled else ' [Disabled]')
+
+	def close(self):
+		self.unwrap_with_scaling()
+
+		del self.global_store.variables[self.var.name]
 
 	def OnCaptureChecked(self, evt=None):
 		self.var.enabled = self.live_view_panel.enabled = self.enabled_checkbox.Value
@@ -198,21 +202,6 @@ class MeasurementConfigPanel(wx.Panel):
 		dlg = ScalingSettingsDialog(self, ok_callback)
 		dlg.SetValue(self.scaling_settings)
 		dlg.Show()
-
-	def OnClose(self, evt):
-		if self.live_view_panel.capturing_data:
-			msg = 'Cannot close, as a sweep is currently in progress.'
-			MessageDialog(self, msg, 'Sweep in progress').Show()
-
-			evt.Veto()
-			return
-
-		self.unwrap_with_scaling()
-		self.live_view_panel.close()
-
-		del self.global_store.variables[self.var.name]
-
-		evt.Skip()
 
 	def msg_resource(self, name, value=None):
 		resource_name = self.var.resource_name

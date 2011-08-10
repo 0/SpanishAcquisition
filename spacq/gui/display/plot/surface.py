@@ -16,7 +16,9 @@ class SurfacePlot(object):
 
 	alpha = 0.8
 
-	def __init__(self, parent):
+	def __init__(self, parent, style='surface'):
+		self.style = style
+
 		self.figure = pyplot.figure()
 		self.canvas = FigureCanvas(parent, wx.ID_ANY, self.figure)
 
@@ -60,7 +62,12 @@ class SurfacePlot(object):
 		# The meshgrid of values.
 		x, y = numpy.meshgrid(x_values, y_values)
 
-		self.surface = self.axes.plot_surface(x, y, surface_data, alpha=self.alpha)
+		if self.style == 'surface':
+			# Just a regular surface.
+			self.surface = self.axes.plot_surface(x, y, surface_data, alpha=self.alpha)
+		elif self.style == 'waveform':
+			# Waveform style shows individual waveforms nicely.
+			self.surface = self.axes.plot_wireframe(x, y, surface_data, cstride=-1)
 
 	surface_data = property(fset=set_surface_data)
 

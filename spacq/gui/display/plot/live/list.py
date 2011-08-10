@@ -101,7 +101,7 @@ class ListLiveViewPanel(wx.Panel):
 		display_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Plot.
-		self.plot = SurfacePlot(self)
+		self.plot = SurfacePlot(self, style='waveform')
 		display_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
 
 		self.plot.x_label = 'Waveform time (s)'

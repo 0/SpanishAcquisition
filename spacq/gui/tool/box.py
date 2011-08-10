@@ -88,11 +88,17 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 
 		with open(path, 'rb') as f:
 			try:
-				# Try to determine if headers are present.
-				has_header = csv.Sniffer().has_header(f.read(1024))
-				f.seek(0)
+				result = list(csv.reader(f))
+				try:
+					has_header = len(result[0]) > 0
+				except IndexError:
+					has_header = False
+				else:
+					# Remove empty row.
+					if not has_header:
+						result = result[1:]
 
-				return (has_header, list(csv.reader(f)))
+				return (has_header, result)
 			except Exception as e:
 				# Wrap all problems.
 				raise IOError('Could not load data.', e)
@@ -119,6 +125,8 @@ def save_csv(parent, values, headers=None, extension='csv', file_type='CSV'):
 
 				if headers is not None:
 					w.writerow(headers)
+				else:
+					w.writerow([])
 
 				w.writerows(values)
 			except Exception as e:

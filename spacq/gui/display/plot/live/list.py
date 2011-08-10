@@ -68,12 +68,12 @@ class PlotSettingsDialog(Dialog):
 
 	def GetValue(self):
 		plot_settings = PlotSettings()
-		plot_settings.num_lines = int(self.lines_input.Value)
+		plot_settings.num_lines = self.lines_input.Value
 
 		return plot_settings
 
 	def SetValue(self, plot_settings):
-		self.lines_input.Value = str(plot_settings.num_lines)
+		self.lines_input.Value = plot_settings.num_lines
 
 
 class ListLiveViewPanel(wx.Panel):

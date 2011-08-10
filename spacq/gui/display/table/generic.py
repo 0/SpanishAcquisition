@@ -1,4 +1,4 @@
-from numpy import array
+from numpy import array, zeros
 import wx
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 
@@ -12,6 +12,8 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 	A generic virtual list.
 	"""
 
+	max_value_len = 250 # Characters.
+
 	def __init__(self, parent, *args, **kwargs):
 		wx.ListCtrl.__init__(self, parent,
 				style=wx.LC_REPORT|wx.LC_VIRTUAL|wx.LC_HRULES|wx.LC_VRULES,
@@ -19,8 +21,12 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 		ListCtrlAutoWidthMixin.__init__(self)
 
+		self.reset()
+
+	def reset(self):
 		self.headings = []
 		self.data = array([])
+		self.display_data = array([])
 
 	def GetValue(self):
 		return (self.headings, self.data)
@@ -32,6 +38,7 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		"""
 
 		self.ClearAll()
+		self.reset()
 
 		self.headings = headings
 		self.data = data
@@ -39,12 +46,17 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.ItemCount = len(data)
 
 		if self.ItemCount > 0:
+			self.display_data = zeros(self.data.shape, dtype='|S{0}'.format(self.max_value_len))
+
 			width, height = self.GetSize()
 			# Give some room for the scrollbar.
 			col_width = (width - 50) / len(self.headings)
 
 			for i, heading in enumerate(self.headings):
 				self.InsertColumn(i, heading, width=col_width)
+
+				# Truncate for display.
+				self.display_data[:,i] = [x[:self.max_value_len] for x in self.data[:,i]]
 
 		self.Refresh()
 
@@ -53,13 +65,7 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		Return cell value for LC_VIRTUAL.
 		"""
 
-		value = self.data[item,col]
-
-		try:
-			return '{0:n}'.format(value)
-		except ValueError:
-			# Not a number after all.
-			return str(value)
+		return self.display_data[item,col]
 
 
 class TabularDisplayPanel(wx.Panel):

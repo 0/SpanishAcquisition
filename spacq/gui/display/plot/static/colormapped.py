@@ -120,3 +120,5 @@ class ColormappedPlotSetupDialog(PlotSetupDialog):
 		frame = ColormappedPlotFrame(self.parent, color_data, x_bounds, y_bounds,
 				x_label, y_label, title=title)
 		frame.Show()
+
+		return True

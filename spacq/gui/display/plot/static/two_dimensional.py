@@ -59,3 +59,5 @@ class TwoDimensionalPlotSetupDialog(PlotSetupDialog):
 		frame = TwoDimensionalPlotFrame(self.parent, x_data, y_data,
 				x_label, y_label, title=title)
 		frame.Show()
+
+		return True

@@ -76,3 +76,5 @@ class SurfacePlotSetupDialog(PlotSetupDialog):
 		frame = SurfacePlotFrame(self.parent, surface_data, x_bounds, y_bounds,
 				x_label, y_label, z_label, title=title)
 		frame.Show()
+
+		return True

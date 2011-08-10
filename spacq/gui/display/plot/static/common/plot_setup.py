@@ -85,6 +85,7 @@ class PlotSetupDialog(Dialog):
 		self.ok_button.Enable(all(axis is not None for axis in self.axes))
 
 	def OnOk(self, evt=None):
-		self.make_plot()
+		if self.make_plot():
+			self.Destroy()
 
-		self.Destroy()
+			return True

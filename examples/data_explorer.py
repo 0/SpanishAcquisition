@@ -50,9 +50,13 @@ class DataExplorerApp(wx.App):
 		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.colormapped),
 				self.colormapped_menu)
 
-		self.surface_menu = menu.Append(wx.ID_ANY, 'S&urface...')
+		self.surface_menu = menu.Append(wx.ID_ANY, '&Surface...')
 		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.surface),
 				self.surface_menu)
+
+		self.waveforms_menu = menu.Append(wx.ID_ANY, '&Waveforms...')
+		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.waveforms, type='list'),
+				self.waveforms_menu)
 
 		## Help.
 		menu = wx.Menu()
@@ -84,6 +88,7 @@ class DataExplorerApp(wx.App):
 			(formats.two_dimensional, self.two_dimensional_menu),
 			(formats.colormapped, self.colormapped_menu),
 			(formats.surface, self.surface_menu),
+			(formats.waveforms, self.waveforms_menu),
 		]
 
 		for format, menu in pairs:

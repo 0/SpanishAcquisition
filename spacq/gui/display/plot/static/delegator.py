@@ -8,8 +8,8 @@ Figure out which plot formats can be used on this system.
 """
 
 
-# 2D curve, 3D colormapped, 3D surface
-formats = Enum(['two_dimensional', 'colormapped', 'surface'])
+# 2D curve, 3D colormapped, 3D surface, 3D waveforms
+formats = Enum(['two_dimensional', 'colormapped', 'surface', 'waveforms'])
 
 
 # Try to import all available formats.
@@ -23,11 +23,12 @@ else:
 	available_formats[formats.colormapped] = ColormappedPlotSetupDialog
 
 try:
-	from .surface import SurfacePlotSetupDialog
+	from .surface import SurfacePlotSetupDialog, WaveformsPlotSetupDialog
 except ImportError:
 	pass
 else:
 	available_formats[formats.surface] = SurfacePlotSetupDialog
+	available_formats[formats.waveforms] = WaveformsPlotSetupDialog
 
 try:
 	from .two_dimensional import TwoDimensionalPlotSetupDialog

@@ -2,6 +2,9 @@ from numpy import array, zeros
 import wx
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 
+from spacq.interface.list_columns import ListParser
+
+
 """
 Embeddable, generic, virtual, tabular display.
 """
@@ -13,6 +16,30 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 	"""
 
 	max_value_len = 250 # Characters.
+
+	@staticmethod
+	def find_type(value):
+		"""
+		Determine the type of a column based on a single value.
+
+		The type is one of: scalar, list, string.
+		"""
+
+		try:
+			float(value)
+		except ValueError:
+			pass
+		else:
+			return 'scalar'
+
+		try:
+			ListParser()(value)
+		except ValueError:
+			pass
+		else:
+			return 'list'
+
+		return 'string'
 
 	def __init__(self, parent, *args, **kwargs):
 		wx.ListCtrl.__init__(self, parent,
@@ -28,8 +55,10 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.data = array([])
 		self.display_data = array([])
 
+		self.types = []
+
 	def GetValue(self):
-		return (self.headings, self.data)
+		return (self.headings, self.data, self.types)
 
 	def SetValue(self, headings, data):
 		"""
@@ -57,6 +86,9 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 				# Truncate for display.
 				self.display_data[:,i] = [x[:self.max_value_len] for x in self.data[:,i]]
+
+				type = self.find_type(self.data[0,i])
+				self.types.append(type)
 
 		self.Refresh()
 

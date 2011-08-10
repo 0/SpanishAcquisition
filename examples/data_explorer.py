@@ -95,7 +95,7 @@ class DataExplorerApp(wx.App):
 		Open up a dialog to configure the selected plot format.
 		"""
 
-		headings, rows = self.csv_frame.display_panel.GetValue()
+		headings, rows, types = self.csv_frame.display_panel.GetValue()
 		available_formats[format](self.csv_frame, headings, rows).Show()
 
 	def OnMenuFileOpen(self, evt=None):

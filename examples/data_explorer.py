@@ -90,12 +90,12 @@ class DataExplorerApp(wx.App):
 			if not status or format in available_formats:
 				menu.Enable(status)
 
-	def create_plot(self, format, evt=None):
+	def create_plot(self, format, evt=None, type='scalar'):
 		"""
 		Open up a dialog to configure the selected plot format.
 		"""
 
-		headings, rows, types = self.csv_frame.display_panel.GetValue()
+		headings, rows, types = self.csv_frame.display_panel.GetValue(types=[type])
 		available_formats[format](self.csv_frame, headings, rows).Show()
 
 	def OnMenuFileOpen(self, evt=None):

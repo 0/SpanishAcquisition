@@ -57,8 +57,17 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 		self.types = []
 
-	def GetValue(self):
-		return (self.headings, self.data, self.types)
+	def GetValue(self, types=None):
+		# Get all types by default.
+		if types is None:
+			types = set(self.types)
+		else:
+			types = set(types)
+
+		# Find column indices of the correct type.
+		idxs = [i for i, t in enumerate(self.types) if t in types]
+
+		return ([self.headings[i] for i in idxs], self.data[:,idxs], [self.types[i] for i in idxs])
 
 	def SetValue(self, headings, data):
 		"""
@@ -140,8 +149,8 @@ class TabularDisplayPanel(wx.Panel):
 
 		self.SetValue(headers, rows)
 
-	def GetValue(self):
-		return self.table.GetValue()
+	def GetValue(self, *args, **kwargs):
+		return self.table.GetValue(*args, **kwargs)
 
 	def SetValue(self, headings, values):
 		self.table.SetValue(headings, values)

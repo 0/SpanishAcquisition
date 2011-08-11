@@ -102,7 +102,6 @@ class ResourceTest(TestCase):
 		else:
 			assert False, 'Expected NotWritable.'
 
-
 	def testReadonly(self):
 		"""
 		A read-only resource using an attribute.

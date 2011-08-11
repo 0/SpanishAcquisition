@@ -428,7 +428,7 @@ class DataCapturePanel(wx.Panel):
 
 				if resource.readable:
 					measurement_resources.append((name, resource))
-					measurement_units.append(resource.units)
+					measurement_units.append(resource.display_units)
 				else:
 					unreadable_resources.add(name)
 

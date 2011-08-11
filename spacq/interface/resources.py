@@ -65,10 +65,23 @@ class Resource(object):
 		self.wrappers = []
 
 		# Dimensions (specified as unit symbol strings) which values for this resource must match.
-		self.units = None
+		self._units = None
+		# String used for display purposes. Typically the same as self.units.
+		self.display_units = None
 
 		# Resources marked slow should not be fetched implicitly.
 		self.slow = False
+
+	@property
+	def units(self):
+		return self._units
+
+	@units.setter
+	def units(self, value):
+		self._units = value
+
+		if self.display_units is None:
+			self.display_units = self.units
 
 	def verify_dimensions(self, value, exception=True, from_string=False):
 		"""

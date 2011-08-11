@@ -36,6 +36,7 @@ class Channel(AbstractSubdevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['waveform'].slow = True
+		self.resources['waveform'].display_units = 'V'
 		self.resources['enabled'].converter = str_to_bool
 
 	def __init__(self, device, channel, *args, **kwargs):

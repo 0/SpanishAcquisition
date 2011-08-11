@@ -10,9 +10,11 @@ from spacq.gui.tool.box import load_csv, MessageDialog
 
 
 class DataExplorerApp(wx.App):
+	default_title = 'Data Explorer'
+
 	def OnInit(self):
 		# Frames.
-		self.csv_frame = TabularDisplayFrame(None, title='Data Explorer')
+		self.csv_frame = TabularDisplayFrame(None, title=self.default_title)
 
 		# Menu.
 		menuBar = wx.MenuBar()
@@ -53,6 +55,10 @@ class DataExplorerApp(wx.App):
 		self.surface_menu = menu.Append(wx.ID_ANY, '&Surface...')
 		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.surface),
 				self.surface_menu)
+
+		menu.AppendSeparator()
+
+		menu.Append(wx.ID_ANY, ' List:').Enable(False)
 
 		self.waveforms_menu = menu.Append(wx.ID_ANY, '&Waveforms...')
 		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.waveforms, type='list'),
@@ -113,13 +119,15 @@ class DataExplorerApp(wx.App):
 		if result is None:
 			return
 
-		has_header, values, _ = result
+		has_header, values, filename = result
 		self.csv_frame.display_panel.from_csv_data(has_header, values)
+		self.csv_frame.Title = '{0} - {1}'.format(filename, self.default_title)
 
 		self.update_plot_menus(len(self.csv_frame.display_panel) > 0)
 
 	def OnMenuFileClose(self, evt=None):
 		self.csv_frame.display_panel.SetValue([], [])
+		self.csv_frame.Title = self.default_title
 
 		self.update_plot_menus(False)
 

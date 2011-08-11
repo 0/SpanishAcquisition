@@ -176,20 +176,12 @@ class DPO7104(AbstractDevice):
 			self.subdevices['channel{0}'.format(chan)] = channel
 
 		# Resources.
-		read_only = ['value_range']
-		for name in read_only:
-			self.resources[name] = Resource(self, name)
-
-		read_write = ['stopafter', 'waveform_bytes', 'sample_rate', 'time_scale', 'acquiring', 'acquisition_mode']
+		read_write = ['sample_rate', 'time_scale', 'acquisition_mode']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
-		self.resources['stopafter'].allowed_values = self.allowed_stopafters
-		self.resources['waveform_bytes'].allowed_values = self.allowed_waveform_bytes
-		self.resources['waveform_bytes'].converter = int
 		self.resources['sample_rate'].units = 'Hz'
 		self.resources['time_scale'].units = 's'
-		self.resources['acquiring'].converter = str_to_bool
 		self.resources['acquisition_mode'].allowed_values = self.allowed_acquisition_modes
 
 	@Synchronized()

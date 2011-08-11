@@ -210,15 +210,10 @@ class AWG5014B(AbstractDevice):
 			self.subdevices['channel{0}'.format(chan)] = channel
 
 		# Resources.
-		read_only = ['data_bits', 'value_range', 'waveform_names', 'waiting_for_trigger']
-		for name in read_only:
-			self.resources[name] = Resource(self, name)
-
 		read_write = ['sampling_rate', 'run_mode', 'enabled']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
-		self.resources['waveform_names'].slow = True
 		self.resources['sampling_rate'].units = 'Hz'
 		self.resources['run_mode'].allowed_values = self.allowed_run_modes
 		self.resources['enabled'].converter = str_to_bool

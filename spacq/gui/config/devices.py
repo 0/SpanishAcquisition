@@ -206,6 +206,8 @@ class DevicesPanel(wx.Panel):
 			self.olv.RemoveObjects(selected)
 
 		for row in selected:
+			if row.device is not None:
+				row.device.close()
 			del self.global_store.devices[row.name]
 
 

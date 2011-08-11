@@ -1,2 +1,2 @@
-from . import agilent, iqc, oxford, tektronix
-manufacturers = [agilent, iqc, oxford, tektronix]
+from . import agilent, iqc, oxford, rohde_schwarz, tektronix
+manufacturers = [agilent, iqc, oxford, rohde_schwarz, tektronix]

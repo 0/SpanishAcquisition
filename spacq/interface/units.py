@@ -3,7 +3,7 @@ log = logging.getLogger(__name__)
 
 from copy import deepcopy
 from math import log10
-from numpy import allclose, array
+from numpy import allclose
 import quantities as pq
 
 """
@@ -118,7 +118,6 @@ class Quantity(object):
 		Separate the value from the units.
 		"""
 
-		value = None
 		for i in xrange(len(string), 0, -1):
 			try:
 				value = float(string[:i])
@@ -127,7 +126,7 @@ class Quantity(object):
 
 			return value, string[i:]
 
-		raise ValueError(value)
+		raise ValueError(string)
 
 	def __init__(self, value, units=None):
 		"""
@@ -137,8 +136,8 @@ class Quantity(object):
 		if isinstance(value, basestring):
 			value, units = self.from_string(value)
 
-		# Even if passed a lone integer, work with an array of floats.
-		value = array(value, dtype=float)
+		# Always work with single floats.
+		value = float(value)
 
 		log.debug('Creating Quantity: {0}, {1}'.format(value, units))
 
@@ -155,15 +154,9 @@ class Quantity(object):
 		self.original_multiplier = multiplier
 
 		# Find the normalization factor.
-		if self._q.magnitude.size > 1:
-			for q, orig in zip(self._q.magnitude.flatten(), original_quantity.magnitude.flatten()):
-				if q != orig:
-					self.original_multiplier += log10(abs(q)) - log10(abs(orig))
-					break
-		else:
-			q, orig = self._q.magnitude, original_quantity.magnitude
-			if q != orig:
-				self.original_multiplier += log10(abs(q)) - log10(abs(orig))
+		q, orig = self._q.magnitude, original_quantity.magnitude
+		if q != orig:
+			self.original_multiplier += log10(abs(q)) - log10(abs(orig))
 
 	@property
 	def dimensions(self):
@@ -181,10 +174,7 @@ class Quantity(object):
 
 		result = self._q.magnitude
 
-		if result.shape:
-			return result
-		else:
-			return result.tolist()
+		return result.tolist()
 
 	@property
 	def original_value(self):
@@ -307,12 +297,8 @@ class Quantity(object):
 		value = self.original_value
 		symbol = self.original_units
 
-		if isinstance(value, float):
-			return '{0:.10g} {1}'.format(value, symbol)
-		else:
-			raise NotImplementedError()
+		return '{0:.10g} {1}'.format(value, symbol)
 
-	# FIXME: http://projects.scipy.org/numpy/ticket/1176
 	def __deepcopy__(self, memo):
 		"""
 		Rather than copying anything, simply create a new instance.

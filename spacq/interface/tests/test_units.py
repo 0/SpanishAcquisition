@@ -40,19 +40,6 @@ class QuantityTest(TestCase):
 			eq_(q.value, value * 10 ** multiplier)
 			eq_(q.original_value, value)
 
-	def testArray(self):
-		"""
-		Use arrays of quantities.
-		"""
-
-		qs = [units.Quantity([[0.0, -1], [2.0, 0.3], [4e44, -5.5e-5]], symbols) for symbols in
-				['nN.g', 'N.ng', 'g2.um.s-2', 'g2.um.s-2']]
-
-		for q in qs:
-			eq_(q, qs[0])
-
-		assert_raises(NotImplementedError, str, qs[0])
-
 	def testBadStrings(self):
 		"""
 		Invalid strings pretending to be quantities.
@@ -137,8 +124,6 @@ class QuantityTest(TestCase):
 			pass
 		else:
 			assert False, 'Expected IncompatibleDimensions.'
-
-		# TODO: Compare arrays.
 
 	def testArithmetic(self):
 		"""

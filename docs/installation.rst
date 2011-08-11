@@ -7,7 +7,9 @@ Dependencies
 
 These are all the dependencies in use by the package.
 
-If only using a subset of the package, it suffices to use what the subset requires. For example, all the GUI-related dependencies are not necessary if only the device-related code is to be used, and vice versa.
+If only using a subset of the package, it suffices to use what the subset requires. For example, all the GUI-related dependencies are not necessary if only the device-related code is to be used, and vice versa. However, everything is written in (and so requires) Python:
+
+* `Python <http://www.python.org/>`_ ``>=2.6 && <3``
 
 Device drivers
 ==============
@@ -26,6 +28,7 @@ Python packages
 * `matplotlib <http://matplotlib.sourceforge.net/>`_
 * `numpy <http://numpy.scipy.org/>`_
 * `ObjectListView <http://objectlistview.sourceforge.net/python/>`_
+* `pyparsing <http://pyparsing.wikispaces.com/>`_
 * `PyPubSub <http://pubsub.sourceforge.net/>`_ ``>= 3.1``
 * `quantities <http://packages.python.org/quantities/>`_
 * `scipy <http://www.scipy.org/>`_

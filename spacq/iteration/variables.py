@@ -110,16 +110,25 @@ class OutputVariable(Variable):
 
 		self._wait = wait
 
+	def with_type(self, value):
+		"""
+		Set to the correct type, and wrap with the correct units.
+		"""
+
+		if self.type == 'integer':
+			return int(value)
+		elif self.units is None:
+			return value
+		else:
+			return Quantity(value, self.units)
+
 	def __iter__(self):
 		if self.use_const:
-			return iter([self.const])
-		elif self.type == 'integer':
-			return (int(x) for x in iter(self.config))
-		elif self.units is None:
-			# Unitless float.
-			return iter(self.config)
+			iterable = [self.const]
 		else:
-			return (Quantity(x, self.units) for x in self.config)
+			iterable = self.config
+
+		return (self.with_type(x) for x in iterable)
 
 	def __len__(self):
 		if self.use_const:

@@ -90,9 +90,9 @@ class SmoothResetPanel(wx.Panel):
 					resource = self.global_store.resources[var.resource_name]
 
 					if from_zero:
-						value_from, value_to = 0, var.const
+						value_from, value_to = 0, var.with_type(var.const)
 					else:
-						value_from, value_to = var.const, 0
+						value_from, value_to = var.with_type(var.const), 0
 
 					thr = Thread(target=resource.sweep, args=(value_from, value_to, self.reset_steps_input.Value),
 							kwargs={'exception_callback': partial(wx.CallAfter, exception_callback)})

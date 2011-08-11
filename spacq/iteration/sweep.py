@@ -256,7 +256,7 @@ class SweepController(object):
 
 					steps.append(var.smooth_steps)
 					resources.append(resource)
-					from_values.append(var.const)
+					from_values.append(var.with_type(var.const))
 					to_values.append(current_value)
 
 			self.ramp(resources, from_values, to_values, steps)
@@ -436,7 +436,7 @@ class SweepController(object):
 				steps.append(var.smooth_steps)
 				resources.append(resource)
 				from_values.append(current_value)
-				to_values.append(var.const)
+				to_values.append(var.with_type(var.const))
 
 		self.ramp(resources, from_values, to_values, steps)
 

@@ -196,7 +196,7 @@ class IPS120_10(AbstractDevice):
 		if self.output_field == value:
 			return
 
-		self.status.append('Setting field to {0} T'.format(value))
+		self.status.append('Setting field to {0}'.format(value))
 
 		try:
 			set_delay = abs(value - self.output_field).value / self.sweep_rate.value # s

@@ -194,6 +194,9 @@ class Quantity(object):
 		if isinstance(other, basestring):
 			# Given a units string.
 			other = Quantity(1, other).dimensions
+		elif isinstance(other, Quantity):
+			# Given a Quantity.
+			other = other.dimensions
 
 		if self.dimensions == other:
 			return True

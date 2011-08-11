@@ -77,12 +77,15 @@ class ResourceTree(TreeListCtrl):
 		self.AddColumn('R', 24)
 		self.col_w = 2
 		self.AddColumn('W', 24)
-		self.col_label = 3
+		self.col_units = 3
+		self.AddColumn('Units', 50)
+		self.col_label = 4
 		self.AddColumn('Label', 200, edit=True)
-		self.col_value = 4
+		self.col_value = 5
 		self.AddColumn('Value', 400, edit=True)
 
-		self.SetMinSize((850, -1))
+		# Extra 50 for nesting.
+		self.SetMinSize((950, -1))
 
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnItemExpanded)
 		self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnBeginLabelEdit)
@@ -184,6 +187,9 @@ class ResourceTree(TreeListCtrl):
 
 			if resource.setter is not None:
 				self.SetItemText(item, 'W', self.col_w)
+
+			if resource.display_units is not None:
+				self.SetItemText(item, resource.display_units, self.col_units)
 
 			self.SetItemPyData(item, ItemData(full_path, resource))
 

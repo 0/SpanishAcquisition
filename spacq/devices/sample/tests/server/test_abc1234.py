@@ -18,7 +18,7 @@ class ABC1234Test(DeviceServerTestCase):
 
 		dm = self.obtain_device()
 
-		eq_(dm.setting, 'default value')
+		eq_(dm.setting, '...')
 
 		dm.setting = 'something else'
 		eq_(dm.setting, 'something else')

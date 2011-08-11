@@ -17,7 +17,7 @@ class ABC1234(AbstractDevice):
 	Interface for the Sample ABC1234.
 	"""
 
-	allowed_settings = ['default value', 'something else']
+	allowed_settings = ['default value', 'something else', '...']
 
 	def _setup(self):
 		AbstractDevice._setup(self)
@@ -38,7 +38,8 @@ class ABC1234(AbstractDevice):
 	def _connected(self):
 		AbstractDevice._connected(self)
 
-		self.reset()
+		# Override the default.
+		self.setting = '...'
 
 	@Synchronized()
 	def reset(self):

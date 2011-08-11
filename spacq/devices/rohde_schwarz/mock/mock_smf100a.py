@@ -25,10 +25,7 @@ class MockSMF100A(MockAbstractDevice, SMF100A):
 		if not done:
 			cmd, args, query = self._split_message(message)
 
-			if cmd[0] == 'unit':
-				if cmd[1] == 'power':
-					done = (args.lower() == 'v')
-			elif cmd[0] == 'output':
+			if cmd[0] == 'output':
 				if cmd[1] == 'state':
 					if query:
 						result = self.mock_state['enabled']

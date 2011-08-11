@@ -106,6 +106,7 @@ class SweepControllerTest(TestCase):
 		var0.config = LinSpaceConfig(-1.0, -2.0, 2)
 		var0.smooth_steps = 2
 		var0.smooth_from, var0.smooth_to, var0.smooth_transition = [True] * 3
+		var0.type = 'quantity'
 		var0.units = 'cm-1'
 
 		var1 = OutputVariable(name='Var 1', order=1, enabled=True, const=-1.0)
@@ -295,32 +296,43 @@ class SweepControllerTest(TestCase):
 			res_buf.append(value)
 
 		res = Resource(setter=setter)
-		var = OutputVariable(name='Var', order=1, enabled=True)
-		var.config = LinSpaceConfig(1.0, 4.0, 4)
+		var1 = OutputVariable(name='Var 1', order=1, enabled=True)
+		var1.config = LinSpaceConfig(1.0, 4.0, 4)
 
 		p = Program.from_file(path.join(resource_dir, '01.pulse'))
 		p.frequency = Quantity(1, 'GHz')
 		p.set_value(('_acq_marker', 'marker_num'), 1)
 		p.set_value(('_acq_marker', 'output'), 'f1')
 
+		eq_(p.all_values, set([('_acq_marker', 'marker_num'), ('_acq_marker', 'output'), ('d',), ('i',),
+				('p', 'amplitude'), ('p', 'length'), ('p', 'shape')]))
+
+		parameters = [('i',), ('d',), ('p', 'amplitude'), ('p', 'length')]
+		for parameter in parameters:
+			p.resource_labels[parameter] = 'res_' + '.'.join(parameter)
+			p.resources[parameter] = Resource()
+
+		var2 = OutputVariable(name='Var 2', order=1, enabled=True)
+		var2.config = LinSpaceConfig(1, 4, 4)
+		var2.type = 'integer'
+
 		awg_cfg = DeviceConfig('awg')
 		awg_cfg.address_mode = awg_cfg.address_modes.gpib
-		awg_cfg.manufacturer = 'Tektronix'
-		awg_cfg.model = 'AWG5014B'
+		awg_cfg.manufacturer, awg_cfg.model = 'Tektronix', 'AWG5014B'
 		awg_cfg.mock = True
 		awg_cfg.connect()
 
 		osc_cfg = DeviceConfig('osc')
 		osc_cfg.address_mode = awg_cfg.address_modes.gpib
-		osc_cfg.manufacturer = 'Tektronix'
-		osc_cfg.model = 'DPO7104'
+		osc_cfg.manufacturer, osc_cfg.model = 'Tektronix', 'DPO7104'
 		osc_cfg.mock = True
 		osc_cfg.connect()
 
 		pulse_config = sweep.PulseConfiguration(p.with_resources, {'f1': 1}, awg_cfg.device, osc_cfg.device)
 
-		vars, num_items = sort_variables([var])
-		ctrl = sweep.SweepController([(('Res', res),)], vars, num_items, [], [], pulse_config)
+		vars, num_items = sort_variables([var1, var2])
+		ress = [(('Res 1', res), ('Res 2', p.resources[('i',)]))]
+		ctrl = sweep.SweepController(ress, vars, num_items, [], [], pulse_config)
 
 		ctrl.run()
 

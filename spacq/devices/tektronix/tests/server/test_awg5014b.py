@@ -113,10 +113,18 @@ class AWG5014BTest(DeviceServerTestCase):
 		eq_(awg.channels[3].waveform_name, '')
 
 		eq_(awg.run_mode, 'triggered')
-		eq_(awg.waiting_for_trigger, True)
-		eq_(awg.enabled, True)
+		assert awg.waiting_for_trigger
+		assert awg.enabled
 
 		awg.trigger()
+
+		assert awg.waiting_for_trigger
+		assert awg.enabled
+
+		awg.run_mode = 'continuous'
+
+		assert not awg.waiting_for_trigger
+		assert awg.enabled
 
 
 if __name__ == '__main__':

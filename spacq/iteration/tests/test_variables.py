@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
 from spacq.interface.units import IncompatibleDimensions, Quantity
@@ -95,10 +95,12 @@ class OutputVariableTest(TestCase):
 
 		# Very short.
 		var.config = variables.LinSpaceConfig(0.0, 5.0, 3)
-		eq_(str(var), '[0, 2.5, 5]')
+		var.type = 'integer'
+		eq_(str(var), '[0, 2, 5]')
 
 		# Borderline.
 		var.config = variables.LinSpaceConfig(1.0, 5.0, 5)
+		var.type = 'float'
 		eq_(str(var), '[1, 2, 3, 4, 5]')
 
 		# Short enough.
@@ -123,11 +125,16 @@ class OutputVariableTest(TestCase):
 		"""
 
 		var = variables.OutputVariable(name='Name', order=1)
+		var.type = 'quantity'
 		var.units = 'g.m.s-1'
 		var.config = variables.LinSpaceConfig(0.0, -5.0, 3)
 
 		eq_(list(var), [Quantity(x, 'g.m.s-1') for x in [0, -2.5, -5]])
 		eq_(str(var), '[0, -2.5, -5] g.m.s-1')
+
+		# Bad combination.
+		var.units = None
+		assert_raises(ValueError, list, var)
 
 
 class LinSpaceConfigTest(TestCase):

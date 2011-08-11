@@ -16,15 +16,16 @@ class ABC1234Test(DeviceServerTestCase):
 		Test the setting.
 		"""
 
-		dm = self.obtain_device()
+		abc = self.obtain_device()
+		abc.reset()
 
-		eq_(dm.setting, '...')
+		eq_(abc.setting, 'default value')
 
-		dm.setting = 'something else'
-		eq_(dm.setting, 'something else')
+		abc.setting = 'something else'
+		eq_(abc.setting, 'something else')
 
 		try:
-			dm.setting = 'another thing'
+			abc.setting = 'another thing'
 		except ValueError:
 			pass
 		else:
@@ -35,9 +36,10 @@ class ABC1234Test(DeviceServerTestCase):
 		Obtain some values.
 		"""
 
-		dm = self.obtain_device()
+		abc = self.obtain_device()
+		abc.reset()
 
-		isinstance(dm.reading, Real)
+		isinstance(abc.reading, Real)
 
 
 if __name__ == '__main__':

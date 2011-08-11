@@ -1,5 +1,11 @@
+int i = 1
+delay d = 1 ns
+pulse p = {shape: 'square', length: 1 ns, amplitude: 1 mV}
+
 output f1
 
-(123 ns):f1
+times i {
+	(123 ns):f1
+}
 
 acquire

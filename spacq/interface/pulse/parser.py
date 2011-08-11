@@ -145,13 +145,7 @@ def Parser():
 			try:
 				return parser.parseString(s)[0]
 			except ParseBaseException as e:
-				m = re.match(r'(.*) \(at char \d+\), \(line:\d+, col:\d+\)', str(e))
-				if m is None:
-					msg = str(e)
-				else:
-					msg = m.groups()[0]
-
-				raise PulseSyntaxError([format_error(msg, *find_location(s, e.loc))])
+				raise PulseSyntaxError([format_error(e.msg, *find_location(s, e.loc))])
 
 		return parseString
 	finally:

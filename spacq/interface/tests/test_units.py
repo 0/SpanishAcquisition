@@ -95,6 +95,7 @@ class QuantityTest(TestCase):
 		# No exception.
 		assert q.assert_dimensions('s', exception=False)
 		assert not q.assert_dimensions('N.m', exception=False)
+		assert q.assert_dimensions(q, exception=False)
 
 		# Exception.
 		assert q.assert_dimensions('s')
@@ -124,6 +125,20 @@ class QuantityTest(TestCase):
 			pass
 		else:
 			assert False, 'Expected IncompatibleDimensions.'
+
+		try:
+			1 == units.Quantity(1, 's')
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		try:
+			1 <= units.Quantity(1, 's')
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
 
 	def testArithmetic(self):
 		"""
@@ -165,6 +180,20 @@ class QuantityTest(TestCase):
 			pass
 		else:
 			assert False, 'Expected IncompatibleDimensions'
+
+		try:
+			units.Quantity(1, 's') + 1
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
+
+		try:
+			units.Quantity(1, 's') - 1
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError'
 
 		# Multiplication by real.
 		q = units.Quantity(1.5, 'N.m')

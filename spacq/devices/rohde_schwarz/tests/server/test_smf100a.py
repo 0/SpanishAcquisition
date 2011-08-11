@@ -31,6 +31,27 @@ class SMF100ATest(DeviceServerTestCase):
 		eq_(sg.frequency.value, 5.6789e9)
 		eq_(sg.power, -2.0)
 
+	def testIllegal(self):
+		"""
+		These values aren't allowed.
+		"""
+
+		sg = self.obtain_device()
+
+		try:
+			sg.power = 9001
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError'
+
+		try:
+			sg.frequency = Quantity(0, 'Hz')
+		except ValueError:
+			pass
+		else:
+			assert False, 'Expected ValueError'
+
 
 if __name__ == '__main__':
 	main()

@@ -117,10 +117,12 @@ class OutputVariable(Variable):
 
 		if self.type == 'integer':
 			return int(value)
-		elif self.units is None:
+		elif self.type == 'float':
 			return value
-		else:
+		elif self.type == 'quantity' and self.units is not None:
 			return Quantity(value, self.units)
+		else:
+			raise ValueError('Invalid variable setup; type: {0}, units: {1}'.format(self.type, self.units))
 
 	def __iter__(self):
 		if self.use_const:

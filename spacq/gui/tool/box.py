@@ -1,4 +1,5 @@
 import csv
+from os.path import basename
 import pickle
 import wx
 
@@ -86,6 +87,8 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 	if dlg.ShowModal() == wx.ID_OK:
 		path = dlg.GetPath()
 
+		filename = basename(path)
+
 		with open(path, 'rb') as f:
 			try:
 				result = list(csv.reader(f))
@@ -98,7 +101,7 @@ def load_csv(parent, extension='csv', file_type='CSV'):
 					if not has_header:
 						result = result[1:]
 
-				return (has_header, result)
+				return (has_header, result, filename)
 			except Exception as e:
 				# Wrap all problems.
 				raise IOError('Could not load data.', e)

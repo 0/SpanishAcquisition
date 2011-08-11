@@ -293,7 +293,7 @@ class VoltageSourceSettingsPanel(wx.Panel):
 			if result is None:
 				return
 
-			has_header, values = result
+			has_header, values, _ = result
 
 			if has_header:
 				port_values = values[1:]

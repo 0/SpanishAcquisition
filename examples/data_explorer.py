@@ -113,7 +113,7 @@ class DataExplorerApp(wx.App):
 		if result is None:
 			return
 
-		has_header, values = result
+		has_header, values, _ = result
 		self.csv_frame.display_panel.from_csv_data(has_header, values)
 
 		self.update_plot_menus(len(self.csv_frame.display_panel) > 0)

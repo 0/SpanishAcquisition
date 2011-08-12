@@ -50,10 +50,13 @@ Device resources
 
    1. The internal name of the resource.
    2. R/W flags indicating the RO/WO/RW status of the resource.
-   3. The unique label used to identify the resource. The label can be changed by double-clicking the appropriate field.
-   4. The value of the resource.
+   3. The units associated with the resource.
+   4. The unique label used to identify the resource. The label can be changed by double-clicking the appropriate field.
 
-      * If the resource is readable, the latest received value is displayed.
+      In this case, the channel 1 waveform has been given the label **osc1**.
+   5. The value of the resource.
+
+      * If the resource is readable, the latest received value is displayed. The exception to this is slow resources, which always have "[N/A]" displayed to avoid slowdowns caused by fetching the value.
       * If the resource is writable, the value can be changed by double-clicking the appropriate field.
 
-   5. A subdevice with resources.
+   6. A subdevice with its own resources.

@@ -17,12 +17,38 @@ Output variables provide a way to sweep over a range of values on a :ref:`resour
 
    The unqualified term "variable" typically refers to output variables.
 
+.. _general_concepts_output_variables_type:
+
+Type
+====
+
+An output variable has an associated type. It must be one of:
+
+   Float
+      Each produced value is a floating point value, with an integral portion and a decimal portion.
+
+      For example, "-5.5".
+
+   Integer
+      Each produced value is an integer value. If any of the generated values contain a decimal portion, it is truncated.
+
+      For example, "5".
+
+   Quantity
+      Each produced value is a floating point value with a corresponding unit.
+
+      For example, "12.3 GHz".
+
 Constant value
 ==============
 
 Each variable is assigned a constant value. By default, this value is ignored; however, there are several options which make use of this value.
 
 For example, if the variable is set to be a "constant variable", then its value is never iterated; instead, its value is set to the constant value at the beginning of a sweep and then left there for the entire duration.
+
+.. note::
+
+   The constant value of a variable always incorporates the :ref:`type and units <general_concepts_output_variables_type>` of the variable.
 
 .. seealso:: :ref:`general_concepts_output_variables_smooth`
 
@@ -52,17 +78,14 @@ Smooth setting
 
 During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To get around this, the variables can optionally be "smoothly set" at various times:
 
-* Smooth setting **from constant** value:
+   Smooth setting **from constant** value
+      At the start of a sweep, the variable is set to the constant value, and then (over the desired number of steps) swept towards its inital value at the start of the sweep.
 
-  At the start of a sweep, the variable is set to the constant value, and then (over the desired number of steps) swept towards its inital value at the start of the sweep.
+   Smooth setting **to constant** value
+      At the end of a sweep (even if the sweep is prematurely aborted), the variable is smoothly swept from its final value to its constant value.
 
-* Smooth setting **to constant** value:
-
-  At the end of a sweep (even if the sweep is prematurely aborted), the variable is smoothly swept from its final value to its constant value.
-
-* Smooth **transition** between loop iterations:
-
-  At the end of a single iteration of an order, if that order was not the slowest-stepping outer loop order, the variable is smoothly swept back to its initial value so that it can be stepped over again.
+   Smooth **transition** between loop iterations
+      At the end of a single iteration of an order, if that order was not the slowest-stepping outer loop order, the variable is smoothly swept back to its initial value so that it can be stepped over again.
 
 .. note::
 

@@ -7,3 +7,4 @@ Configuration
 
    device_config
    variable_config
+   measurement_config

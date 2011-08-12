@@ -43,6 +43,8 @@ These provided resources can be given arbitrary labels, and these labels are use
 
    Resources linked to variables must be of the correct type: :ref:`output variables <general_concepts_output_variables>` can only be used with writable resources; :ref:`input variables <general_concepts_input_variables>` can only be used with readable resources.
 
+Resources may also have units associated with them, in which case the value read from or written to that resource must be a quantity with a matching dimensionality. That is, a resource which requires acceleration in meters per second squared (specified as ``m.s-2``) will accept millimeters per second squared (``mm.s-2``) and joules per newton per second squared (``J.N-1.s-2``), but not joules per newton (``J.N-1``) or joules per second squared (``J.s-2``).
+
 .. _general_concepts_variables:
 
 Variables
@@ -120,3 +122,7 @@ Input variables
 ===============
 
 Typically referred to as "measurements", input variables provide a way of gathering data from :ref:`resources <general_concepts_resources>`.
+
+There exist two types of measurements: scalar and list. Scalar measurements correspond to the acquisition of single values over time (eg. an amplitude or a frequency); list measurements correspond to the acquisition of a list of values over time (eg. a waveform captured by an oscilloscope). Naturally, if the measurements are done several times, scalar measurements produce one-dimensional data, while list measurements produce two-dimensional data.
+
+.. seealso:: :ref:`measurement_config`

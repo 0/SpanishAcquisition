@@ -11,7 +11,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
 
 .. _variable_config_figure:
 
-.. figure:: variable_config.*
+.. figure:: variable_config_01.*
    :alt: Variable configuration.
 
    ..
@@ -80,7 +80,27 @@ Variable editor dialog
 
 The variable editor dialog is used to configure the values over which a variable is stepped. It is opened by double-clicking in the "Values" column of the variable.
 
-.. TODO
+.. figure:: variable_config_02.*
+   :alt: Variable editor.
+
+   ..
+
+   1. The value configuration is performed by using one of the available configuration panels.
+   2. :ref:`Smooth setting <general_concepts_output_variables_smooth>` configuration.
+   3. :ref:`Type and units <general_concepts_output_variables_type>` configuration.
+
+Configuration panels
+====================
+
+Linear
+------
+
+A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are set to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.
+
+Arbitrary
+---------
+
+Values are provided directly as a sequence of comma-separated numbers (with ignored whitespace). For example, the input "1, 32 , -5,6.543,0,0 , 1" would result in the values: 1, 32, -5, 6.543, 0, 0, 1.
 
 .. rubric:: Footnotes
 

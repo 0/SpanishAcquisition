@@ -1,3 +1,5 @@
+.. _users_guide:
+
 ############
 User's Guide
 ############
@@ -6,4 +8,6 @@ User's Guide
    :maxdepth: 2
 
    general_concepts
+   pulse_programs
    gui/index
+   examples/index

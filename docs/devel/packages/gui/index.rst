@@ -1,6 +1,6 @@
-########################
-Graphical user interface
-########################
+###
+GUI
+###
 
 Tools for providing applications with a graphical user interface.
 

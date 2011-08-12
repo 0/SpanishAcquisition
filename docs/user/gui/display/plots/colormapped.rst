@@ -1,3 +1,5 @@
+.. _colormapped_plot:
+
 ################
 Colormapped plot
 ################

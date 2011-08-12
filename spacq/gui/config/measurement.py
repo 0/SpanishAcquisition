@@ -2,8 +2,8 @@ from pubsub import pub
 import wx
 
 from spacq.iteration.variables import InputVariable
-from spacq.gui.tool.box import OK_BACKGROUND_COLOR, MessageDialog
 
+from ..tool.box import OK_BACKGROUND_COLOR, MessageDialog
 from .scaling import ScalingSettings, ScalingSettingsDialog
 
 

@@ -202,12 +202,19 @@ class DevicesPanel(wx.Panel):
 
 		selected = self.olv.GetSelectedObjects()
 
+		connected_devices = set()
+		for row in selected:
+			if row.device is not None:
+				connected_devices.add(row.name)
+
+		if connected_devices:
+			MessageDialog(self, ', '.join(sorted(connected_devices)), 'Devices still connected').Show()
+			return
+
 		if selected:
 			self.olv.RemoveObjects(selected)
 
 		for row in selected:
-			if row.device is not None:
-				row.device.close()
 			del self.global_store.devices[row.name]
 
 

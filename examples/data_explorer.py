@@ -4,6 +4,7 @@ logging.basicConfig(level=logging.WARNING)
 from functools import partial
 import wx
 
+from spacq import VERSION
 from spacq.gui.display.plot.static.delegator import formats, available_formats
 from spacq.gui.display.table.generic import TabularDisplayFrame
 from spacq.gui.tool.box import load_csv, MessageDialog
@@ -138,7 +139,10 @@ class DataExplorerApp(wx.App):
 	def OnMenuHelpAbout(self, evt=None):
 		info = wx.AboutDialogInfo()
 		info.SetName('Data Explorer')
-		info.SetDescription('An application for displaying data in tabular and graphical form.')
+		info.SetDescription('An application for displaying data in tabular and graphical form.\n'
+			'\n'
+			'Using Spanish Acquisition version {0}.'.format(VERSION)
+		)
 
 		wx.AboutBox(info)
 

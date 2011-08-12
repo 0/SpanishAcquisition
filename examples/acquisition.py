@@ -3,6 +3,7 @@ logging.basicConfig(level=logging.WARNING)
 
 import wx
 
+from spacq import VERSION
 from spacq.gui.action.data_capture import DataCapturePanel
 from spacq.gui.action.smooth_reset import SmoothResetPanel
 from spacq.gui.config.devices import DeviceConfigFrame
@@ -137,7 +138,11 @@ class AcquisitionApp(wx.App):
 	def OnMenuHelpAbout(self, evt=None):
 		info = wx.AboutDialogInfo()
 		info.SetName('Acquisition')
-		info.SetDescription('An application for sweeping device values and acquiring data.')
+		info.SetDescription(
+			'An application for sweeping device values and acquiring data.\n'
+			'\n'
+			'Using Spanish Acquisition version {0}.'.format(VERSION)
+		)
 
 		wx.AboutBox(info)
 

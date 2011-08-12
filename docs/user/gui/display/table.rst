@@ -6,7 +6,8 @@ Tabular display
 
 The tabular display panel is a read-only panel for arbitrary data.
 
-.. TODO: Screenshot with all kinds of columns.
+.. figure:: table_01.*
+   :alt: Populated tabular display.
 
 Column types
 ************

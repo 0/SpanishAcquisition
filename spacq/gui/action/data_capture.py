@@ -399,7 +399,11 @@ class DataCapturePanel(wx.Panel):
 			except KeyError:
 				missing_devices.add(pulse_program.oscilloscope)
 
-			pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_awg, pulse_oscilloscope)
+			try:
+				pulse_config = PulseConfiguration(pulse_program, pulse_channels, pulse_awg, pulse_oscilloscope)
+			except TypeError as e:
+				MessageDialog(self, str(e), 'Device configuration error').Show()
+				return
 		else:
 			pulse_config = None
 

@@ -26,7 +26,25 @@ class PulseConfiguration(object):
 	The configuration necessary to execute a pulse program with a device.
 	"""
 
+	# All the directly-used attributes.
+	awg_attrs = ['channels', 'clear_channels', 'enabled', 'run_mode', 'sampling_rate', 'trigger']
+	oscilloscope_attrs = ['acquiring', 'acquisition_mode', 'stopafter', 'times_average']
+
+	@staticmethod
+	def verify_device(name, device, attributes):
+		if device is None:
+			raise TypeError('No "{0}" device configured'.format(name))
+
+		d = dir(device)
+
+		for attribute in attributes:
+			if attribute not in d:
+				raise TypeError('Given "{0}" device lacks "{1}"'.format(name, attribute))
+
 	def __init__(self, program, channels, awg, oscilloscope):
+		self.verify_device('AWG', awg, self.awg_attrs)
+		self.verify_device('Oscilloscope', oscilloscope, self.oscilloscope_attrs)
+
 		self.program = program
 		self.channels = channels
 		self.awg = awg

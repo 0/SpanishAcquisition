@@ -43,6 +43,7 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 		self.mock_state['horizontal_scale'] = 1e-8 # s
 
 		self.mock_state['waveform_bytes'] = 2
+		self.mock_state['times_average'] = 1
 
 		self.mock_state['data_start'] = 1
 		self.mock_state['data_stop'] = self._record_length
@@ -82,6 +83,12 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 						result = self.mock_state['acquire_mode']
 					else:
 						self.mock_state['acquire_mode'] = args
+					done = True
+				elif cmd[1] == 'numavg':
+					if query:
+						result = self.mock_state['times_average']
+					else:
+						self.mock_state['times_average'] = int(args)
 					done = True
 			elif cmd[0] == 'horizontal':
 				if cmd[1] == 'mode':

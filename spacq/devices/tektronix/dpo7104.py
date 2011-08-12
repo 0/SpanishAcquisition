@@ -342,6 +342,10 @@ class DPO7104(AbstractDevice):
 
 	@property
 	def acquisition_mode(self):
+		"""
+		The type of acquisition to make (eg. peak detect, envelope).
+		"""
+
 		result = self.ask('acquire:mode?').lower()
 
 		if result.startswith('sam'):
@@ -368,11 +372,18 @@ class DPO7104(AbstractDevice):
 
 	@property
 	def times_average(self):
+		"""
+		The number of waveforms to average if in the average acquisition mode.
+		"""
+
 		return int(self.ask('acquire:numavg?'))
 
 	@times_average.setter
 	def times_average(self, value):
-		self.write('acquire:numavg {0:d}'.format(value))
+		if value <= 0:
+			raise ValueError('Must provide a positive integer, not "{0}"'.format(value))
+
+		self.write('acquire:numavg {0:d}'.format(int(value)))
 
 
 name = 'DPO7104'

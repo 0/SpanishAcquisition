@@ -327,7 +327,7 @@ class VariablesPanel(wx.Panel):
 
 				return True
 
-			dlg = VariableEditor(self, ok_callback)
+			dlg = VariableEditor(self, ok_callback, title=var.name)
 			dlg.SetValue(var.config, var.smooth_steps, var.smooth_from, var.smooth_to, var.smooth_transition,
 					var.type, var.units)
 			dlg.Show()

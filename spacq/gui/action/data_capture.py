@@ -113,7 +113,11 @@ class DataCaptureDialog(Dialog, SweepController):
 
 			self.value_outputs.append(group_outputs)
 
+			# Spacer.
+			for _ in xrange(2):
+				self.values_box.Add((-1, 15))
 
+		# Separator.
 		for _ in xrange(2):
 			self.values_box.Add(wx.StaticLine(self), flag=wx.EXPAND|wx.ALL, border=5)
 
@@ -458,7 +462,8 @@ class DataCapturePanel(wx.Panel):
 			MessageDialog(self, ', '.join('{0}/{1}'.format(x[0], x[1]) for x in mismatched_resources),
 					'Mismatched resources').Show()
 
-		if missing_resources or unreadable_resources or unwritable_resources or missing_devices or mismatched_resources:
+		if (missing_resources or unreadable_resources or unwritable_resources or
+				missing_devices or mismatched_resources):
 			return
 
 		exporting = False

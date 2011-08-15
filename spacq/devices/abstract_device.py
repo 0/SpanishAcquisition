@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from threading import RLock
+from time import time
 
 from spacq.tool.box import Enum, Synchronized
 
@@ -37,6 +38,14 @@ else:
 class DeviceNotFoundError(Exception):
 	"""
 	Failure to connect to a device.
+	"""
+
+	pass
+
+
+class DeviceTimeout(Exception):
+	"""
+	Timeout on action.
 	"""
 
 	pass
@@ -114,6 +123,8 @@ class AbstractDevice(SuperDevice):
 	"""
 	A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.
 	"""
+
+	max_timeout = 15 # s
 
 	def _setup(self):
 		self.multi_command = None
@@ -283,8 +294,22 @@ class AbstractDevice(SuperDevice):
 
 		log.debug('Writing to device "{0}": {1!r}'.format(self.name, message))
 
-		if self.driver in [drivers.pyvisa, drivers.lgpib]:
-			self.device.write(message)
+		if self.driver == drivers.pyvisa:
+			try:
+				self.device.write(message)
+			except visa.VisaIOError as e:
+				if e.error_code == visa.VI_ERROR_TMO:
+					raise DeviceTimeout(e)
+				else:
+					raise
+		elif self.driver == drivers.lgpib:
+			try:
+				self.device.write(message)
+			except gpib.GpibError as e:
+				if 'timeout' in e.msg:
+					raise DeviceTimeout(e)
+				else:
+					raise
 		elif self.driver == drivers.pyvisa_usb:
 			# Send the message raw.
 			visa.vpp43.write(self.device.vi, message)
@@ -300,11 +325,24 @@ class AbstractDevice(SuperDevice):
 		buf = ''
 
 		if self.driver in [drivers.pyvisa, drivers.pyvisa_usb]:
-			buf = self.device.read_raw()
+			try:
+				buf = self.device.read_raw()
+			except visa.VisaIOError as e:
+				if e.error_code == visa.VI_ERROR_TMO:
+					raise DeviceTimeout(e)
+				else:
+					raise
 		elif self.driver == drivers.lgpib:
 			status = 0
-			while not status:
-				buf += self.device.read(len=chunk_size)
+			while status == 0:
+				try:
+					buf += self.device.read(len=chunk_size)
+				except gpib.GpibError as e:
+					if 'timeout' in e.msg:
+						raise DeviceTimeout(e)
+					else:
+						raise
+
 				status = self.device.ibsta() & IbstaBits.END
 
 		log.debug('Read from device "{0}": {1!r}'.format(self.name, buf))
@@ -398,21 +436,15 @@ class AbstractDevice(SuperDevice):
 		Wait until the device is done.
 		"""
 
+		end_time = time() + self.max_timeout
+
 		while True:
-			if self.driver == drivers.pyvisa:
+			if self.driver in [drivers.pyvisa, drivers.lgpib]:
 				try:
 					self.ask('*opc?')
-				except visa.VisaIOError as e:
-					if e.error_code != visa.VI_ERROR_TMO:
+				except DeviceTimeout:
+					if time() > end_time:
 						raise
-				else:
-					break
-			elif self.driver == drivers.lgpib:
-				try:
-					self.ask('*opc?')
-				except gpib.GpibError as e:
-					# TODO: Keep going on timeout.
-					raise
 				else:
 					break
 

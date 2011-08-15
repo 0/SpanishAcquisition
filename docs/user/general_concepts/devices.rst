@@ -8,8 +8,7 @@ A device typically refers to a physical piece of hardware, but can be, for examp
 
 Devices can offer any number of arbitrary :ref:`resources <general_concepts_resources>`. They may be organized in an hierarchical fashion through :ref:`subdevices <general_concepts_subdevices>`. 
 
-.. note::
-
+.. tip::
    A device resource will typically correspond to a setting on the device, but it is not required to do so. Other types of resources include measurement readings, and virtual (implementation-specific) settings.
 
 .. _general_concepts_subdevices:

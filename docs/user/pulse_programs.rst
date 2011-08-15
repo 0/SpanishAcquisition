@@ -110,7 +110,6 @@ A pulse program consists of several statements separated by line breaks or semic
            x:f1 ; (x y):f2 ; y:f3
 
         .. note::
-
            All waveforms are synchronized before and after a pulse sequence. If any pulse sequence would be longer than the others, padding delays are automatically added to the end of the shorter sequences to ensure that all the lengths match.
 
       * **acquisition trigger**: A statement of the form ``acquire`` signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.

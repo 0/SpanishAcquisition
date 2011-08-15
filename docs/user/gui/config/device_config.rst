@@ -34,9 +34,7 @@ Device connection
       * All the settings controlled in this dialog (including resource *labels*, but with the exception of resource *values*) can be saved to and loaded from the disk.
 
 .. note::
-
    Disconnecting from a device does not actually take place until the dialog is confirmed (by pressing "OK"). Thus, pressing "Disconnect" and then "Cancel" will retain the connection to the device.
-
 
 .. _device_config_resources:
 

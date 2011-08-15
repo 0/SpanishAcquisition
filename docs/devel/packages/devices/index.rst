@@ -62,7 +62,6 @@ The sample manufacturer comes with a sample device in the form of files ending i
 #. Rename all the ``abc1234.py`` files to something suitable for the device. The chosen name (excluding the ``.py`` extension) will be the *module name*; it should include only lowercase letters, but can also include digits and underscores starting with the second character.
 
    .. note::
-
       Due to the constraint that the initial character of the module name may not be a digit, some model names cannot be used directly either in the module name or in the class name. For example, in the case of the Agilent 34410A, the module name is ``dm34410a`` and the class name is ``DM34410A`` where the letters "DM" are arbitrarily chosen and stand for "digital multimeter".
 
 #. Add the configuration details for the physical device to your :ref:`test configuration <devices_testing>`.
@@ -73,7 +72,6 @@ The sample manufacturer comes with a sample device in the form of files ending i
 #. Add the new model module and mock model module to the :data:`models` and :data:`mock_models` lists, respectively, in the manufacturer directory ``__init__.py``, as well as to the import lines.
 
    .. warning::
-
       Ensure that both lists have the same length. ``None`` is an acceptable value in either list if that implementation is not available.
 
 .. rubric:: Footnotes

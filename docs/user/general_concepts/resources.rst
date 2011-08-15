@@ -11,7 +11,6 @@ In the typical case, a :ref:`device <general_concepts_devices>` (eg. a multimete
 These provided resources can be given arbitrary labels, and these labels are used elsewhere to identify the resources. For example, given two RW resources with labels "reading" and "gate", one can set up a variable which writes to the resource labelled "gate" and a measurement which reads from the resource labelled "reading".
 
 .. note::
-
    Resources linked to variables must be of the correct type: :ref:`output variables <general_concepts_output_variables>` can only be used with writable resources; :ref:`input variables <general_concepts_input_variables>` can only be used with readable resources.
 
 Resources may also have units associated with them, in which case the value read from or written to that resource must be a quantity with a matching dimensionality. That is, a resource which requires acceleration in meters per second squared (specified as ``m.s-2``) will accept millimeters per second squared (``mm.s-2``) and joules per newton per second squared (``J.N-1.s-2``), but not joules per newton (``J.N-1``) or joules per second squared (``J.s-2``).

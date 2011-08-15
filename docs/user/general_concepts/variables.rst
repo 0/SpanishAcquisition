@@ -13,8 +13,7 @@ Output variables
 
 Output variables provide a way to sweep over a range of values on a :ref:`resource <general_concepts_resources>`. An output variable will have a customizable range of values over which it iterates.
 
-.. note::
-
+.. tip::
    The unqualified term "variable" typically refers to output variables.
 
 .. _general_concepts_output_variables_type:
@@ -47,7 +46,6 @@ Each variable is assigned a constant value. By default, this value is ignored; h
 For example, if the variable is set to be a "constant variable", then its value is never iterated; instead, its value is set to the constant value at the beginning of a sweep and then left there for the entire duration.
 
 .. note::
-
    The constant value of a variable always incorporates the :ref:`type and units <general_concepts_output_variables_type>` of the variable.
 
 .. seealso:: :ref:`general_concepts_output_variables_smooth`
@@ -60,7 +58,6 @@ Each output variable has an order to which it belongs, defined by an integer val
 Variables which share the same order value are stepped together. Variables which have a greater order value are stepped more slowly (ie. they are on an outer loop of the iteration) relative to those which have a lesser order value.
 
 .. warning::
-
    In a single order, whichever variable has fewest values dictates how many values the other variables will have. Any excess values for the longer variables are silently truncated.
 
 For example, if variables ``A``, ``B``, ``C``, and ``D`` have orders of -5, 1, 1, and 10, respectively, then:
@@ -88,7 +85,6 @@ During a sweep, it is sometimes beneficial to avoid abruptly setting variables t
       At the end of a single iteration of an order, if that order was not the slowest-stepping outer loop order, the variable is smoothly swept back to its initial value so that it can be stepped over again.
 
 .. note::
-
    Each smooth setting step is always 100 ms in duration.
 
 .. seealso:: :ref:`variable_config`

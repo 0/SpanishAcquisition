@@ -7,10 +7,17 @@ Device configuration.
 """
 
 
+cached_tree = None
+
 def device_tree():
 	"""
 	Build a device tree from the existing devices.
 	"""
+
+	global cached_tree
+
+	if cached_tree is not None:
+		return cached_tree
 
 	from .. import devices
 
@@ -43,7 +50,8 @@ def device_tree():
 
 		tree[manufacturer.name] = subtree
 
-	return tree
+	cached_tree = tree
+	return cached_tree
 
 
 class ConnectionError(Exception):

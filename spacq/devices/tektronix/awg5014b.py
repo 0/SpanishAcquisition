@@ -26,9 +26,9 @@ class Marker(AbstractSubdevice):
 		AbstractSubdevice._setup(self)
 
 		# Resources.
-		read_write_float = ['delay', 'high', 'low']
-		for name in read_write_float:
-			self.resources[name] = Resource(self, name, name, converter=float)
+		read_write = ['delay', 'high', 'low']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
 
 		self.resources['delay'].units = 's'
 		self.resources['high'].units = 'V'

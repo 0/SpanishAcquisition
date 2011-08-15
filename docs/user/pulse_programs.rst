@@ -116,7 +116,12 @@ A pulse program consists of several statements separated by line breaks or semic
       * **acquisition trigger**: A statement of the form ``acquire`` signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.
 
    **Loop**
-      A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to non-trigger commands and loops.
+      A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to non-trigger commands and loops. Loops are of the form::
+
+         times <integer> {
+            <statement>
+            ...
+         }
 
 Comments
 ========
@@ -130,20 +135,90 @@ is completely identical to::
 
    (p1 d1 p1):f1
 
+Parameterization
+****************
+
+Any values which are not assigned in the body of the pulse program must be filled in at a later time. For example::
+
+   pulse p1 = {amplitude: 1 V, shape: 'square'}
+   output f1
+
+   p1:f1
+
+is the entirety of valid pulse program, but **p1.length** is treated as an external parameter and must be known in order to generate the waveform for output **f1**.
+
+.. seealso:: :ref:`pulse_program_configuration`
+
 Examples
 ********
+
+The following examples all use a sampling rate of 1 GHz.
 
 Single waveform
 ===============
 
-.. TODO
+::
+
+   delay d1 = 5 ns
+   int bumps
+   pulse p1 = {amplitude: 1 V, shape: 'square'}
+   output f1
+
+   p1.length = 10 ns
+
+   3 ns
+   p1:f1
+
+   times bumps {
+       d1
+       (p1 1 ns p1):f1
+   }
+
+If the parameter **bumps** is filled in with the value **3**, the following waveform is generated:
+
+.. figure:: pulse_programs_01.*
+   :alt: Single waveform.
 
 Multiple waveforms
 ==================
 
-.. TODO
+::
+
+   pulse p1 = {amplitude: 0.5 V, length: 10 ns, shape: 'non-square'}
+   pulse p2 = {amplitude: -1.5 V, length: 5 ns, shape: 'non-square'}
+   output f1, f2
+
+   1 ns
+   p1:f1
+   1 ns
+   (p1 2 ns p1):f1 (p2 3 ns p2):f2
+   5 ns
+   p2:f2
+   8 ns
+
+If the file "non-square" contains the data "-0.1, 0.0, 0.1, 0.2, 0.4, 0.8, 1.6", the following pair of waveforms is generated:
+
+.. figure:: pulse_programs_02.*
+   :alt: One of multiple waveforms.
+
+.. figure:: pulse_programs_03.*
+   :alt: Another of multiple waveforms.
 
 With acquisition
 ================
 
-.. TODO
+::
+
+   pulse p1 = {amplitude: 0.25 V, length: 15 ns, shape: 'square'}
+   output markered
+
+   20 ns
+   p1:markered
+   acquire
+   p1:markered
+   20 ns
+
+If the acquisition marker is set up to be marker **2** on output **markered**, the following output waveform and marker waveform are generated:
+
+.. figure:: pulse_programs_04.*
+   :alt: A waveform with an acquisition trigger.

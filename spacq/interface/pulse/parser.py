@@ -1,7 +1,6 @@
 from pyparsing import (alphanums, alphas, delimitedList, nums, CaselessLiteral, Combine,
 		Forward, Keyword, LineEnd, Literal, OneOrMore, Optional, ParseBaseException, ParseException,
 		ParserElement, QuotedString, SkipTo, StringEnd, Suppress, Word, ZeroOrMore)
-import re
 
 from ..units import Quantity
 from .tool.box import find_location, format_error
@@ -39,7 +38,14 @@ def read_quantity(s, loc, toks):
 		raise ParseException(s, loc, e)
 
 
-def Parser():
+def Parser(raw=False):
+	"""
+	Create a pulse program parser.
+
+	If raw is True, returns the pyparsing parser object.
+	Otherwise, returns a function which takes a string and returns an AST.
+	"""
+
 	old_whitespace = ParserElement.DEFAULT_WHITE_CHARS
 
 	try:
@@ -51,17 +57,19 @@ def Parser():
 		DELAY, INT, OUTPUT, PULSE = Keyword('delay'), Keyword('int'), Keyword('output'), Keyword('pulse')
 
 		## Syntax.
-		ACQUIRE = Keyword('acquire').suppress()
-		TERMINATOR = (LineEnd() | ';').suppress()
-		TIMES = Keyword('times').suppress()
+		ACQUIRE = Keyword('acquire').suppress().setName('acquire')
+		TERMINATOR = (LineEnd() | ';').suppress().setName('terminator')
+		TIMES = Keyword('times').suppress().setName('times')
 
 		# Values.
 		identifier = Word(alphas + '_', alphanums + '_')
+		identifier.setName('identifier')
 
 		## Numbers.
 		### Integer.
 		unparsed_inum = Word('+-' + nums, nums)
 		inum = unparsed_inum.copy().setParseAction(lambda x: int(x[0]))
+		inum.setName('inum')
 
 		### Floating point.
 		dot = Literal('.')
@@ -72,6 +80,7 @@ def Parser():
 
 		fnum = Combine(unparsed_inum + (fractional_part + Optional(exponent_part) | exponent_part))
 		fnum.setParseAction(lambda x: float(x[0]))
+		fnum.setName('fnum')
 
 		number = fnum | inum
 
@@ -80,6 +89,7 @@ def Parser():
 		unit_symbol = Combine(Word(alphas.replace('E', '').replace('e', ''), alphas) + Optional(Word(nums)))
 		unit_symbols = delimitedList(unit_symbol, delim='.', combine=True)
 		quantity = (number + unit_symbols).setParseAction(read_quantity)
+		quantity.setName('quantity')
 
 		## Strings.
 		string = QuotedString(r'"', escChar=r'\\') | QuotedString(r"'", escChar=r'\\')
@@ -139,14 +149,17 @@ def Parser():
 		comment = Literal('#') + SkipTo(LineEnd())
 		parser.ignore(comment)
 
-		def parseString(s):
-			s = s.expandtabs()
+		if raw:
+			return parser
+		else:
+			def parseString(s):
+				s = s.expandtabs()
 
-			try:
-				return parser.parseString(s)[0]
-			except ParseBaseException as e:
-				raise PulseSyntaxError([format_error(e.msg, *find_location(s, e.loc))])
+				try:
+					return parser.parseString(s)[0]
+				except ParseBaseException as e:
+					raise PulseSyntaxError([format_error(e.msg, *find_location(s, e.loc))])
 
-		return parseString
+			return parseString
 	finally:
 		ParserElement.setDefaultWhitespaceChars(old_whitespace)

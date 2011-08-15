@@ -743,9 +743,15 @@ class PulseProgramFrame(wx.Frame):
 			self.global_store.pulse_program = prog
 
 	def OnMenuFileClose(self, evt=None):
+		if self.global_store.pulse_program is None:
+			return
+
 		self.pulse_panel.OnClose()
 
 		self.Title = self.default_title
+
+		for label in self.global_store.pulse_program.resource_labels.values():
+			del self.global_store.resources[label]
 
 		self.global_store.pulse_program = None
 

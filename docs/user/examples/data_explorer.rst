@@ -14,4 +14,4 @@ Plotting options
 
 Combinations of scalar columns can be plotted in two or three dimensions, with the "Curve...", "Colormapped...", and "Surface..." menu options. These correspond to the :ref:`two_dimensional_plot`, :ref:`colormapped_plot`, and :ref:`surface_plot`.
 
-List columns can be plotted in three dimensions with the "Waveforms..." menu option, which corresponds to the :ref:`surface_plot` in "waveform" mode.
+List columns can be plotted in three dimensions with the "Waveforms..." menu option, which corresponds to the :ref:`surface_plot` in :ref:`surface_plot_waveform`.

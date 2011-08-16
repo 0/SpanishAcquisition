@@ -8,6 +8,7 @@ import wx
 
 from spacq import VERSION
 from spacq.gui.display.plot.static.delegator import formats, available_formats
+from spacq.gui.display.table.filter import FilterListDialog
 from spacq.gui.display.table.generic import TabularDisplayFrame
 from spacq.gui.tool.box import load_csv, MessageDialog
 
@@ -16,6 +17,8 @@ class DataExplorerApp(wx.App):
 	default_title = 'Data Explorer'
 
 	def OnInit(self):
+		self.filter_dialog = None
+
 		# Frames.
 		self.csv_frame = TabularDisplayFrame(None, title=self.default_title)
 
@@ -31,6 +34,12 @@ class DataExplorerApp(wx.App):
 
 		item = menu.Append(wx.ID_CLOSE, '&Close')
 		self.Bind(wx.EVT_MENU, self.OnMenuFileClose, item)
+
+		menu.AppendSeparator()
+
+		self.filter_menu_item = menu.Append(wx.ID_ANY, '&Filters...')
+		self.filter_menu_item.Enable(False)
+		self.Bind(wx.EVT_MENU, self.OnMenuFileFilters, self.filter_menu_item)
 
 		menu.AppendSeparator()
 
@@ -128,11 +137,29 @@ class DataExplorerApp(wx.App):
 
 		self.update_plot_menus(len(self.csv_frame.display_panel) > 0)
 
+		self.filter_menu_item.Enable(True)
+
 	def OnMenuFileClose(self, evt=None):
 		self.csv_frame.display_panel.SetValue([], [])
 		self.csv_frame.Title = self.default_title
 
 		self.update_plot_menus(False)
+
+		self.filter_menu_item.Enable(False)
+
+		if self.filter_dialog is not None:
+			self.filter_dialog.Close()
+
+	def OnMenuFileFilters(self, evt=None):
+		def close_callback():
+			self.filter_dialog = None
+
+		if self.filter_dialog is None:
+			self.filter_dialog = FilterListDialog(self.csv_frame, self.csv_frame.display_panel.table,
+					close_callback)
+			self.filter_dialog.Show()
+
+		self.filter_dialog.Raise()
 
 	def OnMenuFileExit(self, evt=None):
 		if self.csv_frame:

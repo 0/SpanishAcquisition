@@ -1,4 +1,4 @@
-from numpy import array, zeros
+from numpy import array, compress, zeros
 import wx
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 
@@ -53,9 +53,45 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 	def reset(self):
 		self.headings = []
 		self.data = array([])
+		self.filtered_data = None
 		self.display_data = array([])
 
 		self.types = []
+
+	def refresh_with_values(self, data):
+		self.ItemCount = len(data)
+
+		if self.ItemCount > 0:
+			self.display_data = zeros(data.shape, dtype='|S{0}'.format(self.max_value_len))
+
+			for i, _ in enumerate(self.headings):
+				# Truncate for display.
+				self.display_data[:,i] = [x[:self.max_value_len] for x in data[:,i]]
+
+		self.Refresh()
+
+	def apply_filter(self, f, afresh=False):
+		"""
+		Set the data to be the old data, along with the application of a filter.
+
+		f is a function of two parameters: the index of the row and the row itself.
+		f must return True if the row is to be kept and False otherwise.
+
+		If afresh is True, all old filtered data is discarded.
+		Otherwise, a new filter can be quickly applied.
+		"""
+
+		if afresh:
+			self.filtered_data = None
+
+		if self.filtered_data is not None:
+			original_set = self.filtered_data
+		else:
+			original_set = self.data
+
+		self.filtered_data = compress([f(i, x) for i, x in enumerate(original_set)], original_set, axis=0)
+
+		self.refresh_with_values(self.filtered_data)
 
 	def GetValue(self, types=None):
 		# Get all types by default.
@@ -67,7 +103,12 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		# Find column indices of the correct type.
 		idxs = [i for i, t in enumerate(self.types) if t in types]
 
-		return ([self.headings[i] for i in idxs], self.data[:,idxs], [self.types[i] for i in idxs])
+		if self.filtered_data is not None:
+			data = self.filtered_data
+		else:
+			data = self.data
+
+		return ([self.headings[i] for i in idxs], data[:,idxs], [self.types[i] for i in idxs])
 
 	def SetValue(self, headings, data):
 		"""
@@ -81,11 +122,9 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 		self.headings = headings
 		self.data = data
 
-		self.ItemCount = len(data)
+		self.refresh_with_values(self.data)
 
 		if self.ItemCount > 0:
-			self.display_data = zeros(self.data.shape, dtype='|S{0}'.format(self.max_value_len))
-
 			width, height = self.GetSize()
 			# Give some room for the scrollbar.
 			col_width = (width - 50) / len(self.headings)
@@ -93,13 +132,8 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 			for i, heading in enumerate(self.headings):
 				self.InsertColumn(i, heading, width=col_width)
 
-				# Truncate for display.
-				self.display_data[:,i] = [x[:self.max_value_len] for x in self.data[:,i]]
-
-				type = self.find_type(self.data[0,i])
+				type = self.find_type(data[0,i])
 				self.types.append(type)
-
-		self.Refresh()
 
 	def OnGetItemText(self, item, col):
 		"""

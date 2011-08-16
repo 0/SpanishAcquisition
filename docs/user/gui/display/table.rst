@@ -19,3 +19,8 @@ Lists are of the form::
    [(number, number), (number, number), ...]
 
 This is the format used by the :ref:`data_capture` panel for export of list data. Therefore, the exported list data is identified as special by the tabular display panel.
+
+Data filters
+************
+
+.. TODO

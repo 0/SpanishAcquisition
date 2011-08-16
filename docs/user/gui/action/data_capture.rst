@@ -44,11 +44,11 @@ The data capture dialog controls the sweep itself.
 Export format
 *************
 
-The export is done to a regular comma-separated values (CSV) file. The first row contains the column headings (potentially with units) as gathered from the variable and measurement names. The first column is always titled "__time__ (s)" and contains the approximate time of acquisition for each row, relative to the first row of values.
+The export is done to a regular comma-separated values (CSV) file. The first row contains the column headings (potentially with units) as gathered from the variable and measurement names. The first column is always titled "Time (s)" and contains the approximate time of acquisition for each row, relative to the first row of values.
 
 For example, an exported file may begin thusly::
 
-   __time__ (s),field (mT),port out (V),Pulses (V),port in (V)
+   Time (s),field (mT),port out (V),Pulses (V),port in (V)
    0,1.0,-5.0,"[(0.0, -0.078469520103761514), ...]",-0.0100000004
    0.25141787529,1.0,-4.375,"[(0.0, -0.11684596017395288), ...]",-0.0100000008
 

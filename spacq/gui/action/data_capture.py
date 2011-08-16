@@ -498,7 +498,7 @@ class DataCapturePanel(wx.Panel):
 			self.last_file_name.Value = file_path
 
 			# Write the header.
-			export_csv.writerow(['__time__ (s)'] +
+			export_csv.writerow(['Time (s)'] +
 					['{0.name} ({0.units})'.format(var) if var.units is not None else var.name
 							for var in flatten(output_variables)] +
 					['{0.name} ({1})'.format(var, units) if units is not None else var.name

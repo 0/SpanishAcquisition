@@ -134,7 +134,6 @@ class TabularDisplayPanel(wx.Panel):
 		Import the given CSV data into the table.
 
 		If has_header is True, the first row is treated specially.
-		If the first header is "__time__", it is converted to relative values.
 		"""
 
 		if has_header:

@@ -168,8 +168,8 @@ class ListLiveViewPanel(wx.Panel):
 		Redraw the plot.
 		"""
 
-		# Wait for at least two lines.
-		if self._lines is None or len(self._lines) < 2:
+		# Wait for at least one line.
+		if self._lines is None:
 			self.plot.surface_data = None
 		else:
 			self.plot.surface_data = (self._lines, self.time_range, (1, len(self._lines)))

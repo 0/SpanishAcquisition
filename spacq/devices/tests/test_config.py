@@ -1,7 +1,6 @@
 from nose.tools import eq_
 from unittest import main, TestCase
 
-from spacq.tests.tool.box import DeviceServerTestCase
 from ..mock.mock_abstract_device import MockAbstractDevice
 
 from .. import config
@@ -38,20 +37,11 @@ class DeviceTreeTest(TestCase):
 		eq_(awg['mock'], MockAWG5014B)
 
 
-class DeviceConfigTest(DeviceServerTestCase):
-	def obtain_device(self):
-		"""
-		Get a mock device with which to test.
-		"""
-
-		return DeviceServerTestCase.obtain_device(self, required_keys=['has_mock'])
-
+class DeviceConfigTest(TestCase):
 	def testMockConnect(self):
 		"""
 		Connect to a mock device.
 		"""
-
-		dev = self.obtain_device()
 
 		cfg = config.DeviceConfig(name='Test')
 
@@ -59,8 +49,9 @@ class DeviceConfigTest(DeviceServerTestCase):
 		cfg.address_mode = cfg.address_modes.ethernet
 		cfg.ip_address = '127.0.0.1'
 
-		cfg.manufacturer = dev['manufacturer']
-		cfg.model = dev['model']
+		tree = config.device_tree()
+		cfg.manufacturer = tree.keys()[-1]
+		cfg.model = tree[cfg.manufacturer].keys()[-1]
 		cfg.mock = True
 
 		cfg.connect()

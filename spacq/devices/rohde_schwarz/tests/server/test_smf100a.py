@@ -9,7 +9,8 @@ from ... import smf100a
 
 class SMF100ATest(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, impl=smf100a.SMF100A, model_name='SMF100A')
+		return DeviceServerTestCase.obtain_device(self, impl=smf100a.SMF100A,
+				manufacturer='Rohde & Schwarz', model='SMF100A')
 
 	def testScenario(self):
 		"""

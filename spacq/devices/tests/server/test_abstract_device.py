@@ -8,6 +8,20 @@ from ... import abstract_device
 
 
 class AbstractDeviceTest(TestCase):
+	def obtain_device(self, device):
+		"""
+		If the given device description is an Ethernet or GPIB device, return a connected device object.
+		"""
+
+		if ('address' not in device and 'ip_address' not in device['address'] and
+				'gpib_pad' not in device['address']):
+			return None
+
+		try:
+			return abstract_device.AbstractDevice(**device['address'])
+		except Exception:
+			return None
+
 	def testAskRaw(self):
 		"""
 		Converse briefly with real devices.
@@ -17,14 +31,9 @@ class AbstractDeviceTest(TestCase):
 
 		# Try all devices to which a connection can be established.
 		for name, device in tc['devices'].items():
-			if not (name.endswith('.eth') or name.endswith('.gpib')):
-				continue
-			if not 'address' in device:
-				continue
+			dev = self.obtain_device(device)
 
-			try:
-				dev = abstract_device.AbstractDevice(**device['address'])
-			except:
+			if dev is None:
 				continue
 
 			msg = dev.ask_raw('*idn?')
@@ -42,14 +51,9 @@ class AbstractDeviceTest(TestCase):
 
 		# Use any device.
 		for name, device in tc['devices'].items():
-			if not (name.endswith('.eth') or name.endswith('.gpib')):
-				continue
-			if not 'address' in device:
-				continue
+			dev = self.obtain_device(device)
 
-			try:
-				dev = abstract_device.AbstractDevice(**device['address'])
-			except:
+			if dev is None:
 				continue
 
 			# Value to check against.
@@ -86,14 +90,9 @@ class AbstractDeviceTest(TestCase):
 
 		# Use any device.
 		for name, device in tc['devices'].items():
-			if not (name.endswith('.eth') or name.endswith('.gpib')):
-				continue
-			if not 'address' in device:
-				continue
+			dev = self.obtain_device(device)
 
-			try:
-				dev = abstract_device.AbstractDevice(**device['address'])
-			except:
+			if dev is None:
 				continue
 
 			dev.idn

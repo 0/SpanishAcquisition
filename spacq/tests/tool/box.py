@@ -47,30 +47,28 @@ class DeviceServerTestCase(TestCase):
 	Class for a device server test.
 	"""
 
-	def obtain_device(self, impl=None, model_name=None, required_keys=None):
+	mock = False
+
+	def obtain_device(self, impl=None, manufacturer=None, model=None):
 		"""
 		Try to get a handle for a physical device.
 		"""
 
-		all_devices = tc['devices'].items()
+		if self.mock:
+			return impl()
 
-		if model_name is not None:
-			potential_devices = (a for (n, a) in all_devices if n.startswith('{0}.'.format(model_name)))
-		else:
-			potential_devices = (a for (n, a) in all_devices)
+		all_devices = tc['devices'].values()
+
+		if manufacturer is None or model is None:
+			if impl is not None:
+				return impl(**all_devices[-1]['address'])
+			else:
+				return all_devices[-1]
+
+		potential_devices = [dev for dev in all_devices if 'address' in dev and
+				dev['manufacturer'] == manufacturer and dev['model'] == model]
 
 		for device in potential_devices:
-			valid = True
-
-			if required_keys is not None:
-				for required_key in required_keys:
-					if required_key not in device:
-						valid = False
-						break
-
-			if not valid:
-				continue
-
 			try:
 				if impl is not None:
 					return impl(**device['address'])

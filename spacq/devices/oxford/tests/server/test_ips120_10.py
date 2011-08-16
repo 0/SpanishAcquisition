@@ -10,7 +10,8 @@ from ... import ips120_10
 
 class IPS120_10Test(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, impl=ips120_10.IPS120_10, model_name='IPS120_10')
+		return DeviceServerTestCase.obtain_device(self, impl=ips120_10.IPS120_10,
+				manufacturer='Oxford Instruments', model='IPS120_10')
 
 	def testScenario(self):
 		"""

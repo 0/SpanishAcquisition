@@ -9,7 +9,8 @@ from ... import abc1234
 
 class ABC1234Test(DeviceServerTestCase):
 	def obtain_device(self):
-		return DeviceServerTestCase.obtain_device(self, impl=abc1234.ABC1234, model_name='ABC1234')
+		return DeviceServerTestCase.obtain_device(self, impl=abc1234.ABC1234,
+				manufacturer='Sample', model='ABC1234')
 
 	def testSetting(self):
 		"""

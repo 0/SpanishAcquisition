@@ -14,7 +14,7 @@ class DeviceConfigTest(DeviceServerTestCase):
 		Get a real device with which to test.
 		"""
 
-		return DeviceServerTestCase.obtain_device(self, required_keys=['address', 'manufacturer', 'model'])
+		return DeviceServerTestCase.obtain_device(self)
 
 	def populate_config(self, cfg, addr):
 		"""

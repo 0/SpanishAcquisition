@@ -28,7 +28,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
    8. The const value of a variable is that which it is assumed to take on at rest. The value does nothing on its own, but is used in conjunction with other settings and actions.
 
       The units associated with a variable apply to the const value as well.
-   9. Clicking "Add" creates a blank variables. Clicking "Remove" permanently removes all selected variables.
+   9. Clicking "Add" creates a blank variable. Clicking "Remove" permanently removes all selected variables.
    10. The variable settings can be saved to and loaded from the disk. All the configured variables (both enabled and not) are saved at the same time, and existing variables are overwritten by any loaded variables.
 
 To select a variable, click on its row. To select multiple variables, hold down the "ctrl" key while clicking. When several variables are selected, some actions (such as clicking "Remove" or pressing the space bar) act on all of them.

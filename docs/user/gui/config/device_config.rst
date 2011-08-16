@@ -2,14 +2,33 @@
 Device configuration
 ####################
 
-The device configuration dialog is used to configure :ref:`devices <general_concepts_devices>` for use with an application.
+Device list
+***********
+
+The device list shows all the :ref:`devices <general_concepts_devices>` configured in an application.
+
+.. figure:: device_config_01.*
+   :alt: Device list.
+
+   ..
+
+   1. A unique label to identify the device.
+   2. The connection status. Double-clicking in this column brings up the device configuration dialog for the device.
+   3. Graphical configuration. If a device has this option, "Setup..." appears in this column; double-clicking it opens up the device-specific graphical configuration.
+   4. The status of any long-running tasks.
+   5. Clicking "Add" creates a blank device. Clicking "Remove" permanently removes all selected devices.
+
+Device configuration dialog
+***************************
+
+The device configuration dialog is used to configure an individual :ref:`device <general_concepts_devices>` for use with an application.
 
 .. _device_config_connection:
 
 Device connection
-*****************
+=================
 
-.. figure:: device_config_01.*
+.. figure:: device_config_02.*
    :alt: Device configuration.
 
    ..
@@ -39,9 +58,9 @@ Device connection
 .. _device_config_resources:
 
 Device resources
-****************
+================
 
-.. figure:: device_config_02.*
+.. figure:: device_config_03.*
    :alt: Resource configuration.
 
    ..

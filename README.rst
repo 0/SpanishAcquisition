@@ -4,22 +4,6 @@ Spanish Acquisition
 
 Spanish Acquisition is a Python package for interfacing with test & measurement devices (primarily SCPI over Ethernet and GPIB) and building user interfaces for running experiments.
 
-Documentation
-=============
-
-The docs can be built with::
-
-   make -C docs html
-
-This requires `Sphinx <http://sphinx.pocoo.org/>`_, and the result can be found at ``docs/_build/html/index.html``.
-
-Examples
-========
-
-Examples are found in ``examples/``. To run an example::
-
-   python -m examples.<name>
-
 Tests
 =====
 

@@ -9,7 +9,7 @@ Data capture panel
 
 The data capture panel controls the verification of the setup, as well as the export of the acquired data.
 
-.. figure:: data_capture_01.*
+.. figure:: data_capture_panel.*
    :alt: Data capture panel.
 
    ..
@@ -25,7 +25,7 @@ Data capture dialog
 
 The data capture dialog controls the sweep itself.
 
-.. figure:: data_capture_02.*
+.. figure:: data_capture_sweep.*
    :alt: Data capture dialog in continuous mode.
 
    ..

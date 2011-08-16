@@ -175,7 +175,7 @@ Single waveform
 
 If the parameter **bumps** is filled in with the value **3**, the following waveform is generated:
 
-.. figure:: pulse_programs_01.*
+.. figure:: pulse_programs_single.*
    :alt: Single waveform.
 
 Multiple waveforms
@@ -197,10 +197,10 @@ Multiple waveforms
 
 If the file "non-square" contains the data "-0.1, 0.0, 0.1, 0.2, 0.4, 0.8, 1.6", the following pair of waveforms is generated:
 
-.. figure:: pulse_programs_02.*
+.. figure:: pulse_programs_multiple_01.*
    :alt: One of multiple waveforms.
 
-.. figure:: pulse_programs_03.*
+.. figure:: pulse_programs_multiple_02.*
    :alt: Another of multiple waveforms.
 
 With acquisition
@@ -219,5 +219,5 @@ With acquisition
 
 If the acquisition marker is set up to be marker **2** on output **markered**, the following output waveform and marker waveform are generated:
 
-.. figure:: pulse_programs_04.*
+.. figure:: pulse_programs_acquisition.*
    :alt: A waveform with an acquisition trigger.

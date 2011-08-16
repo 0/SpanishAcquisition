@@ -6,7 +6,7 @@ Colormapped plot
 
 The colormapped plot display allows for the display of one dimension in the color space versus two other dimensions in the plane.
 
-.. figure:: colormapped_01.*
+.. figure:: colormapped_normal.*
    :alt: Colormapped plot.
 
 Pan & zoom
@@ -18,5 +18,5 @@ In addition to zooming within the plane, the colormapped plot allows for zooming
 
 In order to hilight a particular value region, one can also click the right mouse button on the legend and drag along the legend. This will select the region to be hilighted; everything outside this region will be dimmed:
 
-.. figure:: colormapped_02.*
+.. figure:: colormapped_hilighted.*
    :alt: Highlighted colormapped plot.

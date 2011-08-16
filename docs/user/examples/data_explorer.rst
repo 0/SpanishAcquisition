@@ -4,7 +4,7 @@ Data Explorer
 
 The Data Explorer is an application that allows the user to view arbitrary CSV files, with the option to display some values in graphical form.
 
-.. figure:: data_explorer_01.*
+.. figure:: data_explorer_menu.*
    :alt: Data explorer with plot menu.
 
 The data explorer is composed of a :ref:`tabular_display` panel, along with a menu to load and plot data.

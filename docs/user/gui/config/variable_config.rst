@@ -11,7 +11,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
 
 .. _variable_config_figure:
 
-.. figure:: variable_config_01.*
+.. figure:: variable_config_list.*
    :alt: Variable configuration.
 
    ..
@@ -80,7 +80,7 @@ Variable editor dialog
 
 The variable editor dialog is used to configure the values over which a variable is stepped. It is opened by double-clicking in the "Values" column of the variable.
 
-.. figure:: variable_config_02.*
+.. figure:: variable_config_editor.*
    :alt: Variable editor.
 
    ..

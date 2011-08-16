@@ -6,7 +6,7 @@ Surface plot
 
 The colormapped plot display allows for the display of one dimension in the vertical direction versus two other dimensions in the plane.
 
-.. figure:: surface_01.*
+.. figure:: surface_normal.*
    :alt: Surface plot.
 
 Pan & zoom
@@ -23,5 +23,5 @@ Waveform style
 
 The surface plot supports an alternate style suited for the display of discrete waveforms rather than of a two-dimensional sweep.
 
-.. figure:: surface_02.*
+.. figure:: surface_waveform.*
    :alt: Waveform-style surface plot.

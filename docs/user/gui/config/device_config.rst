@@ -7,7 +7,7 @@ Device list
 
 The device list shows all the :ref:`devices <general_concepts_devices>` configured in an application.
 
-.. figure:: device_config_01.*
+.. figure:: device_config_list.*
    :alt: Device list.
 
    ..
@@ -28,8 +28,8 @@ The device configuration dialog is used to configure an individual :ref:`device 
 Device connection
 =================
 
-.. figure:: device_config_02.*
-   :alt: Device configuration.
+.. figure:: device_config_connection.*
+   :alt: Device connection configuration.
 
    ..
 
@@ -60,8 +60,8 @@ Device connection
 Device resources
 ================
 
-.. figure:: device_config_03.*
-   :alt: Resource configuration.
+.. figure:: device_config_resources.*
+   :alt: Device resource configuration.
 
    ..
 

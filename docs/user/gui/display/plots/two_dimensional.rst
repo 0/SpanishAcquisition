@@ -6,8 +6,8 @@ Two-dimensional plot
 
 The two-dimensional plot allows for the display of one dimension versus another dimension, both in a single plane.
 
-.. figure:: two_dimensional_01.*
-   :alt: Colormapped plot.
+.. figure:: two_dimensional.*
+   :alt: Two-dimensional curve.
 
 .. _two_dimensional_plot_pan_zoom:
 

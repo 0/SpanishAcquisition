@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Variable configuration &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Display" href="../display/index.html" />
+    <link rel="prev" title="Pulse program configuration" href="pulse_program_config.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Variable configuration</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="pulse_program_config.html">Pulse program configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../display/index.html">Display</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="variable-configuration">
+<span id="variable-config"></span><h1>Variable configuration<a class="headerlink" href="#variable-configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="variable-configuration-panel">
+<h2>Variable configuration panel<a class="headerlink" href="#variable-configuration-panel" title="Permalink to this headline">¶</a></h2>
+<p>The variable configuration panel is used to set up <a class="reference internal" href="../../general_concepts/variables.html#general-concepts-output-variables"><em>output variables</em></a> for an application.</p>
+<div class="figure" id="variable-config-figure">
+<img alt="Variable configuration." src="../../../_images/variable_config_list.png" />
+<div class="legend">
+<ol class="arabic">
+<li><p class="first">The &#8220;enabled&#8221; checkbox. Variables which do not have this checked (such as <strong>gate 3</strong>) effectively do not exist; this is useful for temporarily disabling variables.</p>
+</li>
+<li><p class="first">A unique label to identify the variable. This name appears, for example, as a column heading when capturing data.</p>
+</li>
+<li><p class="first">The order number of variables is used to group them during the sweep. <strong>gate 1</strong> and <strong>gate 4</strong> have the same order, so would be stepped together in the inner loop <a class="footnote-reference" href="#inner-loop-order" id="id1">[1]</a> ; <strong>magnetic field</strong> has a higher order number, and so will be stepped alone in the outer loop.</p>
+</li>
+<li><p class="first">The resource label for the resource to which to write the values. All the resources provided must be writable. If a resource is not provided (such as with <strong>gate 4</strong>), the variable is still stepped in the usual fashion, but its values are discarded.</p>
+</li>
+<li><p class="first">The values over which the variable will be stepped. If there are too many values, some are omitted from the display. The symbols on either side of the values specify whether that side is set smoothly: &#8220;(&#8221; and &#8221;)&#8221; if smoothly (as for <strong>gate 1</strong>); &#8220;[&#8221; and &#8220;]&#8221; if not (as for the other variables).</p>
+<p>If there are any units associated with a variable, they are displayed after the values.</p>
+</li>
+<li><p class="first">For each step of a variable, after writing the value to the resource, there is a delay of at least the wait time. In each order, the delay for all variables is the longest of the wait times in that order. The effective wait time for <strong>gate 4</strong> is 200 ms.</p>
+</li>
+<li><p class="first">The &#8220;const&#8221; checkbox. Variables which have this checked (such as <strong>gate 2</strong>) are considered <em>constant</em> and are subject to special consideration in some scenarios.</p>
+</li>
+<li><p class="first">The const value of a variable is that which it is assumed to take on at rest. The value does nothing on its own, but is used in conjunction with other settings and actions.</p>
+<p>The units associated with a variable apply to the const value as well.</p>
+</li>
+<li><p class="first">Clicking &#8220;Add&#8221; creates a blank variable. Clicking &#8220;Remove&#8221; permanently removes all selected variables.</p>
+</li>
+<li><p class="first">The variable settings can be saved to and loaded from the disk. All the configured variables (both enabled and not) are saved at the same time, and existing variables are overwritten by any loaded variables.</p>
+</li>
+</ol>
+</div>
+</div>
+<p>To select a variable, click on its row. To select multiple variables, hold down the &#8220;ctrl&#8221; key while clicking. When several variables are selected, some actions (such as clicking &#8220;Remove&#8221; or pressing the space bar) act on all of them.</p>
+<div class="section" id="variable-sweep-example">
+<h3>Variable sweep example<a class="headerlink" href="#variable-sweep-example" title="Permalink to this headline">¶</a></h3>
+<p>The configuration shown <a class="reference internal" href="#variable-config-figure"><em>above</em></a> would result in the following actions during a sweep:</p>
+<ol class="arabic">
+<li><p class="first">Resource <strong>v1</strong> is smoothly stepped from -2.5 V to -5 V.</p>
+</li>
+<li><p class="first">The values are set (with each being written to the appropriate resource, if any):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="29%" />
+<col width="16%" />
+<col width="12%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head"><p class="first last">Constant order</p>
+</th>
+<th class="head"><p class="first last">Order 2</p>
+</th>
+<th class="head" colspan="3"><p class="first last">Order 1</p>
+</th>
+</tr>
+<tr><th class="head"><p class="first last">gate 2</p>
+</th>
+<th class="head"><p class="first last">magnetic field</p>
+</th>
+<th class="head"><p class="first last">gate 1</p>
+</th>
+<th class="head"><p class="first last">gate 3</p>
+</th>
+<th class="head"><p class="first last">gate 4</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><p class="first last">5.6 V</p>
+</td>
+<td><p class="first last">0.001 T</p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-4.375 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-2.5 V</p>
+</td>
+</tr>
+<tr><td colspan="5"><p class="first last">...</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-0.625 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">0.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">5.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last">0.002 T</p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-4.375 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-2.5 V</p>
+</td>
+</tr>
+<tr><td colspan="5"><p class="first last">...</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-0.625 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">0.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">5.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last">0.005 T</p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-5.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-4.375 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.75 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-2.5 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-3.125 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-1.25 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-2.5 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">0.0 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-1.875 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">1.25 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-1.25 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">2.5 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">-0.625 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">3.75 V</p>
+</td>
+</tr>
+<tr><td><p class="first last"></p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">0.0 V</p>
+</td>
+<td><p class="first last"></p>
+</td>
+<td><p class="first last">5.0 V</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Between steps of variables in order 2, if <strong>gate 1</strong> set to smoothly transition, resource <strong>v1</strong> is smoothly stepped from 0.0 V to -5.0 V.</p>
+</li>
+<li><p class="first">Resource <strong>v1</strong> is smoothly stepped from 0 V to -2.5 V.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="variable-editor-dialog">
+<h2>Variable editor dialog<a class="headerlink" href="#variable-editor-dialog" title="Permalink to this headline">¶</a></h2>
+<p>The variable editor dialog is used to configure the values over which a variable is stepped. It is opened by double-clicking in the &#8220;Values&#8221; column of the variable.</p>
+<div class="figure">
+<img alt="Variable editor." src="../../../_images/variable_config_editor.png" />
+<div class="legend">
+<ol class="arabic simple">
+<li>The value configuration is performed by using one of the available configuration panels.</li>
+<li><a class="reference internal" href="../../general_concepts/variables.html#general-concepts-output-variables-smooth"><em>Smooth setting</em></a> configuration.</li>
+<li><a class="reference internal" href="../../general_concepts/variables.html#general-concepts-output-variables-type"><em>Type and units</em></a> configuration.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="configuration-panels">
+<h3>Configuration panels<a class="headerlink" href="#configuration-panels" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="linear">
+<h4>Linear<a class="headerlink" href="#linear" title="Permalink to this headline">¶</a></h4>
+<p>A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are set to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.</p>
+</div>
+<div class="section" id="arbitrary">
+<h4>Arbitrary<a class="headerlink" href="#arbitrary" title="Permalink to this headline">¶</a></h4>
+<p>Values are provided directly as a sequence of comma-separated numbers (with ignored whitespace). For example, the input &#8220;1, 32 , -5,6.543,0,0 , 1&#8221; would result in the values: 1, 32, -5, 6.543, 0, 0, 1.</p>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="inner-loop-order" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>The user interface is organized so that <strong>gate 2</strong> and <strong>gate 3</strong> are still displayed alongside the other variables with order number 1. However, <strong>gate 2</strong> is set to const, and so will be in a separate virtual order, and <strong>gate 3</strong> is disabled, so will not participate at all.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="pulse_program_config.html">Pulse program configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../display/index.html">Display</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

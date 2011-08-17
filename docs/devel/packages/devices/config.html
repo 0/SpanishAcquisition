@@ -1,0 +1,117 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>config — Device configuration &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Devices" href="index.html" />
+    <link rel="next" title="GUI" href="../gui/index.html" />
+    <link rel="prev" title="abstract_device — Generic device interface" href="abstract_device.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>config — Device configuration</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="abstract_device.html"><tt class="docutils literal docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../gui/index.html">GUI</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="module-spacq.devices.config">
+<span id="config-device-configuration"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration<a class="headerlink" href="#module-spacq.devices.config" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="spacq.devices.config.ConnectionError">
+<em class="property">exception </em><tt class="descclassname">spacq.devices.config.</tt><tt class="descname">ConnectionError</tt><a class="headerlink" href="#spacq.devices.config.ConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unable to connect.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacq.devices.config.DeviceConfig">
+<em class="property">class </em><tt class="descclassname">spacq.devices.config.</tt><tt class="descname">DeviceConfig</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#spacq.devices.config.DeviceConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description for a device.</p>
+<dl class="method">
+<dt id="spacq.devices.config.DeviceConfig.connect">
+<tt class="descname">connect</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.config.DeviceConfig.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an instance of the implementation and connect to it.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spacq.devices.config.DeviceConfig.device">
+<tt class="descname">device</tt><a class="headerlink" href="#spacq.devices.config.DeviceConfig.device" title="Permalink to this definition">¶</a></dt>
+<dd><p>The connected device object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.config.DeviceConfig.diff_resources">
+<tt class="descname">diff_resources</tt><big>(</big><em>new</em><big>)</big><a class="headerlink" href="#spacq.devices.config.DeviceConfig.diff_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare the resources belonging to 2 DeviceConfig objects.</p>
+<dl class="docutils">
+<dt>The result is a tuple of:</dt>
+<dd>resources which appear
+resources which change
+resources which disappear</dd>
+</dl>
+<p>where all &#8220;resources&#8221; are resource labels.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="spacq.devices.config.device_tree">
+<tt class="descclassname">spacq.devices.config.</tt><tt class="descname">device_tree</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.config.device_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a device tree from the existing devices.</p>
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="abstract_device.html"><tt class="docutils literal docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../gui/index.html">GUI</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,87 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GUI &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Packages" href="../index.html" />
+    <link rel="next" title="global_store — GUI global store" href="global_store.html" />
+    <link rel="prev" title="config — Device configuration" href="../devices/config.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>GUI</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="../devices/config.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="global_store.html"><tt class="docutils literal docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="gui">
+<h1>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h1>
+<p>Tools for providing applications with a graphical user interface.</p>
+<div class="section" id="class-hierarchy">
+<h2>Class hierarchy<a class="headerlink" href="#class-hierarchy" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global_store.html"><tt class="docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tool_box.html"><tt class="docutils literal"><span class="pre">tool.box</span></tt> &#8212; GUI toolbox</a></li>
+</ul>
+</div>
+<p>The entire GUI framework is built on wxPython, so all widget classes ultimately inherit from a wxPython class, such as <tt class="xref py py-class docutils literal"><span class="pre">wx.Frame</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">wx.Panel</span></tt>, or <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt>.</p>
+<p>The <a class="reference internal" href="global_store.html#gui-global-store"><em>global store</em></a> provides a container for the <tt class="xref py py-mod docutils literal"><span class="pre">spacq</span></tt>-related global state for an entire application. It includes separate namespaces for devices, resources, and variables, as well as a single slot for a pulse program.</p>
+<p>The <a class="reference internal" href="tool_box.html#gui-tool-box"><em>GUI toolbox</em></a> provides several GUI primitives which appear frequently, such as a <a class="reference internal" href="tool_box.html#spacq.gui.tool.box.MessageDialog" title="spacq.gui.tool.box.MessageDialog"><tt class="xref py py-class docutils literal"><span class="pre">MessageDialog</span></tt></a> and functions for saving and loading Python-pickled and CSV files with a graphical dialog. It is recommended to use <a class="reference internal" href="tool_box.html#spacq.gui.tool.box.Dialog" title="spacq.gui.tool.box.Dialog"><tt class="xref py py-class docutils literal"><span class="pre">Dialog</span></tt></a> rather than <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt> directly, in order to simplify disposal.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="../devices/config.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="global_store.html"><tt class="docutils literal docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

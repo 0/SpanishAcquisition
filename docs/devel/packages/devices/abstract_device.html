@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>abstract_device — Generic device interface &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Devices" href="index.html" />
+    <link rel="next" title="config — Device configuration" href="config.html" />
+    <link rel="prev" title="Devices" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>abstract_device — Generic device interface</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Devices</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="config.html"><tt class="docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="module-spacq.devices.abstract_device">
+<span id="abstract-device-generic-device-interface"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface<a class="headerlink" href="#module-spacq.devices.abstract_device" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="spacq.devices.abstract_device.AbstractDevice">
+<em class="property">class </em><tt class="descclassname">spacq.devices.abstract_device.</tt><tt class="descname">AbstractDevice</tt><big>(</big><em>ip_address=None</em>, <em>gpib_board=0</em>, <em>gpib_pad=None</em>, <em>gpib_sad=0</em>, <em>usb_resource=None</em>, <em>autoconnect=True</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class for controlling devices which can be connected to either via Ethernet and PyVISA or GPIB and Linux GPIB.</p>
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.ask">
+<tt class="descname">ask</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write, then read.</p>
+<p>Supports multi-command.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.ask_raw">
+<tt class="descname">ask_raw</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.ask_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write, then read_raw.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the connection, if possible.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.connect">
+<tt class="descname">connect</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a connection to the device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.find_resource">
+<tt class="descname">find_resource</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.find_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Resource given a resource path spec.</p>
+<p>eg. (&#8216;subdevice A&#8217;, &#8216;subdevice B&#8217;, &#8216;resource C&#8217;) -&gt; Resource</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spacq.devices.abstract_device.AbstractDevice.idn">
+<tt class="descname">idn</tt><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.idn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask the device for identification.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.multi_command_start">
+<tt class="descname">multi_command_start</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.multi_command_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect further commands to a buffer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.multi_command_stop">
+<tt class="descname">multi_command_stop</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.multi_command_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop redirecting to a buffer, and send the buffered commands.</p>
+<p>Returns the results of queries if any were expected.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="spacq.devices.abstract_device.AbstractDevice.opc">
+<tt class="descname">opc</tt><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.opc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until the device is done.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.read">
+<tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read from the device, but strip terminating whitespace.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.read_raw">
+<tt class="descname">read_raw</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.read_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read everything the device has to say and return it exactly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spacq.devices.abstract_device.AbstractDevice.write">
+<tt class="descname">write</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractDevice.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to the device.</p>
+<p>Supports multi-command.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spacq.devices.abstract_device.AbstractSubdevice">
+<em class="property">class </em><tt class="descclassname">spacq.devices.abstract_device.</tt><tt class="descname">AbstractSubdevice</tt><big>(</big><em>device</em><big>)</big><a class="headerlink" href="#spacq.devices.abstract_device.AbstractSubdevice" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subdevice (eg. channel) of a hardware device.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="spacq.devices.abstract_device.DeviceNotFoundError">
+<em class="property">exception </em><tt class="descclassname">spacq.devices.abstract_device.</tt><tt class="descname">DeviceNotFoundError</tt><a class="headerlink" href="#spacq.devices.abstract_device.DeviceNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Failure to connect to a device.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="spacq.devices.abstract_device.DeviceTimeout">
+<em class="property">exception </em><tt class="descclassname">spacq.devices.abstract_device.</tt><tt class="descname">DeviceTimeout</tt><a class="headerlink" href="#spacq.devices.abstract_device.DeviceTimeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timeout on action.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spacq.devices.abstract_device.IbstaBits">
+<em class="property">class </em><tt class="descclassname">spacq.devices.abstract_device.</tt><tt class="descname">IbstaBits</tt><a class="headerlink" href="#spacq.devices.abstract_device.IbstaBits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Status bits (in ibsta) as reported by Linux GPIB.</p>
+</dd></dl>
+
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Devices</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="config.html"><tt class="docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

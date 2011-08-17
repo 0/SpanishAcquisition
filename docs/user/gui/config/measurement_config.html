@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Measurement configuration &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Pulse program configuration" href="pulse_program_config.html" />
+    <link rel="prev" title="Device configuration" href="device_config.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Measurement configuration</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="device_config.html">Device configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="pulse_program_config.html">Pulse program configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="measurement-configuration">
+<span id="measurement-config"></span><h1>Measurement configuration<a class="headerlink" href="#measurement-configuration" title="Permalink to this headline">¶</a></h1>
+<p>The measurement configuration dialogs are used to set up <a class="reference internal" href="../../general_concepts/variables.html#general-concepts-input-variables"><em>input variables</em></a> for an application.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the plots cannot be displayed (most likely due to a required plotting library not being installed), the plots and all plot-specific options will be omitted. However, the measurements can still be set up in the same way.</p>
+</div>
+<div class="section" id="scalar-measurement">
+<span id="measurement-config-scalar"></span><h2>Scalar measurement<a class="headerlink" href="#scalar-measurement" title="Permalink to this headline">¶</a></h2>
+<div class="figure">
+<img alt="Scalar measurement configuration." src="../../../_images/measurement_config_scalar.png" />
+<div class="legend">
+<ol class="arabic simple">
+<li>Whether the measurement should be used during a sweep.</li>
+<li>The label of the resource from which this measurement should acquire data.</li>
+<li>A unique label to identify the measurement. This name appears, for example, as a column heading when capturing data.</li>
+<li><a class="reference internal" href="#measurement-config-scalar-resource-scaling"><em>Resource scaling</em></a> dialog.</li>
+<li>Historical view of the measurement.</li>
+<li>The last value read from the resource.</li>
+<li>&#8220;Run&#8221; and &#8220;Pause&#8221; control the live-view when there is no sweep in progress. &#8220;Reset&#8221; clears the historical view.</li>
+<li><a class="reference internal" href="#measurement-config-scalar-plot-settings"><em>Plot settings</em></a> dialog.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="resource-scaling">
+<span id="measurement-config-scalar-resource-scaling"></span><h3>Resource scaling<a class="headerlink" href="#resource-scaling" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Scalar measurement scaling." src="../../../_images/measurement_config_scaling.png" />
+</div>
+<p>The resource used for the measurement is scaled according to the formula:</p>
+<div class="highlight-python"><pre>{new value} = {linear scale} * {old value} * 10 ^ {exponential scale} + {offset}</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This scaling affects the <em>recorded</em> and <em>exported</em> values as well as the displayed values.</p>
+</div>
+</div>
+<div class="section" id="plot-settings">
+<span id="measurement-config-scalar-plot-settings"></span><h3>Plot settings<a class="headerlink" href="#plot-settings" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Scalar measurement plot settings." src="../../../_images/measurement_config_scalar_settings.png" />
+<div class="legend">
+<ul>
+<li><p class="first">Enabled: Whether the plot should be updated at all.</p>
+</li>
+<li><p class="first">Capture</p>
+<ul class="simple">
+<li>Points: The number of historical values to display. The maximum value is 10,000.</li>
+<li>Delay: In live-view mode, the delay between successive acquisitions. The minimum value is 200 ms.</li>
+</ul>
+</li>
+<li><p class="first">Axes</p>
+<ul>
+<li><p class="first">x</p>
+<ul class="simple">
+<li>Autofit: Whether to automatically re-scale the x axis as values change.</li>
+<li>Value: The unit (time or data point number) along the x axis.</li>
+<li>Mode: Whether to use relative or absolute values.</li>
+</ul>
+</li>
+<li><p class="first">y</p>
+<ul>
+<li><p class="first">Autofit: Whether to automatically re-scale the y axis as values change.</p>
+</li>
+<li><p class="first">Conversion</p>
+<ul>
+<li><p class="first">Exp. scale: The incoming value is scaled according to the formula:</p>
+<div class="highlight-python"><pre>{new value} = {old value} * 10 ^ {exp scale}</pre>
+</div>
+</li>
+<li><p class="first">Units: The incoming units are assumed to be the &#8220;From&#8221; units and the displayed value is adjusted to match the &#8220;To&#8221; units.</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These settings affect only the <em>displayed</em> values.</p>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="list-measurement">
+<h2>List measurement<a class="headerlink" href="#list-measurement" title="Permalink to this headline">¶</a></h2>
+<div class="figure">
+<img alt="List measurement configuration." src="../../../_images/measurement_config_list.png" />
+</div>
+<p>The list measurement configuration is identical to <a class="reference internal" href="#measurement-config-scalar"><em>scalar measurement configuration</em></a>, but with fewer options.</p>
+<div class="section" id="id1">
+<h3>Plot settings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="List measurement plot settings." src="../../../_images/measurement_config_list_settings.png" />
+<div class="legend">
+<ul class="simple">
+<li>Enabled: Whether the plot should be updated at all.</li>
+<li>Capture<ul>
+<li>Lines: The number of lines of historical data to display.</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="device_config.html">Device configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="pulse_program_config.html">Pulse program configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

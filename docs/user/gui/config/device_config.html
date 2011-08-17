@@ -1,0 +1,154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Device configuration &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Measurement configuration" href="measurement_config.html" />
+    <link rel="prev" title="Configuration" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Device configuration</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="measurement_config.html">Measurement configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="device-configuration">
+<span id="device-config"></span><h1>Device configuration<a class="headerlink" href="#device-configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="device-list">
+<span id="device-config-list"></span><h2>Device list<a class="headerlink" href="#device-list" title="Permalink to this headline">¶</a></h2>
+<p>The device list shows all the <a class="reference internal" href="../../general_concepts/devices.html#general-concepts-devices"><em>devices</em></a> configured in an application.</p>
+<div class="figure">
+<img alt="Device list." src="../../../_images/device_config_list.png" />
+<div class="legend">
+<ol class="arabic simple">
+<li>A unique label to identify the device.</li>
+<li>The connection status. Double-clicking in this column brings up the device configuration dialog for the device.</li>
+<li>Graphical configuration. If a device has this option, &#8220;Setup...&#8221; appears in this column; double-clicking it opens up the device-specific graphical configuration.</li>
+<li>The status of any long-running tasks.</li>
+<li>Clicking &#8220;Add&#8221; creates a blank device. Clicking &#8220;Remove&#8221; permanently removes all selected devices.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="device-configuration-dialog">
+<h2>Device configuration dialog<a class="headerlink" href="#device-configuration-dialog" title="Permalink to this headline">¶</a></h2>
+<p>The device configuration dialog is used to configure an individual <a class="reference internal" href="../../general_concepts/devices.html#general-concepts-devices"><em>device</em></a> for use with an application.</p>
+<div class="section" id="device-connection">
+<span id="device-config-connection"></span><h3>Device connection<a class="headerlink" href="#device-connection" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Device connection configuration." src="../../../_images/device_config_connection.png" />
+<div class="legend">
+<ol class="arabic simple">
+<li>Address configuration.<ul>
+<li>Ethernet: The IPv4 address (eg. <tt class="docutils literal"><span class="pre">1.2.3.4</span></tt>).</li>
+<li>GPIB: The board number, PAD, and SAD.</li>
+<li>USB: The full USB resource (eg. <tt class="docutils literal"><span class="pre">USB::0x1234::0x5678::01234567::RAW</span></tt>).</li>
+</ul>
+</li>
+<li>Implementation configuration.<ul>
+<li>The manufacturer and model must be selected.</li>
+<li>Mock: When selected, a software mock implementation is used instead of connecting to a real device.</li>
+</ul>
+</li>
+<li>Connection control.<ul>
+<li>Connect to or disconnect from the device.</li>
+</ul>
+</li>
+<li>Saving settings.<ul>
+<li>All the settings controlled in this dialog (including resource <em>labels</em>, but with the exception of resource <em>values</em>) can be saved to and loaded from the disk.</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Disconnecting from a device does not actually take place until the dialog is confirmed (by pressing &#8220;OK&#8221;). Thus, pressing &#8220;Disconnect&#8221; and then &#8220;Cancel&#8221; will retain the connection to the device.</p>
+</div>
+</div>
+<div class="section" id="device-resources">
+<span id="device-config-resources"></span><h3>Device resources<a class="headerlink" href="#device-resources" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Device resource configuration." src="../../../_images/device_config_resources.png" />
+<div class="legend">
+<ol class="arabic">
+<li><p class="first">The internal name of the resource.</p>
+</li>
+<li><p class="first">R/W flags indicating the RO/WO/RW status of the resource.</p>
+</li>
+<li><p class="first">The units associated with the resource.</p>
+</li>
+<li><p class="first">The unique label used to identify the resource. The label can be changed by double-clicking the appropriate field.</p>
+<p>In this case, the channel 1 waveform has been given the label <strong>osc1</strong>.</p>
+</li>
+<li><p class="first">The value of the resource.</p>
+<ul class="simple">
+<li>If the resource is readable, the latest received value is displayed. The exception to this is slow resources, which always have &#8220;[N/A]&#8221; displayed to avoid slowdowns caused by fetching the value.</li>
+<li>If the resource is writable, the value can be changed by double-clicking the appropriate field.</li>
+</ul>
+</li>
+<li><p class="first">A subdevice with its own resources.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="measurement_config.html">Measurement configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

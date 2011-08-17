@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tabular display &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Display" href="index.html" />
+    <link rel="next" title="Example applications" href="../../examples/index.html" />
+    <link rel="prev" title="Two-dimensional plot" href="plots/two_dimensional.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Tabular display</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="plots/two_dimensional.html">Two-dimensional plot</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../examples/index.html">Example applications</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="tabular-display">
+<span id="id1"></span><h1>Tabular display<a class="headerlink" href="#tabular-display" title="Permalink to this headline">¶</a></h1>
+<p>The tabular display panel is a read-only panel for arbitrary data.</p>
+<div class="figure">
+<img alt="Populated tabular display." src="../../../_images/table.png" />
+</div>
+<div class="section" id="column-types">
+<h2>Column types<a class="headerlink" href="#column-types" title="Permalink to this headline">¶</a></h2>
+<p>The panel is able to recognize certain data types: scalars, lists, and strings. Scalars are any real numbers; lists are number sequences with a particular syntax; and everything else is considered to be a string.</p>
+<p>Lists are of the form:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">),</span> <span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This is the format used by the <a class="reference internal" href="../action/data_capture.html#data-capture"><em>Data capture</em></a> panel for export of list data. Therefore, the exported list data is identified as special by the tabular display panel.</p>
+</div>
+<div class="section" id="data-filters">
+<span id="tabular-display-data-filters"></span><h2>Data filters<a class="headerlink" href="#data-filters" title="Permalink to this headline">¶</a></h2>
+<p>Data filters allow the user to narrow a large dataset into a smaller one, potentially making visualization simpler and all operations faster.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">If there are already filters which have transformed an originally large dataset into a small one, adding a new filter is a very fast operation. However, removing or editing any filter will be as slow as applying the first filter, since the original dataset must be re-filtered in its entirety.</p>
+</div>
+<div class="section" id="syntax">
+<h3>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h3>
+<p>Filters are provided as Python-like expressions on a per-column basis. All occurrences of <tt class="docutils literal"><span class="pre">x</span></tt> are internally replaced with an identifier for the selected column, and the remainder of the expression is left intact. Thus, the user is free to use as much creativity as desired when constructing filters.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Filters can only be applied to scalar columns.</p>
+</div>
+<p>Valid comparison operators include: <tt class="docutils literal"><span class="pre">&lt;</span></tt> (less than), <tt class="docutils literal"><span class="pre">&lt;=</span></tt> (less than or equal to), <tt class="docutils literal"><span class="pre">==</span></tt> (equal to), <tt class="docutils literal"><span class="pre">!=</span></tt> (not equal to), <tt class="docutils literal"><span class="pre">&gt;=</span></tt> (greater than or equal to), <tt class="docutils literal"><span class="pre">&gt;</span></tt> (greater than). Comparisons may be grouped with: <tt class="docutils literal"><span class="pre">and</span></tt> (both expressions must be true), <tt class="docutils literal"><span class="pre">or</span></tt> (at least one expression must be true); and negated with: <tt class="docutils literal"><span class="pre">not</span></tt> (expression must be false).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The Python equality comparison operator is two equal signs (<tt class="docutils literal"><span class="pre">==</span></tt>), not a single equal sign (<tt class="docutils literal"><span class="pre">=</span></tt>). Using the latter in place of the former may generate a generic &#8220;invalid syntax&#8221; error.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>All examples assume the following initial dataset:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="23%" />
+<col width="28%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Time (s)</th>
+<th class="head">field (mT)</th>
+<th class="head">port out (V)</th>
+<th class="head">port in (V)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>0</td>
+<td>1.0</td>
+<td>-5.0</td>
+<td>-0.0100000004</td>
+</tr>
+<tr><td>0.251417</td>
+<td>1.0</td>
+<td>-4.0</td>
+<td>-0.0100000008</td>
+</tr>
+<tr><td>0.512650</td>
+<td>1.0</td>
+<td>-3.0</td>
+<td>-0.0100000016</td>
+</tr>
+<tr><td>0.766408</td>
+<td>1.0</td>
+<td>-2.0</td>
+<td>-0.0100000032</td>
+</tr>
+<tr><td>1.024776</td>
+<td>1.0</td>
+<td>-1.0</td>
+<td>-0.0100000064</td>
+</tr>
+<tr><td>1.300688</td>
+<td>3.0</td>
+<td>-5.0</td>
+<td>-0.0100000128</td>
+</tr>
+<tr><td>1.605982</td>
+<td>3.0</td>
+<td>-4.0</td>
+<td>-0.0100000256</td>
+</tr>
+<tr><td>1.876083</td>
+<td>3.0</td>
+<td>-3.0</td>
+<td>-0.0100000512</td>
+</tr>
+<tr><td>2.145252</td>
+<td>3.0</td>
+<td>-2.0</td>
+<td>-0.0100001024</td>
+</tr>
+<tr><td>4.211317</td>
+<td>3.0</td>
+<td>-1.0</td>
+<td>-0.0100002048</td>
+</tr>
+<tr><td>4.523829</td>
+<td>5.0</td>
+<td>-5.0</td>
+<td>-0.0100004096</td>
+</tr>
+<tr><td>4.788892</td>
+<td>5.0</td>
+<td>-4.0</td>
+<td>-0.0100008192</td>
+</tr>
+<tr><td>5.056252</td>
+<td>5.0</td>
+<td>-3.0</td>
+<td>-0.0100016384</td>
+</tr>
+<tr><td>5.353702</td>
+<td>5.0</td>
+<td>-2.0</td>
+<td>-0.0100032768</td>
+</tr>
+<tr><td>5.627074</td>
+<td>5.0</td>
+<td>-1.0</td>
+<td>-0.0100065536</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="time-selection">
+<h4>Time selection<a class="headerlink" href="#time-selection" title="Permalink to this headline">¶</a></h4>
+<p>Select only the rows that fit within a slice of time.</p>
+<p>The filter:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Column:</td>
+<td><strong>Time (s)</strong></td>
+</tr>
+<tr><td>Filter:</td>
+<td><strong>x &gt; 1.0 and x &lt; 5.0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>results in:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="23%" />
+<col width="28%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Time (s)</th>
+<th class="head">field (mT)</th>
+<th class="head">port out (V)</th>
+<th class="head">port in (V)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1.024776</td>
+<td>1.0</td>
+<td>-1.0</td>
+<td>-0.0100000064</td>
+</tr>
+<tr><td>1.300688</td>
+<td>3.0</td>
+<td>-5.0</td>
+<td>-0.0100000128</td>
+</tr>
+<tr><td>1.605982</td>
+<td>3.0</td>
+<td>-4.0</td>
+<td>-0.0100000256</td>
+</tr>
+<tr><td>1.876083</td>
+<td>3.0</td>
+<td>-3.0</td>
+<td>-0.0100000512</td>
+</tr>
+<tr><td>2.145252</td>
+<td>3.0</td>
+<td>-2.0</td>
+<td>-0.0100001024</td>
+</tr>
+<tr><td>4.211317</td>
+<td>3.0</td>
+<td>-1.0</td>
+<td>-0.0100002048</td>
+</tr>
+<tr><td>4.523829</td>
+<td>5.0</td>
+<td>-5.0</td>
+<td>-0.0100004096</td>
+</tr>
+<tr><td>4.788892</td>
+<td>5.0</td>
+<td>-4.0</td>
+<td>-0.0100008192</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dimensionality-reduction">
+<h4>Dimensionality reduction<a class="headerlink" href="#dimensionality-reduction" title="Permalink to this headline">¶</a></h4>
+<p>Reduce an entire dimension to a single point.</p>
+<p>This allows for plots which would otherwise be impossible. For example, &#8220;port in (V)&#8221; vs &#8220;port out (V)&#8221; cannot be plotted since &#8220;port out (V)&#8221; is not a function of &#8220;port in (V)&#8221;.</p>
+<p>The filter:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Column:</td>
+<td><strong>field (mT)</strong></td>
+</tr>
+<tr><td>Filter:</td>
+<td><strong>x == 3.0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>results in:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="23%" />
+<col width="28%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Time (s)</th>
+<th class="head">field (mT)</th>
+<th class="head">port out (V)</th>
+<th class="head">port in (V)</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1.300688</td>
+<td>3.0</td>
+<td>-5.0</td>
+<td>-0.0100000128</td>
+</tr>
+<tr><td>1.605982</td>
+<td>3.0</td>
+<td>-4.0</td>
+<td>-0.0100000256</td>
+</tr>
+<tr><td>1.876083</td>
+<td>3.0</td>
+<td>-3.0</td>
+<td>-0.0100000512</td>
+</tr>
+<tr><td>2.145252</td>
+<td>3.0</td>
+<td>-2.0</td>
+<td>-0.0100001024</td>
+</tr>
+<tr><td>4.211317</td>
+<td>3.0</td>
+<td>-1.0</td>
+<td>-0.0100002048</td>
+</tr>
+</tbody>
+</table>
+<p>It becomes possible to plot &#8220;port in (V)&#8221; vs &#8220;port out (V)&#8221; at a constant &#8220;field (mT)&#8221;.</p>
+</div>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="filter-list">
+<h4>Filter list<a class="headerlink" href="#filter-list" title="Permalink to this headline">¶</a></h4>
+<div class="figure">
+<img alt="Data filter list." src="../../../_images/table_filter_list.png" />
+</div>
+<p>Filters can be added with the &#8220;Add&#8221; button, permanently removed with the &#8220;Remove&#8221; button, and edited by double-clicking on the respective row.</p>
+</div>
+<div class="section" id="filter-editor">
+<h4>Filter editor<a class="headerlink" href="#filter-editor" title="Permalink to this headline">¶</a></h4>
+<div class="figure">
+<img alt="Data filter editor." src="../../../_images/table_filter_editor.png" />
+</div>
+<p>The given filter is added to the selected column.</p>
+<p>If there is an error in the input, the user is informed. For example, the filter &#8220;y == 5&#8221; results in the message &#8220;name &#8216;y&#8217; is not defined&#8221;.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="plots/two_dimensional.html">Two-dimensional plot</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../../examples/index.html">Example applications</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Variables &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../index.html" />
+    <link rel="up" title="General concepts" href="index.html" />
+    <link rel="next" title="Pulse programs" href="../pulse_programs.html" />
+    <link rel="prev" title="Resources" href="resources.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Variables</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="resources.html">Resources</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../pulse_programs.html">Pulse programs</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="variables">
+<span id="general-concepts-variables"></span><h1>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h1>
+<p>Variables are how sweeping acquisition experiments are described.</p>
+<div class="section" id="output-variables">
+<span id="general-concepts-output-variables"></span><h2>Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h2>
+<p>Output variables provide a way to sweep over a range of values on a <a class="reference internal" href="resources.html#general-concepts-resources"><em>resource</em></a>. An output variable will have a customizable range of values over which it iterates.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The unqualified term &#8220;variable&#8221; typically refers to output variables.</p>
+</div>
+<div class="section" id="type">
+<span id="general-concepts-output-variables-type"></span><h3>Type<a class="headerlink" href="#type" title="Permalink to this headline">¶</a></h3>
+<p>An output variable has an associated type. It must be one of:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Float</dt>
+<dd><p class="first">Each produced value is a floating point value, with an integral portion and a decimal portion.</p>
+<p class="last">For example, &#8220;-5.5&#8221;.</p>
+</dd>
+<dt>Integer</dt>
+<dd><p class="first">Each produced value is an integer value. If any of the generated values contain a decimal portion, it is truncated.</p>
+<p class="last">For example, &#8220;5&#8221;.</p>
+</dd>
+<dt>Quantity</dt>
+<dd><p class="first">Each produced value is a floating point value with a corresponding unit.</p>
+<p class="last">For example, &#8220;12.3 GHz&#8221;.</p>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="constant-value">
+<h3>Constant value<a class="headerlink" href="#constant-value" title="Permalink to this headline">¶</a></h3>
+<p>Each variable is assigned a constant value. By default, this value is ignored; however, there are several options which make use of this value.</p>
+<p>For example, if the variable is set to be a &#8220;constant variable&#8221;, then its value is never iterated; instead, its value is set to the constant value at the beginning of a sweep and then left there for the entire duration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The constant value of a variable always incorporates the <a class="reference internal" href="#general-concepts-output-variables-type"><em>type and units</em></a> of the variable.</p>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#general-concepts-output-variables-smooth"><em>Smooth setting</em></a></p>
+</div>
+</div>
+<div class="section" id="order">
+<h3>Order<a class="headerlink" href="#order" title="Permalink to this headline">¶</a></h3>
+<p>Each output variable has an order to which it belongs, defined by an integer value (either negative, zero, or positive). This order is used to determine the looping sequence for variable iteration and has no bearing on the values of the variable.</p>
+<p>Variables which share the same order value are stepped together. Variables which have a greater order value are stepped more slowly (ie. they are on an outer loop of the iteration) relative to those which have a lesser order value.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In a single order, whichever variable has fewest values dictates how many values the other variables will have. Any excess values for the longer variables are silently truncated.</p>
+</div>
+<p>For example, if variables <tt class="docutils literal"><span class="pre">A</span></tt>, <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">C</span></tt>, and <tt class="docutils literal"><span class="pre">D</span></tt> have orders of -5, 1, 1, and 10, respectively, then:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">D</span></tt> will iterate most slowly</li>
+<li><tt class="docutils literal"><span class="pre">B</span></tt> and <tt class="docutils literal"><span class="pre">C</span></tt> will iterate in lockstep, between <tt class="docutils literal"><span class="pre">D</span></tt> and <tt class="docutils literal"><span class="pre">A</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">A</span></tt> will iterate most quickly</li>
+</ul>
+<p>Note that since constant variables by definition do not iterate, they are all put into a separate virtual order, and so are ignored from the point of view of the ordering discussion.</p>
+</div>
+<div class="section" id="smooth-setting">
+<span id="general-concepts-output-variables-smooth"></span><h3>Smooth setting<a class="headerlink" href="#smooth-setting" title="Permalink to this headline">¶</a></h3>
+<p>During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To get around this, the variables can optionally be &#8220;smoothly set&#8221; at various times:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Smooth setting <strong>from constant</strong> value</dt>
+<dd>At the start of a sweep, the variable is set to the constant value, and then (over the desired number of steps) swept towards its inital value at the start of the sweep.</dd>
+<dt>Smooth setting <strong>to constant</strong> value</dt>
+<dd>At the end of a sweep (even if the sweep is prematurely aborted), the variable is smoothly swept from its final value to its constant value.</dd>
+<dt>Smooth <strong>transition</strong> between loop iterations</dt>
+<dd>At the end of a single iteration of an order, if that order was not the slowest-stepping outer loop order, the variable is smoothly swept back to its initial value so that it can be stepped over again.</dd>
+</dl>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Each smooth setting step is always 100 ms in duration.</p>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../gui/config/variable_config.html#variable-config"><em>Variable configuration</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="input-variables">
+<span id="general-concepts-input-variables"></span><h2>Input variables<a class="headerlink" href="#input-variables" title="Permalink to this headline">¶</a></h2>
+<p>Typically referred to as &#8220;measurements&#8221;, input variables provide a way of gathering data from <a class="reference internal" href="resources.html#general-concepts-resources"><em>resources</em></a>.</p>
+<p>There exist two types of measurements: scalar and list. Scalar measurements correspond to the acquisition of single values over time (eg. an amplitude or a frequency); list measurements correspond to the acquisition of a list of values over time (eg. a waveform captured by an oscilloscope). Naturally, if the measurements are done several times, scalar measurements produce one-dimensional data, while list measurements produce two-dimensional data.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../gui/config/measurement_config.html#measurement-config"><em>Measurement configuration</em></a></p>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="resources.html">Resources</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="../pulse_programs.html">Pulse programs</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

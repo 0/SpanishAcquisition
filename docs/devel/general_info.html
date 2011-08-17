@@ -1,0 +1,140 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>General information &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../index.html" />
+    <link rel="up" title="Developer’s Guide" href="index.html" />
+    <link rel="next" title="Packages" href="packages/index.html" />
+    <link rel="prev" title="Developer’s Guide" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>General information</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Developer&#8217;s Guide</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="packages/index.html">Packages</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="general-information">
+<h1>General information<a class="headerlink" href="#general-information" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>All the non-GUI modules in this package have associated tests, found in the <tt class="docutils literal"><span class="pre">tests/</span></tt> subdirectory. These are split into unit tests (found directly in the subdirectory) and server tests (found in <tt class="docutils literal"><span class="pre">tests/server/</span></tt>); server tests differ from unit tests by the addition of an external dependency, such as a hardware device.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Test failures can signify a missing <a class="reference internal" href="../installation.html#installation"><em>dependency</em></a>. While users can get by with only a subset, it is recommended that developers install <em>all</em> dependencies.</p>
+</div>
+<div class="section" id="unit">
+<h3>Unit<a class="headerlink" href="#unit" title="Permalink to this headline">¶</a></h3>
+<p>The unit tests can all be run with:</p>
+<div class="highlight-python"><pre>./runtests</pre>
+</div>
+</div>
+<div class="section" id="server">
+<h3>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
+<p>Currently, only device tests exist in the form of server tests. Before running these, the devices should be connected to the computer and <a class="reference internal" href="packages/devices/index.html#devices-testing"><em>configured</em></a>.</p>
+<p>Server tests can be found with:</p>
+<div class="highlight-python"><pre>find . -path '*/tests/server/test_*.py'</pre>
+</div>
+<p>and run with, for example:</p>
+<div class="highlight-python"><pre>./runtests --no-skip ./spacq/devices/tests/server/test_abstract_device.py</pre>
+</div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="style">
+<h3>Style<a class="headerlink" href="#style" title="Permalink to this headline">¶</a></h3>
+<p>An attempt has been made to ensure that the reStructuredText source for this documentation is self-consistent. The following stylistic choices have been made:</p>
+<ul>
+<li><p class="first">The headings <em>for each document</em> are as follows:</p>
+<div class="highlight-python"><pre>###
+One
+###
+
+Two
+***
+
+Three
+=====
+
+Four
+----</pre>
+</div>
+<p>Headings nested deeper than this should not be used.</p>
+</li>
+<li><p class="first">A single blank line separates elements within a document. Multiple blank lines are not used.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="building">
+<h3>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h3>
+<p>The documentation can be built using:</p>
+<div class="highlight-python"><pre>make -C docs html</pre>
+</div>
+<p>This places the result at <tt class="docutils literal"><span class="pre">docs/_build/html/index.html</span></tt>.</p>
+</div>
+<div class="section" id="updating">
+<h3>Updating<a class="headerlink" href="#updating" title="Permalink to this headline">¶</a></h3>
+<p>Is is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a> as they occur. All changes (especially internal ones not mentioned in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a>) should be documented in the <a class="reference internal" href="index.html#developers-guide"><em>Developer&#8217;s Guide</em></a>.</p>
+</div>
+</div>
+<div class="section" id="example-applications">
+<h2>Example applications<a class="headerlink" href="#example-applications" title="Permalink to this headline">¶</a></h2>
+<p>The example applications are provided to demonstrate the functionality that this package provides in the form of directly usable and useful applications. As this functionality changes, the example programs should follow suit.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Developer&#8217;s Guide</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="packages/index.html">Packages</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

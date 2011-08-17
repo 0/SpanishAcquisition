@@ -1,0 +1,128 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pulse program configuration &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Configuration" href="index.html" />
+    <link rel="next" title="Variable configuration" href="variable_config.html" />
+    <link rel="prev" title="Measurement configuration" href="measurement_config.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Pulse program configuration</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="measurement_config.html">Measurement configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="variable_config.html">Variable configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="pulse-program-configuration">
+<span id="id1"></span><h1>Pulse program configuration<a class="headerlink" href="#pulse-program-configuration" title="Permalink to this headline">¶</a></h1>
+<p>The pulse program configuration panel is used to set up the <a class="reference internal" href="../../pulse_programs.html#pulse-programs"><em>pulse program</em></a> for an application.</p>
+<p>If a pulse program is loaded (via <tt class="docutils literal"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Open...</span></tt> or Ctrl+O), the sweep performed by the <a class="reference internal" href="../action/data_capture.html#data-capture-dialog"><em>Data capture dialog</em></a> will include a stage involving the pulse program. If it is later closed (via <tt class="docutils literal"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Close</span></tt> or Ctrl+W) or if one was not opened, the corresponding sweep stage is skipped.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To run a pulse program, it is necessary to have configured both an AWG (to emit the waveforms) and an oscilloscope (to take measurements).</p>
+</div>
+<div class="section" id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<p>Most parameterizable values of a pulse program may be given <a class="reference internal" href="../../general_concepts/resources.html#general-concepts-resources"><em>resource labels</em></a>. These resource labels behave the same way as device resources, and so may be iterated over by a variable.</p>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Each setup tab is present only if the pulse program requires it. For example, the Acquisition tab appears only if the command <tt class="docutils literal"><span class="pre">acquire</span></tt> is in the program.</p>
+</div>
+<div class="section" id="acquisition">
+<h3>Acquisition<a class="headerlink" href="#acquisition" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Pulse program configuration: acquisition." src="../../../_images/pulse_program_config_acquisition.png" />
+</div>
+<ul class="simple">
+<li>marker_num: The number of the marker of the AWG channel output used for the trigger.</li>
+<li>output: The waveform output name.</li>
+<li>Times to average: If this item is set to a value greater than 1, the oscilloscope is placed into &#8220;average&#8221; mode for the given number of waveforms, and the AWG is triggered that many times.</li>
+<li>Post-acquisition delay: How long to wait after triggering the AWG. This delay occurs between individual waveforms when averaging.</li>
+</ul>
+</div>
+<div class="section" id="delays-integers-pulses">
+<h3>Delays, Integers, Pulses<a class="headerlink" href="#delays-integers-pulses" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Pulse program configuration: delays." src="../../../_images/pulse_program_config_delays.png" />
+</div>
+<p>Delays, integers, and pulses are all configured in approximately the same manner, and most of their aspects can be parameterized.</p>
+<p>All items (for delays and integers, the variables themselves; for pulses, the variable <a class="reference internal" href="../../pulse_programs.html#pulse-programs-attributes"><em>attributes</em></a>) appear exactly as they are named in the pulse program. Each must have a default value, and may also have an optional resource label.</p>
+<p>The default value is used when displaying the output waveform in the Outputs tab, and when sending the waveform to the AWG given that either no resource label is provided or no value is written to the resource during the sweep.</p>
+</div>
+<div class="section" id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
+<div class="figure">
+<img alt="Pulse program configuration: outputs." src="../../../_images/pulse_program_config_outputs.png" />
+</div>
+<ul class="simple">
+<li>Outputs: All the output waveforms in the program are listed, and can be viewed by clicking the &#8220;View&#8221; button. If a channel number is specified, the waveform generated is output on that channel of the AWG.</li>
+<li>Sampling rate: The waveforms are generated with this sampling rate. The AWG automatically has its output frequency set to this value.</li>
+<li>Devices: The device label (as specified in the <a class="reference internal" href="device_config.html#device-config-list"><em>Device list</em></a>) must be provided for each device.</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Setting the sampling rate too low will produce waveforms which are not faithful to the pulse program, since there is not enough resolution to create the desired shapes. On the other hand, setting the sampling rate too high will produce waveforms that have very many points, causing severe slowdowns.</p>
+<p class="last">A good rule of thumb is to keep the waveforms to within one million points. This provides a maximum total duration of 1 ms at a resolution of 1 GHz.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="measurement_config.html">Measurement configuration</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="variable_config.html">Variable configuration</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

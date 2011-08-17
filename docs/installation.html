@@ -1,0 +1,122 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="index.html" />
+    <link rel="next" title="User’s Guide" href="user/index.html" />
+    <link rel="prev" title="Spanish Acquisition" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Installation</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Spanish Acquisition</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="user/index.html">User&#8217;s Guide</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>This package can be installed in the usual way:</p>
+<div class="highlight-python"><pre>sudo python setup.py install</pre>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>These are all the dependencies in use by the package.</p>
+<p>If only using a subset of the package, it suffices to use what the subset requires. For example, all the GUI-related dependencies are not necessary if only the device-related code is to be used, and vice versa. However, everything is written in (and so requires) Python:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.python.org/">Python</a> <tt class="docutils literal"><span class="pre">&gt;=2.6</span> <span class="pre">&amp;&amp;</span> <span class="pre">&lt;3</span></tt></li>
+</ul>
+<div class="section" id="device-drivers">
+<h3>Device drivers<a class="headerlink" href="#device-drivers" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference external" href="http://www.ni.com/visa/">NI-VISA</a> for Ethernet (and GPIB on Windows) device support.<ul>
+<li><a class="reference external" href="http://pyvisa.sourceforge.net/">PyVISA</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="http://linux-gpib.sourceforge.net/">Linux GPIB</a> (with Python bindings) for GPIB device support.</li>
+</ul>
+</div>
+<div class="section" id="python-packages">
+<h3>Python packages<a class="headerlink" href="#python-packages" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference external" href="http://code.enthought.com/chaco/">Chaco</a></li>
+<li><a class="reference external" href="http://code.enthought.com/projects/enable/">Enable</a></li>
+<li><a class="reference external" href="http://matplotlib.sourceforge.net/">matplotlib</a></li>
+<li><a class="reference external" href="http://numpy.scipy.org/">numpy</a></li>
+<li><a class="reference external" href="http://objectlistview.sourceforge.net/python/">ObjectListView</a></li>
+<li><a class="reference external" href="http://pyparsing.wikispaces.com/">pyparsing</a></li>
+<li><a class="reference external" href="http://pubsub.sourceforge.net/">PyPubSub</a> <tt class="docutils literal"><span class="pre">&gt;=</span> <span class="pre">3.1</span></tt></li>
+<li><a class="reference external" href="http://packages.python.org/quantities/">quantities</a></li>
+<li><a class="reference external" href="http://www.scipy.org/">scipy</a></li>
+<li><a class="reference external" href="http://www.wxpython.org/">wxPython</a></li>
+</ul>
+<div class="section" id="documentation">
+<h4>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a> <tt class="docutils literal"><span class="pre">&gt;=</span> <span class="pre">1.0</span></tt></li>
+</ul>
+</div>
+<div class="section" id="testing">
+<h4>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><a class="reference external" href="http://somethingaboutorange.com/mrl/projects/nose/">nose</a></li>
+<li><a class="reference external" href="http://pypi.python.org/pypi/nose-testconfig/">nose-testconfig</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Spanish Acquisition</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="user/index.html">User&#8217;s Guide</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

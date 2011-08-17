@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data capture &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Action" href="index.html" />
+    <link rel="next" title="Smooth reset" href="smooth_reset.html" />
+    <link rel="prev" title="Action" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Data capture</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Action</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="smooth_reset.html">Smooth reset</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="data-capture">
+<span id="id1"></span><h1>Data capture<a class="headerlink" href="#data-capture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="data-capture-panel">
+<h2>Data capture panel<a class="headerlink" href="#data-capture-panel" title="Permalink to this headline">¶</a></h2>
+<p>The data capture panel controls the verification of the setup, as well as the export of the acquired data.</p>
+<div class="figure">
+<img alt="Data capture panel." src="../../../_images/data_capture_panel.png" />
+<div class="legend">
+<ol class="arabic simple">
+<li>Begin the sweep as defined in the rest of the application. If there are any setup errors, pressing this button will generate messages about the errors rather than begging the sweep.</li>
+<li>If the &#8220;Continuous&#8221; checkbox is enabled, the sweep will restart from the beginning as soon as it gets to the end.</li>
+<li>If the &#8220;Export&#8221; checkbox is enabled, the sweep values (of both input and output variables) will be exported; otherwise, they will be discarded.</li>
+<li>The location of the directory to which the values <em>should be</em> exported.</li>
+<li>The location of the file to which the last set of values <em>was</em> exported.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="data-capture-dialog">
+<span id="id2"></span><h2>Data capture dialog<a class="headerlink" href="#data-capture-dialog" title="Permalink to this headline">¶</a></h2>
+<p>The data capture dialog controls the sweep itself.</p>
+<div class="figure">
+<img alt="Data capture dialog in continuous mode." src="../../../_images/data_capture_sweep.png" />
+<div class="legend">
+<ol class="arabic">
+<li><p class="first">The overall progress of the sweep.</p>
+</li>
+<li><p class="first">The currently executing stage of the sweep.</p>
+</li>
+<li><p class="first">The last values set to the output variables.</p>
+</li>
+<li><p class="first">The last values obtained from the measurements.</p>
+</li>
+<li><p class="first">The total elapsed time for the sweep. In non-continuous mode, this is accompanied by a rough estimate for the remaining time.</p>
+</li>
+<li><p class="first">Checkbox controlling the termination of a sweep in continuous mode. At the end of a sweep in continuous mode, if this checkbox is enabled, the sweep terminates; otherwise, it restarts.</p>
+</li>
+<li><p class="first">Prematurely terminate a sweep.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">To avoid leaving the system in an inconsistent state, pressing the &#8220;Cancel&#8221; button first allows whichever stage is currently running to finish running gracefully. Then, if any variables were configured to be set smoothly from their final values to their constant values, they are set smoothly from wherever the sweep was ended. Thus, it is safe to cancel the sweep at any time.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<p>The sweep consists of the following stages (with the displayed message in parentheses):</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">init</span></tt> (Initializing)</dt>
+<dd>Internal setup.</dd>
+<dt><tt class="docutils literal"><span class="pre">next</span></tt> (Getting next values)</dt>
+<dd>The next set of values to write to any resources is determined based on the variable configuration.</dd>
+<dt><tt class="docutils literal"><span class="pre">transition</span></tt> (Smooth setting)</dt>
+<dd>A smooth transition occurs for all resources requiring one.</dd>
+<dt><tt class="docutils literal"><span class="pre">write</span></tt> (Writing to devices)</dt>
+<dd>All variables with changed values have those values written to their resources.</dd>
+<dt><tt class="docutils literal"><span class="pre">dwell</span></tt> (Waiting for resources to settle)</dt>
+<dd>A delay occurs for the variable with the longest wait time.</dd>
+<dt><tt class="docutils literal"><span class="pre">pulse</span></tt> (Running pulse program)</dt>
+<dd>If one is configured, a pulse program is run.</dd>
+<dt><tt class="docutils literal"><span class="pre">read</span></tt> (Taking measurements)</dt>
+<dd>All measurements are read from their resources.</dd>
+<dt><tt class="docutils literal"><span class="pre">ramp_down</span></tt> (Smooth setting)</dt>
+<dd>A smooth transition occurs from the last value to the variables&#8217; constant values, as required.</dd>
+<dt><tt class="docutils literal"><span class="pre">end</span></tt> (Finishing)</dt>
+<dd>Internal cleanup.</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="export-format">
+<h2>Export format<a class="headerlink" href="#export-format" title="Permalink to this headline">¶</a></h2>
+<p>The export is done to a regular comma-separated values (CSV) file. The first row contains the column headings (potentially with units) as gathered from the variable and measurement names. The first column is always titled &#8220;Time (s)&#8221; and contains the approximate time of acquisition for each row, relative to the first row of values.</p>
+<p>For example, an exported file may begin thusly:</p>
+<div class="highlight-python"><pre>Time (s),field (mT),port out (V),Pulses (V),port in (V)
+0,1.0,-5.0,"[(0.0, -0.078469520103761514), ...]",-0.0100000004
+0.25141787529,1.0,-4.375,"[(0.0, -0.11684596017395288), ...]",-0.0100000008</pre>
+</div>
+<p>Note that the &#8220;Pulses&#8221; column contains list data and most of it has been omitted here for clarity.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">Action</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="smooth_reset.html">Smooth reset</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

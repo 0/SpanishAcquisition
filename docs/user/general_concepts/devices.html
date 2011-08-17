@@ -1,0 +1,93 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Devices &mdash; Spanish Acquisition v0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../index.html" />
+    <link rel="up" title="General concepts" href="index.html" />
+    <link rel="next" title="Resources" href="resources.html" />
+    <link rel="prev" title="General concepts" href="index.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../index.html">
+          <span>Spanish Acquisition v0.1 documentation</span></a></h1>
+        <h2 class="heading"><span>Devices</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">General concepts</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="resources.html">Resources</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="devices">
+<span id="general-concepts-devices"></span><h1>Devices<a class="headerlink" href="#devices" title="Permalink to this headline">¶</a></h1>
+<p>A device typically refers to a physical piece of hardware, but can be, for example, a piece of software pretending to be hardware.</p>
+<p>Devices can offer any number of arbitrary <a class="reference internal" href="resources.html#general-concepts-resources"><em>resources</em></a>. They may be organized in an hierarchical fashion through <a class="reference internal" href="#general-concepts-subdevices"><em>subdevices</em></a>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">A device resource will typically correspond to a setting on the device, but it is not required to do so. Other types of resources include measurement readings, and virtual (implementation-specific) settings.</p>
+</div>
+<div class="section" id="subdevices">
+<span id="general-concepts-subdevices"></span><h2>Subdevices<a class="headerlink" href="#subdevices" title="Permalink to this headline">¶</a></h2>
+<p>A device which has several versions of the same <a class="reference internal" href="resources.html#general-concepts-resources"><em>resources</em></a> can organize these resources into a tree of subdevices.</p>
+<p>For example, an oscilloscope may have multiple channels, with each having the same set of settings. These channels may then be viewed as subdevices, each having its own settings.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="../gui/config/device_config.html#device-config-resources"><em>Device resources</em></a></p>
+</div>
+</div>
+<div class="section" id="mock">
+<h2>Mock<a class="headerlink" href="#mock" title="Permalink to this headline">¶</a></h2>
+<p>Mock devices are software simulations of hardware devices. They are typically created at the same time as the device interface and support the same functionality. Most of the time, they are used for testing or as a virtual device.</p>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="index.html">General concepts</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="resources.html">Resources</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

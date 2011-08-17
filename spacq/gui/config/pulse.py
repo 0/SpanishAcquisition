@@ -307,6 +307,13 @@ class ParameterPanel(ScrolledPanel):
 	def OnResourceInput(self, parameter, evt):
 		label = evt.String
 
+		try:
+			# Do nothing if there has not been a change.
+			if label == self.resource_labels[parameter]:
+				return
+		except KeyError:
+			pass
+
 		# The actual setter is generated when the program is cloned.
 		resource = Resource(setter=lambda x: None)
 

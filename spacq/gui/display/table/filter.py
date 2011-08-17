@@ -66,7 +66,8 @@ class FilterEditDialog(Dialog):
 
 
 class FilterListDialog(Dialog):
-	def __init__(self, parent, table, close_callback, *args, **kwargs):
+	def __init__(self, parent, table, close_callback, filters=None, filter_columns=None,
+			*args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
 		kwargs['title'] = kwargs.get('title', 'Filters')
 
@@ -75,14 +76,16 @@ class FilterListDialog(Dialog):
 		self.table = table
 		self.close_callback = close_callback
 
-		self.filters = {}
-		self.filter_columns = {}
+		if filters is None or filter_columns is None:
+			self.filters, self.filter_columns = {}, {}
+		else:
+			self.filters, self.filter_columns = filters, filter_columns
 
 		# Dialog.
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Filter list.
-		self.filter_list = wx.ListBox(self)
+		self.filter_list = wx.ListBox(self, choices=self.filters.keys())
 		self.filter_list.SetMinSize((100, 200))
 		self.Bind(wx.EVT_LISTBOX_DCLICK, self.OnEditFilter, self.filter_list)
 		dialog_box.Add(self.filter_list, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
@@ -128,6 +131,9 @@ class FilterListDialog(Dialog):
 
 		name = '{0}: {1}'.format(col, f)
 
+		if selection is not None and name == selection:
+			return
+
 		if name in self.filters:
 			raise ValueError('Filter "{0}" already exists'.format(name))
 
@@ -158,7 +164,8 @@ class FilterListDialog(Dialog):
 		if not selection:
 			return
 
-		dlg = FilterEditDialog(self, self.table.headings, partial(self.edit_ok_callback, selection=selection))
+		dlg = FilterEditDialog(self, self.table.headings, partial(self.edit_ok_callback, selection=selection),
+				title='Edit filter')
 		dlg.SetValue((self.filter_columns[selection], self.filters[selection]))
 		dlg.Show()
 
@@ -169,13 +176,21 @@ class FilterListDialog(Dialog):
 		if not selection:
 			return
 
-		del self.filters[selection]
-		del self.filter_columns[selection]
+		try:
+			del self.filters[selection]
+		except KeyError:
+			pass
+
+		try:
+			del self.filter_columns[selection]
+		except KeyError:
+			pass
+
 		self.filter_list.Items = [x for x in self.filter_list.Items if x != selection]
 
 		self.table.apply_filter(self.meta_filter, afresh=True)
 
 	def OnClose(self, evt):
-		self.close_callback()
+		self.close_callback(self)
 
 		evt.Skip()

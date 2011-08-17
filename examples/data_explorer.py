@@ -17,6 +17,8 @@ class DataExplorerApp(wx.App):
 	default_title = 'Data Explorer'
 
 	def OnInit(self):
+		self.filters = {}
+		self.filter_columns = {}
 		self.filter_dialog = None
 
 		# Frames.
@@ -151,12 +153,15 @@ class DataExplorerApp(wx.App):
 			self.filter_dialog.Close()
 
 	def OnMenuFileFilters(self, evt=None):
-		def close_callback():
+		def close_callback(dlg):
+			self.filters = dlg.filters
+			self.filter_columns = dlg.filter_columns
+
 			self.filter_dialog = None
 
 		if self.filter_dialog is None:
 			self.filter_dialog = FilterListDialog(self.csv_frame, self.csv_frame.display_panel.table,
-					close_callback)
+					close_callback, self.filters, self.filter_columns)
 			self.filter_dialog.Show()
 
 		self.filter_dialog.Raise()

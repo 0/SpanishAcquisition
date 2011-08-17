@@ -74,16 +74,6 @@ class IbstaBits(object):
 	ERR = 0x8000
 
 
-class USBDevice(visa.Instrument):
-	"""
-	Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
-	"""
-
-	def __init__(self, *args, **kwargs):
-		# Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
-		visa.ResourceTemplate.__init__(self, *args, **kwargs)
-
-
 class SuperDevice(object):
 	def _setup(self):
 		"""
@@ -221,6 +211,15 @@ class AbstractDevice(SuperDevice):
 			except gpib.GpibError as e:
 				raise DeviceNotFoundError('Could not open device at "{0}".'.format(self.connection_resource), e)
 		elif self.driver == drivers.pyvisa_usb:
+			class USBDevice(visa.Instrument):
+				"""
+				Using USB devices with PyVISA requires a small hack: the object must be an Instrument, but we can't call Instrument.__init__.
+				"""
+
+				def __init__(self, *args, **kwargs):
+					# Bypass the initialization in visa.Instrument, due to "send_end" not being valid for USB.
+					visa.ResourceTemplate.__init__(self, *args, **kwargs)
+
 			try:
 				self.device = USBDevice(**self.connection_resource)
 			except visa.VisaIOError as e:

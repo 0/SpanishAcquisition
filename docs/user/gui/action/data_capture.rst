@@ -43,6 +43,35 @@ The data capture dialog controls the sweep itself.
       .. tip::
          To avoid leaving the system in an inconsistent state, pressing the "Cancel" button first allows whichever stage is currently running to finish running gracefully. Then, if any variables were configured to be set smoothly from their final values to their constant values, they are set smoothly from wherever the sweep was ended. Thus, it is safe to cancel the sweep at any time.
 
+The sweep consists of the following stages (with the displayed message in parentheses):
+
+   ``init`` (Initializing)
+      Internal setup.
+
+   ``next`` (Getting next values)
+      The next set of values to write to any resources is determined based on the variable configuration.
+
+   ``transition`` (Smooth setting)
+      A smooth transition occurs for all resources requiring one.
+
+   ``write`` (Writing to devices)
+      All variables with changed values have those values written to their resources.
+
+   ``dwell`` (Waiting for resources to settle)
+      A delay occurs for the variable with the longest wait time.
+
+   ``pulse`` (Running pulse program)
+      If one is configured, a pulse program is run.
+
+   ``read`` (Taking measurements)
+      All measurements are read from their resources.
+
+   ``ramp_down`` (Smooth setting)
+      A smooth transition occurs from the last value to the variables' constant values, as required.
+
+   ``end`` (Finishing)
+      Internal cleanup.
+
 Export format
 *************
 

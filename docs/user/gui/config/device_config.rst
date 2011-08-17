@@ -2,6 +2,8 @@
 Device configuration
 ####################
 
+.. _device_config_list:
+
 Device list
 ***********
 

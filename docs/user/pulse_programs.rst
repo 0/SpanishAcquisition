@@ -1,3 +1,5 @@
+.. _pulse_programs:
+
 ##############
 Pulse programs
 ##############
@@ -46,6 +48,8 @@ Any variables which are collections of values can have several of their values a
 
    # Not all attributes must be present:
    {shape: 'non-square'}
+
+.. _pulse_programs_attributes:
 
 Attributes
 ==========
@@ -145,6 +149,8 @@ Any values which are not assigned in the body of the pulse program must be fille
    p1:f1
 
 is the entirety of valid pulse program, but **p1.length** is treated as an external parameter and must be known in order to generate the waveform for output **f1**.
+
+It it possible to fill these values in dynamically as part of a sweep, given that the parameters are assigned resource labels.
 
 .. seealso:: :ref:`pulse_program_configuration`
 

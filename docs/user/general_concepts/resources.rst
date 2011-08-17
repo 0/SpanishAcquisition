@@ -4,9 +4,9 @@
 Resources
 #########
 
-Resources provide a way of interacting with :ref:`devices <general_concepts_devices>` in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW). RO and RW resources are considered *readable*; WO and RW resources are considered *writable*.
+Resources provide a way of interacting with :ref:`devices <general_concepts_devices>` and :ref:`pulse programs <pulse_programs>` in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW). RO and RW resources are considered *readable*; WO and RW resources are considered *writable*.
 
-In the typical case, a :ref:`device <general_concepts_devices>` (eg. a multimeter) will provide several resources; there may be some RW resources (eg. integration time, auto-zero setting), and some RO ones (eg. measurement reading). WO resources are possible, but atypical.
+In the typical case, a :ref:`device <general_concepts_devices>` (eg. a multimeter) will provide several resources; there may be some RW resources (eg. integration time, auto-zero setting), and some RO ones (eg. measurement reading). WO resources are possible (and are commonly found as pulse program resources), but are atypical among devices.
 
 These provided resources can be given arbitrary labels, and these labels are used elsewhere to identify the resources. For example, given two RW resources with labels "reading" and "gate", one can set up a variable which writes to the resource labelled "gate" and a measurement which reads from the resource labelled "reading".
 

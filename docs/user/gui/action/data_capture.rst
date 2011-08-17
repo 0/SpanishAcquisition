@@ -20,6 +20,8 @@ The data capture panel controls the verification of the setup, as well as the ex
    4. The location of the directory to which the values *should be* exported.
    5. The location of the file to which the last set of values *was* exported.
 
+.. _data_capture_dialog:
+
 Data capture dialog
 *******************
 

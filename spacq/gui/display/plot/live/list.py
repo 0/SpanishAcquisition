@@ -7,7 +7,14 @@ import wx
 
 from ....config.measurement import MeasurementConfigPanel
 from ....tool.box import Dialog, MessageDialog
-from ..surface import SurfacePlot
+
+try:
+	from ..surface import SurfacePlot
+except ImportError as e:
+	plot_available = False
+	log.debug('Could not import SurfacePlot: {0}'.format(str(e)))
+else:
+	plot_available = True
 
 """
 A historical live view plot for list values.
@@ -20,6 +27,7 @@ class PlotSettings(object):
 	"""
 
 	def __init__(self):
+		self.enabled = plot_available
 		self.num_lines = 100
 
 
@@ -34,6 +42,12 @@ class PlotSettingsDialog(Dialog):
 		self.ok_callback = ok_callback
 
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
+
+		# Enabled.
+		self.enabled_checkbox = wx.CheckBox(self, label='Enabled')
+		if not plot_available:
+			self.enabled_checkbox.Disable()
+		dialog_box.Add(self.enabled_checkbox, flag=wx.ALL, border=5)
 
 		# Capture.
 		capture_static_box = wx.StaticBox(self, label='Capture')
@@ -68,11 +82,13 @@ class PlotSettingsDialog(Dialog):
 
 	def GetValue(self):
 		plot_settings = PlotSettings()
+		plot_settings.enabled = self.enabled_checkbox.Value
 		plot_settings.num_lines = self.lines_input.Value
 
 		return plot_settings
 
 	def SetValue(self, plot_settings):
+		self.enabled_checkbox.Value = plot_settings.enabled
 		self.lines_input.Value = plot_settings.num_lines
 
 
@@ -101,33 +117,37 @@ class ListLiveViewPanel(wx.Panel):
 		display_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Plot.
-		self.plot = SurfacePlot(self, style='waveform')
-		display_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
+		if plot_available:
+			self.plot = SurfacePlot(self, style='waveform')
+			display_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
 
-		self.plot.x_label = 'Waveform time (s)'
-		self.plot.y_label = 'History'
+			self.plot.x_label = 'Waveform time (s)'
+			self.plot.y_label = 'History'
+		else:
+			display_box.Add((500, -1), proportion=1, flag=wx.EXPAND)
 
 		## Controls.
-		controls_box = wx.BoxSizer(wx.HORIZONTAL)
-		display_box.Add(controls_box, flag=wx.CENTER|wx.ALL, border=5)
+		if plot_available:
+			controls_box = wx.BoxSizer(wx.HORIZONTAL)
+			display_box.Add(controls_box, flag=wx.CENTER|wx.ALL, border=5)
 
-		### Capture.
-		capture_static_box = wx.StaticBox(self, label='Control')
-		capture_box = wx.StaticBoxSizer(capture_static_box)
-		controls_box.Add(capture_box, flag=wx.CENTER)
+			### Capture.
+			capture_static_box = wx.StaticBox(self, label='Control')
+			capture_box = wx.StaticBoxSizer(capture_static_box)
+			controls_box.Add(capture_box, flag=wx.CENTER)
 
-		self.reset_button = wx.Button(self, label='Reset')
-		self.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_button)
-		capture_box.Add(self.reset_button, flag=wx.CENTER)
+			self.reset_button = wx.Button(self, label='Reset')
+			self.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_button)
+			capture_box.Add(self.reset_button, flag=wx.CENTER)
 
-		### Settings.
-		settings_static_box = wx.StaticBox(self, label='Settings')
-		settings_box = wx.StaticBoxSizer(settings_static_box, wx.HORIZONTAL)
-		controls_box.Add(settings_box, flag=wx.CENTER|wx.LEFT, border=10)
+			### Settings.
+			settings_static_box = wx.StaticBox(self, label='Settings')
+			settings_box = wx.StaticBoxSizer(settings_static_box, wx.HORIZONTAL)
+			controls_box.Add(settings_box, flag=wx.CENTER|wx.LEFT, border=10)
 
-		self.plot_settings_button = wx.Button(self, label='Plot...')
-		self.Bind(wx.EVT_BUTTON, self.OnPlotSettings, self.plot_settings_button)
-		settings_box.Add(self.plot_settings_button, flag=wx.CENTER)
+			self.plot_settings_button = wx.Button(self, label='Plot...')
+			self.Bind(wx.EVT_BUTTON, self.OnPlotSettings, self.plot_settings_button)
+			settings_box.Add(self.plot_settings_button, flag=wx.CENTER)
 
 		self.SetSizer(display_box)
 
@@ -180,6 +200,9 @@ class ListLiveViewPanel(wx.Panel):
 		"""
 		Update the plot with a new list of values.
 		"""
+
+		if not self.plot_settings.enabled:
+			return
 
 		# Extract the times and the data values.
 		times, values = zip(*values)

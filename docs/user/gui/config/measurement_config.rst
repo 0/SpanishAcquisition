@@ -6,6 +6,9 @@ Measurement configuration
 
 The measurement configuration dialogs are used to set up :ref:`input variables <general_concepts_input_variables>` for an application.
 
+.. note::
+   If the plots cannot be displayed (most likely due to a required plotting library not being installed), the plots and all plot-specific options will be omitted. However, the measurements can still be set up in the same way.
+
 .. _measurement_config_scalar:
 
 Scalar measurement
@@ -50,6 +53,7 @@ Plot settings
 
    ..
 
+   * Enabled: Whether the plot should be updated at all.
    * Capture
 
      * Points: The number of historical values to display. The maximum value is 10,000.
@@ -93,6 +97,7 @@ Plot settings
 
    ..
 
+   * Enabled: Whether the plot should be updated at all.
    * Capture
 
      * Lines: The number of lines of historical data to display.

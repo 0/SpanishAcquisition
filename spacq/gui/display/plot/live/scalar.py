@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 import functools
 import math
 import numpy
@@ -12,7 +15,14 @@ from spacq.interface.units import Quantity
 
 from ....config.measurement import MeasurementConfigPanel
 from ....tool.box import Dialog, MessageDialog
-from ..two_dimensional import TwoDimensionalPlot
+
+try:
+	from ..two_dimensional import TwoDimensionalPlot
+except ImportError as e:
+	plot_available = False
+	log.debug('Could not import TwoDimensionalPlot: {0}'.format(str(e)))
+else:
+	plot_available = True
 
 """
 A historical live view plot for scalar values.
@@ -25,6 +35,7 @@ class PlotSettings(object):
 	"""
 
 	def __init__(self):
+		self.enabled = plot_available
 		self.num_points = 500
 		self.delay = Quantity(0.2, 's')
 		self.update_x = True
@@ -47,6 +58,12 @@ class PlotSettingsDialog(Dialog):
 		self.ok_callback = ok_callback
 
 		dialog_box = wx.BoxSizer(wx.VERTICAL)
+
+		# Enabled.
+		self.enabled_checkbox = wx.CheckBox(self, label='Enabled')
+		if not plot_available:
+			self.enabled_checkbox.Disable()
+		dialog_box.Add(self.enabled_checkbox, flag=wx.ALL, border=5)
 
 		# Capture.
 		capture_static_box = wx.StaticBox(self, label='Capture')
@@ -146,6 +163,7 @@ class PlotSettingsDialog(Dialog):
 
 	def GetValue(self):
 		plot_settings = PlotSettings()
+		plot_settings.enabled = self.enabled_checkbox.Value
 		plot_settings.num_points = self.points_input.Value
 		plot_settings.delay = Quantity(self.delay_input.GetValue(), 's')
 		plot_settings.update_x = self.update_x_axis.Value
@@ -159,6 +177,7 @@ class PlotSettingsDialog(Dialog):
 		return plot_settings
 
 	def SetValue(self, plot_settings):
+		self.enabled_checkbox.Value = plot_settings.enabled
 		self.points_input.Value = plot_settings.num_points
 		self.delay_input.SetValue(plot_settings.delay.value)
 		self.update_x_axis.Value = plot_settings.update_x
@@ -200,49 +219,53 @@ class ScalarLiveViewPanel(wx.Panel):
 		display_box = wx.BoxSizer(wx.VERTICAL)
 
 		## Plot.
-		self.plot = TwoDimensionalPlot(self, color='blue')
-		display_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
+		if plot_available:
+			self.plot = TwoDimensionalPlot(self, color='blue')
+			display_box.Add(self.plot.control, proportion=1, flag=wx.EXPAND)
 
-		self.plot.x_label = 'Time (s)'
+			self.plot.x_label = 'Time (s)'
+		else:
+			display_box.Add((500, -1), proportion=1, flag=wx.EXPAND)
 
 		## Controls.
-		controls_box = wx.BoxSizer(wx.HORIZONTAL)
-		display_box.Add(controls_box, flag=wx.CENTER|wx.ALL, border=5)
+		if plot_available:
+			controls_box = wx.BoxSizer(wx.HORIZONTAL)
+			display_box.Add(controls_box, flag=wx.CENTER|wx.ALL, border=5)
 
-		### Numeric display.
-		numeric_display_static_box = wx.StaticBox(self, label='Reading')
-		numeric_display_box = wx.StaticBoxSizer(numeric_display_static_box, wx.HORIZONTAL)
-		controls_box.Add(numeric_display_box, flag=wx.CENTER)
+			### Numeric display.
+			numeric_display_static_box = wx.StaticBox(self, label='Reading')
+			numeric_display_box = wx.StaticBoxSizer(numeric_display_static_box, wx.HORIZONTAL)
+			controls_box.Add(numeric_display_box, flag=wx.CENTER)
 
-		self.numeric_display = wx.TextCtrl(self, size=(100, -1), style=wx.TE_READONLY)
-		self.numeric_display.BackgroundColour = wx.LIGHT_GREY
-		numeric_display_box.Add(self.numeric_display)
+			self.numeric_display = wx.TextCtrl(self, size=(100, -1), style=wx.TE_READONLY)
+			self.numeric_display.BackgroundColour = wx.LIGHT_GREY
+			numeric_display_box.Add(self.numeric_display)
 
-		### Capture.
-		capture_static_box = wx.StaticBox(self, label='Control')
-		capture_box = wx.StaticBoxSizer(capture_static_box)
-		controls_box.Add(capture_box, flag=wx.CENTER|wx.LEFT, border=10)
+			### Capture.
+			capture_static_box = wx.StaticBox(self, label='Control')
+			capture_box = wx.StaticBoxSizer(capture_static_box)
+			controls_box.Add(capture_box, flag=wx.CENTER|wx.LEFT, border=10)
 
-		self.run_button = wx.Button(self, label='Run')
-		self.Bind(wx.EVT_BUTTON, self.OnRun, self.run_button)
-		capture_box.Add(self.run_button, flag=wx.CENTER)
+			self.run_button = wx.Button(self, label='Run')
+			self.Bind(wx.EVT_BUTTON, self.OnRun, self.run_button)
+			capture_box.Add(self.run_button, flag=wx.CENTER)
 
-		self.pause_button = wx.Button(self, label='Pause')
-		self.Bind(wx.EVT_BUTTON, self.OnPause, self.pause_button)
-		capture_box.Add(self.pause_button, flag=wx.CENTER)
+			self.pause_button = wx.Button(self, label='Pause')
+			self.Bind(wx.EVT_BUTTON, self.OnPause, self.pause_button)
+			capture_box.Add(self.pause_button, flag=wx.CENTER)
 
-		self.reset_button = wx.Button(self, label='Reset')
-		self.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_button)
-		capture_box.Add(self.reset_button, flag=wx.CENTER|wx.LEFT, border=10)
+			self.reset_button = wx.Button(self, label='Reset')
+			self.Bind(wx.EVT_BUTTON, self.OnReset, self.reset_button)
+			capture_box.Add(self.reset_button, flag=wx.CENTER|wx.LEFT, border=10)
 
-		### Settings.
-		settings_static_box = wx.StaticBox(self, label='Settings')
-		settings_box = wx.StaticBoxSizer(settings_static_box, wx.HORIZONTAL)
-		controls_box.Add(settings_box, flag=wx.CENTER|wx.LEFT, border=10)
+			### Settings.
+			settings_static_box = wx.StaticBox(self, label='Settings')
+			settings_box = wx.StaticBoxSizer(settings_static_box, wx.HORIZONTAL)
+			controls_box.Add(settings_box, flag=wx.CENTER|wx.LEFT, border=10)
 
-		self.plot_settings_button = wx.Button(self, label='Plot...')
-		self.Bind(wx.EVT_BUTTON, self.OnPlotSettings, self.plot_settings_button)
-		settings_box.Add(self.plot_settings_button, flag=wx.CENTER)
+			self.plot_settings_button = wx.Button(self, label='Plot...')
+			self.Bind(wx.EVT_BUTTON, self.OnPlotSettings, self.plot_settings_button)
+			settings_box.Add(self.plot_settings_button, flag=wx.CENTER)
 
 		self.SetSizer(display_box)
 
@@ -365,6 +388,9 @@ class ScalarLiveViewPanel(wx.Panel):
 		"""
 		Update the plot with a new value.
 		"""
+
+		if not self.plot_settings.enabled:
+			return
 
 		# Extract the value of a Quantity.
 		try:

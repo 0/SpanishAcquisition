@@ -21,3 +21,8 @@ A device which has several versions of the same :ref:`resources <general_concept
 For example, an oscilloscope may have multiple channels, with each having the same set of settings. These channels may then be viewed as subdevices, each having its own settings.
 
 .. seealso:: :ref:`device_config_resources`
+
+Mock
+****
+
+Mock devices are software simulations of hardware devices. They are typically created at the same time as the device interface and support the same functionality. Most of the time, they are used for testing or as a virtual device.

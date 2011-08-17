@@ -7,12 +7,15 @@ Interfaces for various hardware devices.
 Class hierarchy
 ***************
 
-All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractDevice`, with their subdevices inheriting from :class:`~spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
-
 .. toctree::
    :maxdepth: 2
 
    abstract_device
+   config
+
+All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractDevice`, with their subdevices inheriting from :class:`~spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
+
+:class:`~spacq.devices.config.DeviceConfig` and :func:`~spacq.devices.config.device_tree` provide a way to find existing devices and connect to them.
 
 .. _devices_testing:
 

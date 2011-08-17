@@ -4,7 +4,7 @@
 Developer's Guide
 #################
 
-The developer is assumed to have read and internalized the :ref:`User's Guide <users_guide>` before proceeding.
+The developer is assumed to have read through the :ref:`users_guide` before proceeding.
 
 .. toctree::
    :maxdepth: 2

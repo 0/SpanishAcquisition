@@ -132,6 +132,8 @@ class DataExplorerApp(wx.App):
 
 		if result is None:
 			return
+		else:
+			self.OnMenuFileClose()
 
 		has_header, values, filename = result
 		self.csv_frame.display_panel.from_csv_data(has_header, values)
@@ -151,6 +153,9 @@ class DataExplorerApp(wx.App):
 
 		if self.filter_dialog is not None:
 			self.filter_dialog.Close()
+
+		self.filters = {}
+		self.filter_columns = {}
 
 	def OnMenuFileFilters(self, evt=None):
 		def close_callback(dlg):

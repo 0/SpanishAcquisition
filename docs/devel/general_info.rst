@@ -69,7 +69,7 @@ This places the result at ``docs/_build/html/index.html``.
 Updating
 ========
 
-Is is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the :ref:`users_guide` as they occur. All changes (especially internal ones not mentioned in the :ref:`users_guide`) should be documented in the :ref:`developers_guide`.
+It is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the :ref:`users_guide` as they occur. All changes (especially internal ones not mentioned in the :ref:`users_guide`) should be documented in the :ref:`developers_guide`.
 
 Example applications
 ********************

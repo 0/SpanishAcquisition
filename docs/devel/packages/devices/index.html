@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
     <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Packages" href="../index.html" />
-    <link rel="next" title="abstract_device — Generic device interface" href="abstract_device.html" />
+    <link rel="next" title="GUI" href="../gui/index.html" />
     <link rel="prev" title="Packages" href="../index.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="abstract_device.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface</a>&#160;&#160;»
+        <a href="../gui/index.html">GUI</a>&#160;&#160;»
         </p>
 
       </div>
@@ -53,14 +53,8 @@
 <p>Interfaces for various hardware devices.</p>
 <div class="section" id="class-hierarchy">
 <h2>Class hierarchy<a class="headerlink" href="#class-hierarchy" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="abstract_device.html"><tt class="docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="config.html"><tt class="docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a></li>
-</ul>
-</div>
-<p>All device classes inherit from <a class="reference internal" href="abstract_device.html#spacq.devices.abstract_device.AbstractDevice" title="spacq.devices.abstract_device.AbstractDevice"><tt class="xref py py-class docutils literal"><span class="pre">AbstractDevice</span></tt></a>, with their subdevices inheriting from <a class="reference internal" href="abstract_device.html#spacq.devices.abstract_device.AbstractSubdevice" title="spacq.devices.abstract_device.AbstractSubdevice"><tt class="xref py py-class docutils literal"><span class="pre">AbstractSubdevice</span></tt></a>. Each device class has its own test class, as well as a mock implementation.</p>
-<p><a class="reference internal" href="config.html#spacq.devices.config.DeviceConfig" title="spacq.devices.config.DeviceConfig"><tt class="xref py py-class docutils literal"><span class="pre">DeviceConfig</span></tt></a> and <a class="reference internal" href="config.html#spacq.devices.config.device_tree" title="spacq.devices.config.device_tree"><tt class="xref py py-func docutils literal"><span class="pre">device_tree()</span></tt></a> provide a way to find existing devices and connect to them.</p>
+<p>All device classes inherit from <tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.abstract_device.AbstractDevice</span></tt>, which provides all the functionality necessary to make connections to physical devices. Subdevices inherit from <tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.abstract_device.AbstractSubdevice</span></tt>. Each device class has its own test class, as well as a mock implementation.</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.config.DeviceConfig</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">spacq.devices.config.device_tree()</span></tt> provide a way to find existing devices and connect to them.</p>
 </div>
 <div class="section" id="testing">
 <span id="devices-testing"></span><h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
@@ -135,16 +129,20 @@ vim spacq/devices/__init__.py # Add "oxford".</pre>
 </table>
 </div>
 </div>
+<div class="section" id="synchronization">
+<span id="devices-graphical-configuration"></span><h2>Synchronization<a class="headerlink" href="#synchronization" title="Permalink to this headline">¶</a></h2>
+<p>To allow for consistent state while performing device commands, each device contains a re-entrant lock. Every read and write operation acquires this lock; thus, multiple reads and writes are mutually excluded. In order to provide a similar mechanism for user-defined methods, the <tt class="xref py py-class docutils literal"><span class="pre">spacq.tool.box.Synchronized</span></tt> decorator can be used. This decorator will acquire the device lock, ensuring that other concurrently-executing threads cannot do the same, and that the atomicity of the decorated method is guaranteed for a given device instance.</p>
+</div>
 <div class="section" id="graphical-configuration">
-<span id="devices-graphical-configuration"></span><h2>Graphical configuration<a class="headerlink" href="#graphical-configuration" title="Permalink to this headline">¶</a></h2>
-<p>In the case that a device requires a graphical configuration panel, one can be added in the form of a non-modal wxPython dialog (inherited from <a class="reference internal" href="../gui/tool_box.html#spacq.gui.tool.box.Dialog" title="spacq.gui.tool.box.Dialog"><tt class="xref py py-class docutils literal"><span class="pre">Dialog</span></tt></a>). The dialog should reside in <tt class="docutils literal"><span class="pre">spacq/devices/&lt;manufacturer&gt;/gui/&lt;model&gt;.py</span></tt>, and its constructor must take the following arguments, in order:</p>
+<h2>Graphical configuration<a class="headerlink" href="#graphical-configuration" title="Permalink to this headline">¶</a></h2>
+<p>In the case that a device requires a graphical configuration panel, one can be added in the form of a non-modal wxPython dialog (inherited from <tt class="xref py py-class docutils literal"><span class="pre">Dialog</span></tt>). The dialog should reside in <tt class="docutils literal"><span class="pre">spacq/devices/&lt;manufacturer&gt;/gui/&lt;model&gt;.py</span></tt>, and its constructor must take the following arguments, in order:</p>
 <ol class="arabic simple">
 <li>The parent window.</li>
 <li>The global store.</li>
 <li>The device name as used in the global store.</li>
 </ol>
 <p>The latter two values allow the dialog to find a reference to the device object itself.</p>
-<p>In order to announce that a GUI configuration panel is available, the device class (child of <a class="reference internal" href="abstract_device.html#spacq.devices.abstract_device.AbstractDevice" title="spacq.devices.abstract_device.AbstractDevice"><tt class="xref py py-class docutils literal"><span class="pre">AbstractDevice</span></tt></a>) must have a <tt class="docutils literal"><span class="pre">_gui_setup</span></tt> property which follows the following template:</p>
+<p>In order to announce that a GUI configuration panel is available, the device class (child of <tt class="xref py py-class docutils literal"><span class="pre">AbstractDevice</span></tt>) must have a <tt class="docutils literal"><span class="pre">_gui_setup</span></tt> property which follows the following template:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">_gui_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
@@ -169,7 +167,7 @@ vim spacq/devices/__init__.py # Add "oxford".</pre>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="abstract_device.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">abstract_device</span></tt> &#8212; Generic device interface</a>&#160;&#160;»
+        <a href="../gui/index.html">GUI</a>&#160;&#160;»
         </p>
 
       </div>

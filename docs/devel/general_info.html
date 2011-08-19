@@ -67,7 +67,7 @@
 <h3>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
 <p>Currently, only device tests exist in the form of server tests. Before running these, the devices should be connected to the computer and <a class="reference internal" href="packages/devices/index.html#devices-testing"><em>configured</em></a>.</p>
 <p>Server tests can be found with:</p>
-<div class="highlight-python"><pre>find . -path '*/tests/server/test_*.py'</pre>
+<div class="highlight-python"><pre>find ./spacq/ -path '*/tests/server/test_*.py'</pre>
 </div>
 <p>and run with, for example:</p>
 <div class="highlight-python"><pre>./runtests --no-skip ./spacq/devices/tests/server/test_abstract_device.py</pre>
@@ -109,7 +109,7 @@ Four
 </div>
 <div class="section" id="updating">
 <h3>Updating<a class="headerlink" href="#updating" title="Permalink to this headline">¶</a></h3>
-<p>Is is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a> as they occur. All changes (especially internal ones not mentioned in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a>) should be documented in the <a class="reference internal" href="index.html#developers-guide"><em>Developer&#8217;s Guide</em></a>.</p>
+<p>It is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a> as they occur. All changes (especially internal ones not mentioned in the <a class="reference internal" href="../user/index.html#users-guide"><em>User&#8217;s Guide</em></a>) should be documented in the <a class="reference internal" href="index.html#developers-guide"><em>Developer&#8217;s Guide</em></a>.</p>
 </div>
 </div>
 <div class="section" id="example-applications">

@@ -7,15 +7,9 @@ Interfaces for various hardware devices.
 Class hierarchy
 ***************
 
-.. toctree::
-   :maxdepth: 2
+All device classes inherit from :class:`spacq.devices.abstract_device.AbstractDevice`, which provides all the functionality necessary to make connections to physical devices. Subdevices inherit from :class:`spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
 
-   abstract_device
-   config
-
-All device classes inherit from :class:`~spacq.devices.abstract_device.AbstractDevice`, with their subdevices inheriting from :class:`~spacq.devices.abstract_device.AbstractSubdevice`. Each device class has its own test class, as well as a mock implementation.
-
-:class:`~spacq.devices.config.DeviceConfig` and :func:`~spacq.devices.config.device_tree` provide a way to find existing devices and connect to them.
+:class:`spacq.devices.config.DeviceConfig` and :func:`spacq.devices.config.device_tree` provide a way to find existing devices and connect to them.
 
 .. _devices_testing:
 
@@ -82,6 +76,11 @@ The sample manufacturer comes with a sample device in the form of files ending i
 .. [#server_tests] They are referred to as "server" tests because they have an external dependency (the hardware device) which acts roughly as a server to which the tests connect.
 
 .. _devices_graphical_configuration:
+
+Synchronization
+***************
+
+To allow for consistent state while performing device commands, each device contains a re-entrant lock. Every read and write operation acquires this lock; thus, multiple reads and writes are mutually excluded. In order to provide a similar mechanism for user-defined methods, the :class:`spacq.tool.box.Synchronized` decorator can be used. This decorator will acquire the device lock, ensuring that other concurrently-executing threads cannot do the same, and that the atomicity of the decorated method is guaranteed for a given device instance.
 
 Graphical configuration
 ***********************

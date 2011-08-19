@@ -26,7 +26,6 @@
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
     <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Packages" href="../index.html" />
-    <link rel="next" title="Tests" href="../tests/index.html" />
     <link rel="prev" title="Interface" href="../interface/index.html" /> 
   </head>
   <body>
@@ -40,8 +39,6 @@
         «&#160;&#160;<a href="../interface/index.html">Interface</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="../tests/index.html">Tests</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,6 +47,28 @@
         
   <div class="section" id="iteration">
 <h1>Iteration<a class="headerlink" href="#iteration" title="Permalink to this headline">¶</a></h1>
+<p>Tools for iterating; the core of the logic behind sweeping.</p>
+<div class="section" id="file-structure">
+<h2>File structure<a class="headerlink" href="#file-structure" title="Permalink to this headline">¶</a></h2>
+<p>The package consists of only two modules: <tt class="xref py py-mod docutils literal"><span class="pre">spacq.iteration.sweep</span></tt> which contains <tt class="xref py py-class docutils literal"><span class="pre">SweepController</span></tt>, and <tt class="xref py py-mod docutils literal"><span class="pre">spacq.iteration.variables</span></tt> which defines input and output variables. Together, these modules can be used to provide iteration over a set of variables.</p>
+</div>
+<div class="section" id="sweeping">
+<h2>Sweeping<a class="headerlink" href="#sweeping" title="Permalink to this headline">¶</a></h2>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.iteration.sweep.SweepController</span></tt> goes through a process of several stages, as crudely drawn in its docstring:</p>
+<div class="highlight-python"><pre>init -&gt; next -&gt; transition -&gt; write -&gt; dwell -&gt; pulse -&gt; read -&gt; ramp_down -&gt; end
+^       ^                                  |_____________^  |            |
+|       |___________________________________________________|            |
+|________________________________________________________________________|</pre>
+</div>
+<p>The ordering is approximately linear, but with some loops and skips:</p>
+<ul class="simple">
+<li>If no pulse program is defined, the <tt class="docutils literal"><span class="pre">pulse</span></tt> stage is skipped.</li>
+<li>If more items remain to be iterated over, <tt class="docutils literal"><span class="pre">read</span></tt> heads to <tt class="docutils literal"><span class="pre">next</span></tt>.</li>
+<li>If the sweep is continuous, <tt class="docutils literal"><span class="pre">ramp_down</span></tt> restarts it instead of finishing it.</li>
+</ul>
+<p>Those steps which deal with accessing resources (<tt class="docutils literal"><span class="pre">transition</span></tt>, <tt class="docutils literal"><span class="pre">write</span></tt>, <tt class="docutils literal"><span class="pre">read</span></tt>, <tt class="docutils literal"><span class="pre">ramp_down</span></tt>) do so in parallel, using as many concurrent <tt class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></tt> objects as necessary.</p>
+<p>The sweeping process can be interrupted at any time for many reasons; some of these include: user error, device error, and the user pressing the &#8220;Cancel&#8221; button. In the case that it is interrupted, the sweep simply proceeds to either the <tt class="docutils literal"><span class="pre">ramp_down</span></tt> or the <tt class="docutils literal"><span class="pre">end</span></tt> stage, depending on whether is interruption is fatal. The distinction between a fatal and a non-fatal interruption is that in the case of a fatal one, the <tt class="docutils literal"><span class="pre">ramp_down</span></tt> stage cannot be expected to succeed; for example, if writing to a resource failed.</p>
+</div>
 </div>
 
 
@@ -60,8 +79,6 @@
         «&#160;&#160;<a href="../interface/index.html">Interface</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
-        &#160;&#160;::&#160;&#160;
-        <a href="../tests/index.html">Tests</a>&#160;&#160;»
         </p>
 
       </div>

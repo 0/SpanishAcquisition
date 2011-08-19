@@ -26,8 +26,8 @@
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
     <link rel="top" title="Spanish Acquisition v0.1 documentation" href="../../../index.html" />
     <link rel="up" title="Packages" href="../index.html" />
-    <link rel="next" title="global_store — GUI global store" href="global_store.html" />
-    <link rel="prev" title="config — Device configuration" href="../devices/config.html" /> 
+    <link rel="next" title="Interface" href="../interface/index.html" />
+    <link rel="prev" title="Devices" href="../devices/index.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
@@ -37,11 +37,11 @@
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="../devices/config.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>
+        «&#160;&#160;<a href="../devices/index.html">Devices</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="global_store.html"><tt class="docutils literal docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a>&#160;&#160;»
+        <a href="../interface/index.html">Interface</a>&#160;&#160;»
         </p>
 
       </div>
@@ -53,15 +53,85 @@
 <p>Tools for providing applications with a graphical user interface.</p>
 <div class="section" id="class-hierarchy">
 <h2>Class hierarchy<a class="headerlink" href="#class-hierarchy" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="global_store.html"><tt class="docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tool_box.html"><tt class="docutils literal"><span class="pre">tool.box</span></tt> &#8212; GUI toolbox</a></li>
-</ul>
-</div>
 <p>The entire GUI framework is built on wxPython, so all widget classes ultimately inherit from a wxPython class, such as <tt class="xref py py-class docutils literal"><span class="pre">wx.Frame</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">wx.Panel</span></tt>, or <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt>.</p>
-<p>The <a class="reference internal" href="global_store.html#gui-global-store"><em>global store</em></a> provides a container for the <tt class="xref py py-mod docutils literal"><span class="pre">spacq</span></tt>-related global state for an entire application. It includes separate namespaces for devices, resources, and variables, as well as a single slot for a pulse program.</p>
-<p>The <a class="reference internal" href="tool_box.html#gui-tool-box"><em>GUI toolbox</em></a> provides several GUI primitives which appear frequently, such as a <a class="reference internal" href="tool_box.html#spacq.gui.tool.box.MessageDialog" title="spacq.gui.tool.box.MessageDialog"><tt class="xref py py-class docutils literal"><span class="pre">MessageDialog</span></tt></a> and functions for saving and loading Python-pickled and CSV files with a graphical dialog. It is recommended to use <a class="reference internal" href="tool_box.html#spacq.gui.tool.box.Dialog" title="spacq.gui.tool.box.Dialog"><tt class="xref py py-class docutils literal"><span class="pre">Dialog</span></tt></a> rather than <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt> directly, in order to simplify disposal.</p>
+<p>The global store provides <tt class="xref py py-class docutils literal"><span class="pre">spacq.gui.global_store.GlobalStore</span></tt>, a container for the <tt class="xref py py-mod docutils literal"><span class="pre">spacq</span></tt>-related global state for an entire application. It includes separate namespaces for devices, resources, and variables, as well as a single slot for a pulse program.</p>
+<p>The GUI toolbox provides several GUI primitives which appear frequently, such as a <tt class="xref py py-class docutils literal"><span class="pre">spacq.gui.tool.box.MessageDialog</span></tt> and functions for saving and loading Python-pickled and CSV files with a graphical dialog.</p>
+</div>
+<div class="section" id="file-structure">
+<h2>File structure<a class="headerlink" href="#file-structure" title="Permalink to this headline">¶</a></h2>
+<p>The files are laid out in the same fashion as shown in the <a class="reference internal" href="../../../user/gui/index.html#user-gui"><em>Graphical user interface</em></a> section of the <a class="reference internal" href="../../../user/index.html#users-guide"><em>User&#8217;s Guide</em></a>: they are first sorted based on the fundamental type of widget described in the file. Within that, some widgets may be classified futher to restrict them to their own namespace. For example, the plots are found in <tt class="docutils literal"><span class="pre">spacq/gui/display/plot/</span></tt> rather than just in <tt class="docutils literal"><span class="pre">spacq/gui/display/</span></tt>.</p>
+<p>An attempt has been made to keep as much logic as possible out of the GUI code. For example, <tt class="xref py py-class docutils literal"><span class="pre">spacq.gui.action.data_capture.DataCaptureDialog</span></tt> only handles the progress widget, user interaction, and error messages; however, it inherits from <tt class="xref py py-class docutils literal"><span class="pre">spacq.iteration.sweep.SweepController</span></tt>, which handles all the sweep logic. The former is not easily testable, but the latter is tested in <tt class="xref py py-class docutils literal"><span class="pre">spacq.iteration.tests.test_sweep.SweepControllerTest</span></tt>.</p>
+</div>
+<div class="section" id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dialogs">
+<h3>Dialogs<a class="headerlink" href="#dialogs" title="Permalink to this headline">¶</a></h3>
+<p>It is recommended to use <tt class="xref py py-class docutils literal"><span class="pre">spacq.gui.tool.box.Dialog</span></tt> rather than <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt> directly, in order to simplify disposal. An explanation for the behaviour of <tt class="xref py py-class docutils literal"><span class="pre">wx.Dialog</span></tt> exists in the <a class="reference external" href="http://docs.wxwidgets.org/2.8/wx_windowdeletionoverview.html">wxWidgets documentation</a> under &#8220;Window deletion overview&#8221;.</p>
+<p>All dialogs should be <em>modeless</em> in order to allow the user to interact with several parts of an application simultaneously. It is often necessary to leave a dialog open and switch contexts to another part of the program; that is impossible to achieve with modal dialogs.</p>
+</div>
+<div class="section" id="messaging">
+<h3>Messaging<a class="headerlink" href="#messaging" title="Permalink to this headline">¶</a></h3>
+<p>Due to GUI programming&#8217;s asynchronous, event-driven nature, it may be difficult to ensure that different parts of a GUI application can communicate with each other in a timely manner. Two methods are utilized for messaging: callbacks and a pub-sub framework.</p>
+<div class="section" id="callbacks">
+<h4>Callbacks<a class="headerlink" href="#callbacks" title="Permalink to this headline">¶</a></h4>
+<p>For uni-directional, ad-hoc communication, callbacks are a simple and obvious choice. Thus, they are used extensively in the GUI code.</p>
+<p>For example, let us examine the common case that a dialog is launched and an action is required when the user clicks the OK button. The dialog needs to provide the usual setup for the OK button event handling:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_BUTTON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OnOk</span><span class="p">,</span> <span class="n">ok_button</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>However, the <tt class="xref py py-obj docutils literal"><span class="pre">OnOk</span></tt> method cannot contain any logic of its own, since the dialog does not know in which context it was called. All that needs to happen in the event handler is a call to the callback:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">OnOk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ok_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Destroy</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>where the <tt class="xref py py-obj docutils literal"><span class="pre">ok_callback</span></tt> attribute is either set by <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> or after by the caller. This structure allows the dialog to know whether to exit (depending on the result of the callback), but does not require it to know what happens when the button is pressed.</p>
+<p>The event handler logic comes from whoever creates the dialog. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">var</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">ok_callback</span><span class="p">(</span><span class="n">dlg</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">dlg</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">MessageDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s">&#39;Invalid value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="k">return</span> <span class="bp">True</span>
+
+<span class="n">dlg</span> <span class="o">=</span> <span class="n">SomeDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok_callback</span><span class="p">)</span>
+<span class="n">dlg</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+<span class="n">dlg</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">As in the above example, most callbacks make use of the lexical closures that Python provides for nested functions, reducing the number of arguments that need to be passed between GUI objects.</p>
+</div>
+</div>
+<div class="section" id="pub-sub">
+<h4>Pub-sub<a class="headerlink" href="#pub-sub" title="Permalink to this headline">¶</a></h4>
+<p>A publish-subscribe framework is used for events which must be broadcast.</p>
+<p>For example, the <a class="reference internal" href="../../../user/gui/action/data_capture.html#data-capture"><em>Data capture</em></a> panel and dialog send out <tt class="docutils literal"><span class="pre">data_capture.start</span></tt>, <tt class="docutils literal"><span class="pre">data_capture.data</span></tt>, and <tt class="docutils literal"><span class="pre">data_capture.stop</span></tt> messages to the global publisher to indicate to anybody who may be listening (there may be zero or more listeners) that certain resources are being acquired. The <a class="reference internal" href="../../../user/gui/config/measurement_config.html#measurement-config"><em>Measurement configuration</em></a> frames listen to whichever resource they are configured, and act accordingly when messages are received.</p>
+<p>Subscriptions are made with a call to <tt class="xref py py-obj docutils literal"><span class="pre">subscribe</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_data_capture_start</span><span class="p">,</span> <span class="s">&#39;data_capture.start&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Messages are sent with a call to <tt class="xref py py-obj docutils literal"><span class="pre">sendMessage</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pub</span><span class="o">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&#39;data_capture.start&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The handler must therefore have parameters which match the message being sent:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">msg_data_capture_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -70,11 +140,11 @@
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="../devices/config.html"><tt class="docutils literal docutils literal docutils literal"><span class="pre">config</span></tt> &#8212; Device configuration</a>
+        «&#160;&#160;<a href="../devices/index.html">Devices</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="global_store.html"><tt class="docutils literal docutils literal"><span class="pre">global_store</span></tt> &#8212; GUI global store</a>&#160;&#160;»
+        <a href="../interface/index.html">Interface</a>&#160;&#160;»
         </p>
 
       </div>

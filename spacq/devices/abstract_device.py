@@ -228,7 +228,7 @@ class AbstractDevice(SuperDevice):
 		try:
 			self._connected()
 		except Exception as e:
-			raise DeviceNotFoundError('Could finish connection to device at "{0}".'.format(self.connection_resource), e)
+			raise DeviceNotFoundError('Could not finish connection to device at "{0}".'.format(self.connection_resource), e)
 
 	def multi_command_start(self):
 		"""
@@ -305,7 +305,7 @@ class AbstractDevice(SuperDevice):
 			try:
 				self.device.write(message)
 			except gpib.GpibError as e:
-				if 'timeout' in e.msg:
+				if 'timeout' in e.message:
 					raise DeviceTimeout(e)
 				else:
 					raise
@@ -337,7 +337,7 @@ class AbstractDevice(SuperDevice):
 				try:
 					buf += self.device.read(len=chunk_size)
 				except gpib.GpibError as e:
-					if 'timeout' in e.msg:
+					if 'timeout' in e.message:
 						raise DeviceTimeout(e)
 					else:
 						raise

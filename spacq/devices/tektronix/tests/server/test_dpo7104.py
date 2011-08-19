@@ -65,6 +65,8 @@ class DPO7104Test(DeviceServerTestCase):
 		eq_(len(ws[1]), 4e3)
 
 		# Long sample.
+		dpo.acquisition_mode = 'sample'
+
 		dpo.time_scale = Quantity(10, 's')
 		dpo.sample_rate = Quantity(0.1, 'kHz')
 		eq_(dpo.record_length, 1e3)

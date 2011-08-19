@@ -31,6 +31,9 @@ class AbstractDeviceTest(TestCase):
 
 		# Try all devices to which a connection can be established.
 		for name, device in tc['devices'].items():
+			if not ('ip_address' in device['address'] or 'gpib_pad' in device['address']):
+				continue
+
 			dev = self.obtain_device(device)
 
 			if dev is None:

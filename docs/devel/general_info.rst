@@ -24,7 +24,7 @@ Currently, only device tests exist in the form of server tests. Before running t
 
 Server tests can be found with::
 
-  find . -path '*/tests/server/test_*.py'
+  find ./spacq/ -path '*/tests/server/test_*.py'
 
 and run with, for example::
 

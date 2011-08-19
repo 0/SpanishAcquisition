@@ -1,3 +1,9 @@
+*.pyc
+
+# Code coverage results from nose.
 .coverage
 
-*.pyc
+# Build objects.
+/Spanish_Acquisition.egg-info/
+/build/
+/dist/

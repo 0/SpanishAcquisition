@@ -77,6 +77,11 @@ The sample manufacturer comes with a sample device in the form of files ending i
 
 .. _devices_graphical_configuration:
 
+Synchronization
+***************
+
+To allow for consistent state while performing device commands, each device contains a re-entrant lock. Every read and write operation acquires this lock; thus, multiple reads and writes are mutually excluded. In order to provide a similar mechanism for user-defined methods, the :class:`spacq.tool.box.Synchronized` decorator can be used. This decorator will acquire the device lock, ensuring that other concurrently-executing threads cannot do the same, and that the atomicity of the decorated method is guaranteed for a given device instance.
+
 Graphical configuration
 ***********************
 

@@ -11,5 +11,3 @@ Spanish Acquisition is composed of several packages. While each package is respo
    gui/index
    interface/index
    iteration/index
-   tests/index
-   tool/index

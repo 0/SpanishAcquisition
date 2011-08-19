@@ -25,6 +25,12 @@ class SurfacePlot(object):
 		self.axes = axes3d.Axes3D(self.figure)
 		self.surface = None
 
+	def __del__(self):
+		try:
+			self.close()
+		except Exception:
+			pass
+
 	@property
 	def control(self):
 		"""

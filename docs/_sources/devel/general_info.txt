@@ -75,3 +75,12 @@ Example applications
 ********************
 
 The example applications are provided to demonstrate the functionality that this package provides in the form of directly usable and useful applications. As this functionality changes, the example programs should follow suit.
+
+Creating a release
+******************
+
+When a new version is ready for release, the version number must be updated in the following places:
+
+* ``docs/conf.py``: ``version``, ``release``
+* ``spacq/__init__.py``: ``VERSION``
+* ``setup.py``: ``version``

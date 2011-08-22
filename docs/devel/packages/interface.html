@@ -1,0 +1,143 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Interface &mdash; Spanish Acquisition v1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v1.0.0 documentation" href="../../index.html" />
+    <link rel="up" title="Packages" href="index.html" />
+    <link rel="next" title="Iteration" href="iteration.html" />
+    <link rel="prev" title="GUI" href="gui.html" /> 
+  </head>
+  <body>
+      <div class="header"><h1 class="heading"><a href="../../index.html">
+          <span>Spanish Acquisition v1.0.0 documentation</span></a></h1>
+        <h2 class="heading"><span>Interface</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="gui.html">GUI</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="iteration.html">Iteration</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="interface">
+<h1>Interface<a class="headerlink" href="#interface" title="Permalink to this headline">¶</a></h1>
+<p>The interface package contains code for both user-interface and code-interface purposes.</p>
+<div class="section" id="pulse-programs">
+<h2>Pulse programs<a class="headerlink" href="#pulse-programs" title="Permalink to this headline">¶</a></h2>
+<p>The code for dealing with pulse programs is composed of a parser (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.parser.Parser</span></tt>), an AST (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.ASTNode</span></tt>), an environment (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.Environment</span></tt>), and a presentation wrapper (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.program.Program</span></tt>). The details of pulse program handling are hidden behind the <tt class="xref py py-class docutils literal"><span class="pre">Program</span></tt> interface, which handles every step of a pulse program&#8217;s life cycle from parsing to execution.</p>
+<p>When presented with the textual representation of a pulse program, the parser does its best to tranform it into an abstract syntax tree; if it cannot do so, it raises a <tt class="xref py py-exc docutils literal"><span class="pre">spacq.interface.pulse.paser.PulseSyntaxError</span></tt>.</p>
+<p>Once an AST is obtained, an empty <tt class="xref py py-class docutils literal"><span class="pre">Environment</span></tt> is created. The nodes of the AST are then visited with the <tt class="xref py py-class docutils literal"><span class="pre">Environment</span></tt> over several stages. These stages are:</p>
+<ol class="arabic simple">
+<li><strong>declarations</strong>:<ul>
+<li>Populate the environment with the variable declarations.</li>
+<li>Verify that the declarations make sense.</li>
+</ul>
+</li>
+<li><strong>values</strong>:<ul>
+<li>Populate the environment with the value assignments.</li>
+<li>Verify that the assigned values match the declared variables.</li>
+</ul>
+</li>
+<li><strong>commands</strong>:<ul>
+<li>Verify that all the commands make sense given the collected declarations and values.</li>
+</ul>
+</li>
+<li><strong>waveforms</strong>:<ul>
+<li>Based on all the collected information, generate the output waveforms.</li>
+</ul>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The order of the stages must be preserved, since subsequent stages assume that previous ones have been executed.</p>
+</div>
+</div>
+<div class="section" id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="resource">
+<h3>Resource<a class="headerlink" href="#resource" title="Permalink to this headline">¶</a></h3>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.resources.Resource</span></tt> is a generic resource with a getter and a setter, each of which can perform arbitrary code in order to get or set a value.</p>
+<p>If a resource has units, all operations dealing with the value of the resource should use matching units. In particular, setting the value of a resource with a value whose units do not match those of the resource will raise a <tt class="xref py py-exc docutils literal"><span class="pre">TypeError</span></tt>. The display units of a resource, however, have no impact on its values; the display units only affect the value displayed alongside the resource.</p>
+<p>If a converter is supplied for a resource, the converter is used to transform user input (textual strings) into the valid type for the resource. Typical converters include <tt class="xref py py-obj docutils literal"><span class="pre">float</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">spacq.devices.tools.str_to_bool</span></tt>. If a resource has units, the user input is automatically converted into a <tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.Quantity</span></tt>; supplying a converter overrides this behaviour.</p>
+<p>A resource may be wrapped with arbitrarily many wrappers. Wrapping and unwrapping are both non-destructive: the original resource is always unmodified, and a new <tt class="xref py py-class docutils literal"><span class="pre">Resource</span></tt> instance is created. For both getting and setting values, the getter and setter filters are applied in the same order they were added, excluding those which have been removed.</p>
+</div>
+<div class="section" id="acquisition-thread">
+<h3>Acquisition Thread<a class="headerlink" href="#acquisition-thread" title="Permalink to this headline">¶</a></h3>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.resources.AcquisitionThread</span></tt> is a threaded wrapper around a resource that allows the value of the resource to be fetched at regular intervals. This is particularly useful for live plots which show historical data.</p>
+<p>In order to pause the acquisition, <tt class="xref py py-attr docutils literal"><span class="pre">running_lock</span></tt> should be acquired from another thread (if no running lock is passed to <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt>, pausing is disallowed); to resume, <tt class="xref py py-attr docutils literal"><span class="pre">running_lock</span></tt> should be released. In order to stop the thread, <tt class="xref py py-attr docutils literal"><span class="pre">done</span></tt> should be set to <tt class="xref docutils literal"><span class="pre">True</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="units">
+<h2>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sivalues">
+<h3>SIValues<a class="headerlink" href="#sivalues" title="Permalink to this headline">¶</a></h3>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.SIValues</span></tt> is a container for all SI prefixes (from 10<sup>-24</sup> to 10<sup>24</sup>), all SI base units (with g listed instead of kg), and a selection of SI derived units.</p>
+</div>
+<div class="section" id="quantity">
+<h3>Quantity<a class="headerlink" href="#quantity" title="Permalink to this headline">¶</a></h3>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.Quantity</span></tt> is a wrapper around the Python package &#8220;quantities&#8221;. It is used internally (to communicate quantities between objects) and externally (allowing the user to enter arbitrary quantities).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Rather than exposing the <tt class="xref py py-class docutils literal"><span class="pre">quantities.Quantity</span></tt> interface, <tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.Quantity</span></tt> defines its own interface and uses a subset of the <tt class="xref py py-class docutils literal"><span class="pre">quantities.Quantity</span></tt> interface internally. Thus, <tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.Quantity</span></tt> is <em>not</em> a drop-in substitude for <tt class="xref py py-class docutils literal"><span class="pre">quantities.Quantity</span></tt>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="waveform-generation">
+<h2>Waveform generation<a class="headerlink" href="#waveform-generation" title="Permalink to this headline">¶</a></h2>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.waveform.Generator</span></tt> provides a mechanism for generating <tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.waveform.Waveform</span></tt> objects. Each <tt class="xref py py-class docutils literal"><span class="pre">Generator</span></tt> will generate a single waveform as its methods are called; after the waveform is complete, it can be obtained via the <tt class="xref py py-attr docutils literal"><span class="pre">waveform</span></tt> attribute.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All values should be normalized to the interval [-1.0, 1.0].</p>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="gui.html">GUI</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="iteration.html">Iteration</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Dmitri Iouchtchenko.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

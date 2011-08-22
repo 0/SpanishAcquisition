@@ -49,8 +49,10 @@ class SIValues(object):
 	}
 	prefixes_ = dict([(v, k) for (k, v) in prefixes.items()])
 
-	# SI base and derived units.
-	units = set(['A', 'cd', 'g', 'Hz', 'J', 'K', 'm', 'mol', 'N', 's', 'T', 'V'])
+	# SI base units. Note the g instead of kg.
+	units = set(['A', 'cd', 'g', 'K', 'm', 'mol', 's'])
+	# SI derived units. Add more as necessary.
+	units.update(['Hz', 'J', 'N', 'T', 'V'])
 
 
 class Quantity(object):

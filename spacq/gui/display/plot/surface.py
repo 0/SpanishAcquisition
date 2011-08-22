@@ -73,7 +73,7 @@ class SurfacePlot(object):
 			self.surface = self.axes.plot_surface(x, y, surface_data, alpha=self.alpha)
 		elif self.style == 'waveform':
 			# Waveform style shows individual waveforms nicely.
-			self.surface = self.axes.plot_wireframe(x, y, surface_data, cstride=-1)
+			self.surface = self.axes.plot_wireframe(x, y, surface_data, cstride=100000)
 
 	surface_data = property(fset=set_surface_data)
 

@@ -4,9 +4,19 @@
 Installation
 ############
 
-This package can be installed in the usual way::
+The `latest version available on PyPI`_ can be installed using either::
+
+   sudo pip install SpanishAcquisition
+
+or::
+
+   sudo easy_install SpanishAcquisition
+
+Alternatively, this package can be installed from source in the usual way::
 
    sudo python setup.py install
+
+.. _`latest version available on PyPI`: http://pypi.python.org/pypi/SpanishAcquisition/
 
 Dependencies
 ************

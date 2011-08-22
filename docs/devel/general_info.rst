@@ -84,3 +84,7 @@ When a new version is ready for release, the version number must be updated in t
 * ``docs/conf.py``: ``version``, ``release``
 * ``spacq/__init__.py``: ``VERSION``
 * ``setup.py``: ``version``
+
+To create a source distribution, run::
+
+   python setup.py sdist

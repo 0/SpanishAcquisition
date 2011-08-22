@@ -92,14 +92,6 @@ class Generator(object):
 
 		return result
 
-	def _set(self, value):
-		"""
-		Set the next point to have the given amplitude.
-		"""
-
-		self.check_length(1)
-		self.append([value])
-
 	def _parse_time(self, value):
 		"""
 		Convert a time value to a number of samples based on the frequency.
@@ -140,6 +132,14 @@ class Generator(object):
 
 		return new_data
 
+	def set_next(self, value):
+		"""
+		Set the next point to have the given amplitude.
+		"""
+
+		self.check_length(1)
+		self.append([value])
+
 	def delay(self, value, less_points=1):
 		"""
 		Extend the last value of the waveform to last the length of the delay.
@@ -166,9 +166,9 @@ class Generator(object):
 		except IndexError:
 			return_to = 0.0
 
-		self._set(amplitude)
+		self.set_next(amplitude)
 		self.delay(length, less_points=1)
-		self._set(return_to)
+		self.set_next(return_to)
 
 	def pulse(self, values, amplitude, duration):
 		"""

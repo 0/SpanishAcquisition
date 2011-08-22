@@ -422,7 +422,7 @@ class Delay(ASTNode):
 				length = self.length
 
 			for waveform in env.generators.values():
-				waveform._set(0.0)
+				waveform.set_next(0.0)
 				waveform.delay(length)
 
 
@@ -552,7 +552,7 @@ class PulseSequence(ASTNode):
 					type = env.variables[item]
 
 					if type == 'delay':
-						target._set(0.0)
+						target.set_next(0.0)
 						target.delay(env.values[(item,)])
 					elif type == 'pulse':
 						amplitude = float(env.values[(item, 'amplitude')].value)
@@ -585,7 +585,7 @@ class PulseSequence(ASTNode):
 								else:
 									target.pulse(data, amplitude, length)
 				else:
-					target._set(0.0)
+					target.set_next(0.0)
 					target.delay(item.length)
 
 

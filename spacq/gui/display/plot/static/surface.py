@@ -2,7 +2,7 @@ from numpy import array
 import wx
 
 from spacq.interface.list_columns import ListParser
-from spacq.iteration.mesh import triples_to_mesh
+from spacq.tool.box import triples_to_mesh
 
 from ....tool.box import MessageDialog
 from ..surface import SurfacePlot

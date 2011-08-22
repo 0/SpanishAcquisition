@@ -1,6 +1,6 @@
 import wx
 
-from spacq.iteration.mesh import triples_to_mesh
+from spacq.tool.box import triples_to_mesh
 
 from ....tool.box import MessageDialog
 from ..colormapped import ColormappedPlot

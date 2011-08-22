@@ -8,11 +8,20 @@ def included_package(p):
 
 
 setup(
-	name='Spanish Acquisition',
+	name='SpanishAcquisition',
 	version='1.0.0',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
 	description='Package for interfacing with devices and building user '
 			'interfaces.',
+	license='BSD',
+	url='http://0.github.com/SpanishAcquisition/',
 	packages=[p for p in find_packages() if included_package(p)],
+	classifiers=[
+		'Development Status :: 5 - Production/Stable',
+		'Intended Audience :: Science/Research',
+		'License :: OSI Approved :: BSD License',
+		'Operating System :: OS Independent',
+		'Programming Language :: Python :: 2',
+	],
 )

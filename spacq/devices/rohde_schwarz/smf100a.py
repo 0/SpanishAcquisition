@@ -17,8 +17,8 @@ class SMF100A(AbstractDevice):
 	Interface for the SMF100A.
 	"""
 
-	min_power = -30 # dBm
-	max_power = 30 # dBm
+	min_power = 0.007 # V
+	max_power = 7.071 # V
 
 	min_freq = 1e9 # Hz
 	max_freq = 22e9 # Hz
@@ -32,9 +32,15 @@ class SMF100A(AbstractDevice):
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['enabled'].converter = str_to_bool
-		self.resources['power'].converter = float
-		self.resources['power'].display_units = 'dBm'
+		self.resources['power'].units = 'V'
 		self.resources['frequency'].units = 'Hz'
+
+	@Synchronized()
+	def _connected(self):
+		AbstractDevice._connected(self)
+
+		# Set the units for communication.
+		self.write('unit:power v')
 
 	@Synchronized()
 	def reset(self):
@@ -54,14 +60,16 @@ class SMF100A(AbstractDevice):
 		self.write('output:state {0}'.format(int(value)))
 
 	@property
+	@quantity_wrapped('V')
 	def power(self):
 		"""
-		The RF output power, as a quantity in dBm.
+		The RF output power, as a quantity in V.
 		"""
 
 		return float(self.ask('source:power:power?'))
 
 	@power.setter
+	@quantity_unwrapped('V')
 	def power(self, value):
 		if value < self.min_power or value > self.max_power:
 			raise ValueError('Value {0} not within the allowed bounds: {1} to {2}'.format(value,

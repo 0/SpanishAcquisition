@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import assert_almost_equal, eq_
 from unittest import main
 
 from spacq.interface.units import Quantity
@@ -20,17 +20,22 @@ class SMF100ATest(DeviceServerTestCase):
 		sg = self.obtain_device()
 		sg.reset()
 
+		sg.write('unit:power v')
+
 		assert not sg.enabled
-		eq_(sg.frequency.value, 1e9)
-		eq_(sg.power, -30.0)
+		eq_(sg.frequency.value, 1e10)
+		assert_almost_equal(sg.power.value, 0.007, 3)
 
 		sg.frequency = Quantity(5.6789, 'GHz')
-		sg.power = -2.0
+		sg.power = Quantity(100, 'mV')
 		sg.enabled = True
 
 		assert sg.enabled
 		eq_(sg.frequency.value, 5.6789e9)
-		eq_(sg.power, -2.0)
+		eq_(sg.power.value, 0.1)
+
+		sg.enabled = False
+		assert not sg.enabled
 
 	def testIllegal(self):
 		"""
@@ -39,8 +44,10 @@ class SMF100ATest(DeviceServerTestCase):
 
 		sg = self.obtain_device()
 
+		sg.write('unit:power v')
+
 		try:
-			sg.power = 9001
+			sg.power = Quantity(9.001, 'V')
 		except ValueError:
 			pass
 		else:

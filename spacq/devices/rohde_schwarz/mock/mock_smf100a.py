@@ -18,8 +18,8 @@ class MockSMF100A(MockAbstractDevice, SMF100A):
 
 	def _reset(self):
 		self.mock_state['enabled'] = 0
-		self.mock_state['power'] = -30.0 # dBm
-		self.mock_state['frequency'] = 1e9 # Hz
+		self.mock_state['power'] = 0.007 # V
+		self.mock_state['frequency'] = 1e10 # Hz
 
 	def write(self, message, result=None, done=False):
 		if not done:
@@ -45,6 +45,8 @@ class MockSMF100A(MockAbstractDevice, SMF100A):
 					else:
 						self.mock_state['frequency'] = float(args)
 					done = True
+			elif cmd[0] == 'unit':
+				done = True
 
 		MockAbstractDevice.write(self, message, result, done)
 

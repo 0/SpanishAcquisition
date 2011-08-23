@@ -371,8 +371,8 @@ class AcqMarkerPanel(ParameterPanel):
 		self.Bind(wx.EVT_TEXT, self.OnTimesAverageChange, self.times_average_input)
 		self.Bind(wx.EVT_TEXT_ENTER, self.OnTimesAverageInput, self.times_average_input)
 
-		# Post-acquisition delay.
-		self.parameter_sizer.Add(wx.StaticText(self, label='Post-acquisition delay'), (self.cur_row, 0),
+		# Post-trigger delay.
+		self.parameter_sizer.Add(wx.StaticText(self, label='Post-trigger delay'), (self.cur_row, 0),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.delay_input = wx.TextCtrl(self, style=wx.TE_PROCESS_ENTER)
 		self.parameter_sizer.Add(self.delay_input, (self.cur_row, 1), flag=wx.EXPAND)

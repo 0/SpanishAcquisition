@@ -31,7 +31,7 @@ Acquisition
 * marker_num: The number of the marker of the AWG channel output used for the trigger.
 * output: The waveform output name.
 * Times to average: If this item is set to a value greater than 1, the oscilloscope is placed into "average" mode for the given number of waveforms, and the AWG is triggered that many times.
-* Post-acquisition delay: How long to wait after triggering the AWG. This delay occurs between individual waveforms when averaging.
+* Post-trigger delay: How long to wait after triggering the AWG. This delay occurs between individual waveforms when averaging.
 
 Delays, Integers, Pulses
 ========================

@@ -100,6 +100,15 @@ class Channel(AbstractSubdevice):
 		try:
 			self.device.data_source = self.channel
 
+			if self.device.fastframe:
+				# Only get the last frame.
+				frame = self.device.fastframe_count
+			else:
+				frame = 1
+
+			self.device.fastframe_start = frame
+			self.device.fastframe_stop = frame
+
 			# Receive in chunks.
 			num_data_points = self.device.record_length
 			num_transmissions = int(ceil(num_data_points / self.device.max_receive_samples))
@@ -164,7 +173,7 @@ class DPO7104(AbstractDevice):
 
 	allowed_stopafters = ['runstop', 'sequence']
 	allowed_waveform_bytes = [1, 2] # Channel data only.
-	allowed_acquisition_modes = set(['sample', 'peakdetect', 'hires', 'average', 'wfmdb', 'envelope'])
+	allowed_fastframe_sums = set(['none', 'average', 'envelope'])
 
 	def _setup(self):
 		AbstractDevice._setup(self)
@@ -176,13 +185,12 @@ class DPO7104(AbstractDevice):
 			self.subdevices['channel{0}'.format(chan)] = channel
 
 		# Resources.
-		read_write = ['sample_rate', 'time_scale', 'acquisition_mode']
+		read_write = ['sample_rate', 'time_scale']
 		for name in read_write:
 			self.resources[name] = Resource(self, name, name)
 
 		self.resources['sample_rate'].units = 'Hz'
 		self.resources['time_scale'].units = 's'
-		self.resources['acquisition_mode'].allowed_values = self.allowed_acquisition_modes
 
 	@Synchronized()
 	def reset(self):
@@ -341,50 +349,87 @@ class DPO7104(AbstractDevice):
 		self.acquiring = True
 
 	@property
-	def acquisition_mode(self):
+	def fastframe(self):
 		"""
-		The type of acquisition to make (eg. peak detect, envelope).
+		Whether fastframe is enabled.
 		"""
 
-		result = self.ask('acquire:mode?').lower()
+		return bool(int(self.ask('horizontal:fastframe:state?')))
 
-		if result.startswith('sam'):
-			return 'sample'
-		elif result.startswith('peak'):
-			return 'peakdetect'
-		elif result.startswith('hir'):
-			return 'hires'
-		elif result.startswith('ave'):
-			return 'average'
-		elif result.startswith('wfmdb'):
-			return 'wfmdb'
-		elif result.startswith('env'):
-			return 'envelope'
-		else:
-			ValueError('Unknown mode: {0}'.format(result))
-
-	@acquisition_mode.setter
-	def acquisition_mode(self, value):
-		if value not in self.allowed_acquisition_modes:
-			raise ValueError('Invalid acquisition mode: {0}'.format(value))
-
-		self.write('acquire:mode {0}'.format(value))
+	@fastframe.setter
+	def fastframe(self, value):
+		return self.write('horizontal:fastframe:state {0}'.format(int(value)))
 
 	@property
-	def times_average(self):
+	def fastframe_sum(self):
 		"""
-		The number of waveforms to average if in the average acquisition mode.
+		The fastframe summary frame.
 		"""
 
-		return int(self.ask('acquire:numavg?'))
+		result = self.ask('horizontal:fastframe:sumframe?').lower()
 
-	@times_average.setter
-	def times_average(self, value):
+		if result.startswith('non'):
+			return 'none'
+		elif result.startswith('env'):
+			return 'envelope'
+		elif result.startswith('ave'):
+			return 'average'
+		else:
+			ValueError('Unknown summary mode: {0}'.format(result))
+
+	@fastframe_sum.setter
+	def fastframe_sum(self, value):
+		if value not in self.allowed_fastframe_sums:
+			raise ValueError('Invalid summary frame mode: {0}'.format(value))
+
+		return self.write('horizontal:fastframe:state {0}'.format(value))
+
+	@property
+	def fastframe_count(self):
+		"""
+		The number of waveforms to acquire in fastframe mode.
+		"""
+
+		return int(self.ask('horizontal:fastframe:count?'))
+
+	@fastframe_count.setter
+	def fastframe_count(self, value):
 		if value <= 0:
 			raise ValueError('Must provide a positive integer, not "{0}"'.format(value))
 
-		self.write('acquire:numavg {0:d}'.format(int(value)))
+		self.write('horizontal:fastframe:count {0:d}'.format(value))
 
+	@property
+	def fastframe_start(self):
+		"""
+		The first frame to transfer.
+		"""
+
+		return int(self.ask('data:framestart?'))
+
+	@fastframe_start.setter
+	def fastframe_start(self, value):
+		self.write('data:framestart {0}'.format(value))
+
+	@property
+	def fastframe_stop(self):
+		"""
+		The last frame to transfer.
+		"""
+
+		return int(self.ask('data:framestop?'))
+
+	@fastframe_stop.setter
+	def fastframe_stop(self, value):
+		self.write('data:framestop {0}'.format(value))
+
+	@property
+	def acquisitions(self):
+		"""
+		The number of acquisitions made so far on the oscilloscope.
+		"""
+
+		return int(self.ask('acquire:numacq?'))
 
 name = 'DPO7104'
 implementation = DPO7104

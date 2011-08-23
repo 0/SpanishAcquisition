@@ -37,17 +37,21 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 	def _reset(self):
 		self.mock_state['stopafter'] = 'runstop'
 		self.mock_state['acquire_state'] = True
-		self.mock_state['acquire_mode'] = 'sample'
+
+		self.mock_state['fastframe'] = False
+		self.mock_state['fastframe_sum'] = 'none'
+		self.mock_state['fastframe_count'] = 1
 
 		self.mock_state['samplerate'] = 1e10 # Hz
 		self.mock_state['horizontal_scale'] = 1e-8 # s
 
 		self.mock_state['waveform_bytes'] = 2
-		self.mock_state['times_average'] = 1
 
 		self.mock_state['data_start'] = 1
 		self.mock_state['data_stop'] = self._record_length
 		self.mock_state['data_source'] = 1
+		self.mock_state['data_framestart'] = 1
+		self.mock_state['data_framestop'] = 1
 
 		self.mock_state['channels'] = [None] # There is no channel 0.
 		for _ in xrange(1, 5):
@@ -84,11 +88,8 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 					else:
 						self.mock_state['acquire_mode'] = args
 					done = True
-				elif cmd[1] == 'numavg':
-					if query:
-						result = self.mock_state['times_average']
-					else:
-						self.mock_state['times_average'] = int(args)
+				elif cmd[1] == 'numacq' and query:
+					result = self.mock_state['fastframe_count']
 					done = True
 			elif cmd[0] == 'horizontal':
 				if cmd[1] == 'mode':
@@ -110,6 +111,13 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 				elif cmd[1] == 'divisions' and query:
 					result = 10
 					done = True
+				elif cmd[1] == 'fastframe':
+					if cmd[2] == 'state':
+						if query:
+							result = int(self.mock_state['fastframe'])
+						else:
+							self.mock_state['fastframe'] = bool(int(args))
+						done = True
 			elif cmd[0] == 'data':
 				if cmd[1] == 'start':
 					if query:
@@ -128,6 +136,18 @@ class MockDPO7104(MockAbstractDevice, DPO7104):
 						result = 'ch{0}'.format(self.mock_state['data_source'])
 					else:
 						self.mock_state['data_source'] = int(args[2])
+					done = True
+				if cmd[1] == 'framestart':
+					if query:
+						result = self.mock_state['data_framestart']
+					else:
+						self.mock_state['data_framestart'] = int(args)
+					done = True
+				elif cmd[1] == 'framestop':
+					if query:
+						result = self.mock_state['data_framestop']
+					else:
+						self.mock_state['data_framestop'] = int(args)
 					done = True
 			elif cmd[0] == 'curve' and query:
 				num_points = self._record_length * self.mock_state['waveform_bytes']

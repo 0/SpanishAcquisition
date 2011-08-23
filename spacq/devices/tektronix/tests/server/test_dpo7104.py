@@ -37,18 +37,6 @@ class DPO7104Test(DeviceServerTestCase):
 		dpo.channels[1].scale = dpo.channels[4].scale = Quantity(500, 'mV')
 		dpo.channels[1].offset = dpo.channels[4].offset = Quantity(1, 'V')
 
-		# Average everything over 2 input waveforms.
-		dpo.acquisition_mode = 'average'
-		try:
-			dpo.times_average = 0
-		except ValueError:
-			pass
-		else:
-			assert False, 'Expected ValueError'
-		dpo.times_average = 2
-
-		eq_(dpo.times_average, 2)
-
 		# Many records.
 		dpo.time_scale = Quantity(100, 'ns')
 		dpo.sample_rate = Quantity(40, 'GHz')

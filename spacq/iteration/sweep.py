@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from functools import partial, wraps
-from itertools import izip
+from itertools import izip, repeat
 from threading import Condition, Thread
 from time import sleep, time
 
@@ -28,7 +28,7 @@ class PulseConfiguration(object):
 
 	# All the directly-used attributes.
 	awg_attrs = ['channels', 'clear_channels', 'enabled', 'run_mode', 'sampling_rate', 'trigger']
-	oscilloscope_attrs = ['acquiring', 'acquisition_mode', 'stopafter', 'times_average']
+	oscilloscope_attrs = ['acquiring', 'fastframe', 'fastframe_count', 'fastframe_sum', 'stopafter']
 
 	@staticmethod
 	def verify_device(name, device, attributes):
@@ -348,6 +348,7 @@ class SweepController(object):
 
 		if self.pulse_config.channels:
 			waveforms = self.pulse_config.program.generate_waveforms()
+			times = self.pulse_config.program.times_average
 
 			# AWG
 			awg = self.pulse_config.awg
@@ -371,21 +372,46 @@ class SweepController(object):
 
 			# Oscilloscope
 			osc = self.pulse_config.oscilloscope
+			osc.acquiring = False
 
-			if self.pulse_config.program.times_average > 1:
-				osc.acquisition_mode = 'average'
-				osc.times_average = self.pulse_config.program.times_average
+			if times > 1:
+				osc.fastframe = True
+				osc.fastframe_sum = 'average'
+				osc.fastframe_count = times + 1
+
+				if osc.fastframe_count != times + 1:
+					raise ValueError('Cannot average {0} times; check the oscilloscope'.format(times))
 			else:
-				osc.acquisition_mode = 'sample'
+				osc.fastframe = False
 
 			osc.stopafter = 'sequence'
+
+			awg.opc
+			osc.opc
+
 			osc.acquiring = True
+			# Wait for the oscilloscope to ready the trigger.
+			sleep(1)
 
 			# All together now!
-			for _ in xrange(self.pulse_config.program.times_average):
-				awg.trigger()
+			trigger = awg.trigger
+			delay = self.pulse_config.program.acq_delay.value
 
-				sleep(self.pulse_config.program.acq_delay.value)
+			for _ in repeat(None, times):
+				trigger()
+				awg.opc
+
+				end_time = time() + delay
+				time_diff = end_time - time()
+				while time_diff > 0:
+					sleep(time_diff)
+					time_diff = end_time - time()
+
+			osc.opc
+
+			acqs = osc.acquisitions
+			if acqs != times:
+				raise ValueError('Incorrect number of acquisitions made: {0}'.format(acqs))
 
 		return self.read
 

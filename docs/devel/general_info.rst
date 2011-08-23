@@ -85,6 +85,8 @@ When a new version is ready for release, the version number must be updated in t
 * ``spacq/__init__.py``: ``VERSION``
 * ``setup.py``: ``version``
 
+The ``CHANGELOG.rst`` file must be updated with all the important changes from the previous version.
+
 To create a source distribution, run::
 
    python setup.py sdist

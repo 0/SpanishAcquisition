@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Resources &mdash; Spanish Acquisition v1.0.0 documentation</title>
+    <title>Resources &mdash; Spanish Acquisition v1.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.0 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../index.html" />
     <link rel="up" title="General concepts" href="index.html" />
     <link rel="next" title="Variables" href="variables.html" />
     <link rel="prev" title="Devices" href="devices.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.0 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
         <h2 class="heading"><span>Resources</span></h2>
       </div>
       <div class="topnav">
@@ -51,13 +51,13 @@
   <div class="section" id="resources">
 <span id="general-concepts-resources"></span><h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
 <p>Resources provide a way of interacting with <a class="reference internal" href="devices.html#general-concepts-devices"><em>devices</em></a> and <a class="reference internal" href="../pulse_programs.html#pulse-programs"><em>pulse programs</em></a> in a generic way. They can be read-only (RO), write-only (WO), or read-write (RW). RO and RW resources are considered <em>readable</em>; WO and RW resources are considered <em>writable</em>.</p>
-<p>In the typical case, a <a class="reference internal" href="devices.html#general-concepts-devices"><em>device</em></a> (eg. a multimeter) will provide several resources; there may be some RW resources (eg. integration time, auto-zero setting), and some RO ones (eg. measurement reading). WO resources are possible (and are commonly found as pulse program resources), but are atypical among devices.</p>
-<p>These provided resources can be given arbitrary labels, and these labels are used elsewhere to identify the resources. For example, given two RW resources with labels &#8220;reading&#8221; and &#8220;gate&#8221;, one can set up a variable which writes to the resource labelled &#8220;gate&#8221; and a measurement which reads from the resource labelled &#8220;reading&#8221;.</p>
+<p>In the typical case, a device (eg. a multimeter) will provide several resources; there may be some RW resources (eg. integration time, auto-zero setting), and some RO ones (eg. measurement reading). WO resources are possible (and are commonly found as pulse program resources), but are atypical among devices.</p>
+<p>These provided resources may be given arbitrary labels, and these labels are used elsewhere to identify the resources. For example, given two RW resources with labels &#8220;reading&#8221; and &#8220;gate&#8221;, one can set up a variable which writes to the resource labelled &#8220;gate&#8221; and a measurement which reads from the resource labelled &#8220;reading&#8221;.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Resources linked to variables must be of the correct type: <a class="reference internal" href="variables.html#general-concepts-output-variables"><em>output variables</em></a> can only be used with writable resources; <a class="reference internal" href="variables.html#general-concepts-input-variables"><em>input variables</em></a> can only be used with readable resources.</p>
+<p class="last">Resources linked to variables must be of the correct type: <a class="reference internal" href="variables.html#general-concepts-output-variables"><em>output variables</em></a> shall only be used with writable resources; <a class="reference internal" href="variables.html#general-concepts-input-variables"><em>input variables</em></a> shall only be used with readable resources.</p>
 </div>
-<p>Resources may also have units associated with them, in which case the value read from or written to that resource must be a quantity with a matching dimensionality. That is, a resource which requires acceleration in meters per second squared (specified as <tt class="docutils literal"><span class="pre">m.s-2</span></tt>) will accept millimeters per second squared (<tt class="docutils literal"><span class="pre">mm.s-2</span></tt>) and joules per newton per second squared (<tt class="docutils literal"><span class="pre">J.N-1.s-2</span></tt>), but not joules per newton (<tt class="docutils literal"><span class="pre">J.N-1</span></tt>) or joules per second squared (<tt class="docutils literal"><span class="pre">J.s-2</span></tt>).</p>
+<p>Resources may also have associated units, in which case the value read from or written to that resource must be a quantity with a matching dimensionality. That is, a resource which requires acceleration in meters per second squared (specified as <tt class="docutils literal"><span class="pre">m.s-2</span></tt>) will accept millimeters per second squared (<tt class="docutils literal"><span class="pre">mm.s-2</span></tt>) and joules per newton per second squared (<tt class="docutils literal"><span class="pre">J.N-1.s-2</span></tt>), but not joules per newton (<tt class="docutils literal"><span class="pre">J.N-1</span></tt>) or joules per second squared (<tt class="docutils literal"><span class="pre">J.s-2</span></tt>).</p>
 </div>
 
 

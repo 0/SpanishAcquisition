@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Variables &mdash; Spanish Acquisition v1.0.0 documentation</title>
+    <title>Variables &mdash; Spanish Acquisition v1.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.0 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../index.html" />
     <link rel="up" title="General concepts" href="index.html" />
     <link rel="next" title="Pulse programs" href="../pulse_programs.html" />
     <link rel="prev" title="Resources" href="resources.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.0 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
         <h2 class="heading"><span>Variables</span></h2>
       </div>
       <div class="topnav">
@@ -50,7 +50,7 @@
         
   <div class="section" id="variables">
 <span id="general-concepts-variables"></span><h1>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h1>
-<p>Variables are how sweeping acquisition experiments are described.</p>
+<p>Variables are used to describe sweeping acquisition experiments.</p>
 <div class="section" id="output-variables">
 <span id="general-concepts-output-variables"></span><h2>Output variables<a class="headerlink" href="#output-variables" title="Permalink to this headline">¶</a></h2>
 <p>Output variables provide a way to sweep over a range of values on a <a class="reference internal" href="resources.html#general-concepts-resources"><em>resource</em></a>. An output variable will have a customizable range of values over which it iterates.</p>
@@ -109,7 +109,7 @@
 </div>
 <div class="section" id="smooth-setting">
 <span id="general-concepts-output-variables-smooth"></span><h3>Smooth setting<a class="headerlink" href="#smooth-setting" title="Permalink to this headline">¶</a></h3>
-<p>During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To get around this, the variables can optionally be &#8220;smoothly set&#8221; at various times:</p>
+<p>During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To reduce the negative effect of changing values, the variables can optionally be &#8220;smoothly set&#8221; at various times:</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Smooth setting <strong>from constant</strong> value</dt>

@@ -6,11 +6,11 @@ Pulse programs
 
 Pulse programs are an unambiguous way to describe the parameterizable shape of one or more parallel waveforms. Pulse programs allow for:
 
-* **Adjustable time scales.** On the order of nanoseconds, of seconds, or anything in between.
+* **Adjustable time scales.** Waveforms can be on the order of nanoseconds, of seconds, or anything in between.
 * **Arbitrary parameterization.** Delays, pulse amplitudes and length, and repetition counts can all be iterated over.
-* **Arbitrary waveforms.** If it's discrete, it can be inserted.
-* **External trigger.** To trigger an oscilloscope acquisition at any point during the waveforms.
-* **Nested looping.** For complex, repetitive waveforms.
+* **Arbitrary waveforms.** Any discretized waveform can be inserted.
+* **External trigger.** An oscilloscope acquisition can be triggered at any point during the waveforms.
+* **Nested looping.** Complex, repetitive waveforms can be created easily.
 
 Variables
 *********
@@ -43,11 +43,11 @@ Dictionaries
 
 Any variables which are collections of values can have several of their values assigned via a dictionary. Dictionaries are of the form ``{<key>: <value>, ...}`` where the keys must correspond to the attribute names of the variable being assigned to. For example::
 
-   # A valid dictionary to be assigned to a pulse:
-   {amplitude: -0.5 V, length: 0.5 us, shape: 'square'}
+   # A valid dictionary assigned to a pulse:
+   p1 = {amplitude: -0.5 V, length: 0.5 us, shape: 'square'}
 
-   # Not all attributes must be present:
-   {shape: 'non-square'}
+   # Not all attributes need be present:
+   p2 = {shape: 'non-square'}
 
 .. _pulse_programs_attributes:
 
@@ -57,12 +57,12 @@ Attributes
 Any variables which are collections of values can have a single value assigned via an attribute. For example::
 
    # Assignment to a pulse attribute:
-   p1.amplitude = -500 mV
+   p3.amplitude = -500 mV
 
 Program syntax
 **************
 
-A pulse program consists of several statements separated by line breaks or semicolons (``;``). Each statement can be one of:
+A pulse program consists of several statements separated by line breaks or semicolons (``;``). A statement is one of:
 
    **Assignment**
       An assignment sets the value of a variable or attribute. Any variable or attribute may only be assigned to once in a single program. For example::
@@ -80,7 +80,7 @@ A pulse program consists of several statements separated by line breaks or semic
    **Command**
       A command is an instruction that dictates the shape of the resulting waveforms. There exist several kinds of commands:
 
-      * **delay**: A lone identifier or a single time value causes a delay in all output waveforms. For example::
+      * **Delay**: A lone identifier or a single time value causes a delay in all output waveforms. For example::
 
            # Pause all waveforms for the length of delay d1:
            d1
@@ -88,7 +88,7 @@ A pulse program consists of several statements separated by line breaks or semic
            # Pause all waveforms for 100 ns:
            100 ns
 
-      * **pulse sequence**: Statements of the form ``([delay|pulse] [delay|pulse] ...):<output>`` are treated as waveform-generating command. If there is only a single delay or pulse, the parentheses may be omitted. If several pulse sequences are included in the same statement, they are executed in parallel; otherwise they are executed in series. For example::
+      * **Pulse sequence**: Statements of the form ``([delay|pulse] [delay|pulse] ...):<output>`` are treated as waveform-generating command. If there is only a single delay or pulse, the parentheses may be omitted. If several pulse sequences are included in the same statement, they are executed in parallel; otherwise they are executed in series. For example::
 
            # Generate delay or pulse x on ouput f1:
            x:f1
@@ -116,10 +116,10 @@ A pulse program consists of several statements separated by line breaks or semic
         .. note::
            All waveforms are synchronized before and after a pulse sequence. If any pulse sequence would be longer than the others, padding delays are automatically added to the end of the shorter sequences to ensure that all the lengths match.
 
-      * **acquisition trigger**: A statement of the form ``acquire`` signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.
+      * **Acquisition trigger**: A statement of the form ``acquire`` signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.
 
    **Loop**
-      A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to non-trigger commands and loops. Loops are of the form::
+      A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to delays, pulse sequences, and loops. Loops are of the form::
 
          times <integer> {
             <statement>
@@ -129,12 +129,12 @@ A pulse program consists of several statements separated by line breaks or semic
 Comments
 ========
 
-Any text after (and including) a ``#`` character is entirely ignored. For example::
+Any text after (and including) a ``#`` character is ignored. For example::
 
    # This is a pulse sequence.
    (p1 d1 p1):f1 # (p2 d2 p2):f2
 
-is completely identical to::
+is identical to::
 
    (p1 d1 p1):f1
 

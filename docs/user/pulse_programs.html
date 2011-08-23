@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Pulse programs &mdash; Spanish Acquisition v1.0.0 documentation</title>
+    <title>Pulse programs &mdash; Spanish Acquisition v1.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.0 documentation" href="../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../index.html" />
     <link rel="up" title="User’s Guide" href="index.html" />
     <link rel="next" title="Graphical user interface" href="gui/index.html" />
     <link rel="prev" title="Variables" href="general_concepts/variables.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../index.html">
-          <span>Spanish Acquisition v1.0.0 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
         <h2 class="heading"><span>Pulse programs</span></h2>
       </div>
       <div class="topnav">
@@ -52,11 +52,11 @@
 <span id="id1"></span><h1>Pulse programs<a class="headerlink" href="#pulse-programs" title="Permalink to this headline">¶</a></h1>
 <p>Pulse programs are an unambiguous way to describe the parameterizable shape of one or more parallel waveforms. Pulse programs allow for:</p>
 <ul class="simple">
-<li><strong>Adjustable time scales.</strong> On the order of nanoseconds, of seconds, or anything in between.</li>
+<li><strong>Adjustable time scales.</strong> Waveforms can be on the order of nanoseconds, of seconds, or anything in between.</li>
 <li><strong>Arbitrary parameterization.</strong> Delays, pulse amplitudes and length, and repetition counts can all be iterated over.</li>
-<li><strong>Arbitrary waveforms.</strong> If it&#8217;s discrete, it can be inserted.</li>
-<li><strong>External trigger.</strong> To trigger an oscilloscope acquisition at any point during the waveforms.</li>
-<li><strong>Nested looping.</strong> For complex, repetitive waveforms.</li>
+<li><strong>Arbitrary waveforms.</strong> Any discretized waveform can be inserted.</li>
+<li><strong>External trigger.</strong> An oscilloscope acquisition can be triggered at any point during the waveforms.</li>
+<li><strong>Nested looping.</strong> Complex, repetitive waveforms can be created easily.</li>
 </ul>
 <div class="section" id="variables">
 <h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
@@ -86,24 +86,24 @@
 <div class="section" id="dictionaries">
 <h3>Dictionaries<a class="headerlink" href="#dictionaries" title="Permalink to this headline">¶</a></h3>
 <p>Any variables which are collections of values can have several of their values assigned via a dictionary. Dictionaries are of the form <tt class="docutils literal"><span class="pre">{&lt;key&gt;:</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">...}</span></tt> where the keys must correspond to the attribute names of the variable being assigned to. For example:</p>
-<div class="highlight-python"><pre># A valid dictionary to be assigned to a pulse:
-{amplitude: -0.5 V, length: 0.5 us, shape: 'square'}
+<div class="highlight-python"><pre># A valid dictionary assigned to a pulse:
+p1 = {amplitude: -0.5 V, length: 0.5 us, shape: 'square'}
 
-# Not all attributes must be present:
-{shape: 'non-square'}</pre>
+# Not all attributes need be present:
+p2 = {shape: 'non-square'}</pre>
 </div>
 </div>
 <div class="section" id="attributes">
 <span id="pulse-programs-attributes"></span><h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
 <p>Any variables which are collections of values can have a single value assigned via an attribute. For example:</p>
 <div class="highlight-python"><pre># Assignment to a pulse attribute:
-p1.amplitude = -500 mV</pre>
+p3.amplitude = -500 mV</pre>
 </div>
 </div>
 </div>
 <div class="section" id="program-syntax">
 <h2>Program syntax<a class="headerlink" href="#program-syntax" title="Permalink to this headline">¶</a></h2>
-<p>A pulse program consists of several statements separated by line breaks or semicolons (<tt class="docutils literal"><span class="pre">;</span></tt>). Each statement can be one of:</p>
+<p>A pulse program consists of several statements separated by line breaks or semicolons (<tt class="docutils literal"><span class="pre">;</span></tt>). A statement is one of:</p>
 <blockquote>
 <div><dl class="docutils">
 <dt><strong>Assignment</strong></dt>
@@ -122,7 +122,7 @@ delay bump_spacing = 20 ns, settle, end_delay</pre>
 <dt><strong>Command</strong></dt>
 <dd><p class="first">A command is an instruction that dictates the shape of the resulting waveforms. There exist several kinds of commands:</p>
 <ul class="last">
-<li><p class="first"><strong>delay</strong>: A lone identifier or a single time value causes a delay in all output waveforms. For example:</p>
+<li><p class="first"><strong>Delay</strong>: A lone identifier or a single time value causes a delay in all output waveforms. For example:</p>
 <div class="highlight-python"><pre># Pause all waveforms for the length of delay d1:
 d1
 
@@ -130,7 +130,7 @@ d1
 100 ns</pre>
 </div>
 </li>
-<li><p class="first"><strong>pulse sequence</strong>: Statements of the form <tt class="docutils literal"><span class="pre">([delay|pulse]</span> <span class="pre">[delay|pulse]</span> <span class="pre">...):&lt;output&gt;</span></tt> are treated as waveform-generating command. If there is only a single delay or pulse, the parentheses may be omitted. If several pulse sequences are included in the same statement, they are executed in parallel; otherwise they are executed in series. For example:</p>
+<li><p class="first"><strong>Pulse sequence</strong>: Statements of the form <tt class="docutils literal"><span class="pre">([delay|pulse]</span> <span class="pre">[delay|pulse]</span> <span class="pre">...):&lt;output&gt;</span></tt> are treated as waveform-generating command. If there is only a single delay or pulse, the parentheses may be omitted. If several pulse sequences are included in the same statement, they are executed in parallel; otherwise they are executed in series. For example:</p>
 <div class="highlight-python"><pre># Generate delay or pulse x on ouput f1:
 x:f1
 # Alternatively:
@@ -159,12 +159,12 @@ x:f1 ; (x y):f2 ; y:f3</pre>
 <p class="last">All waveforms are synchronized before and after a pulse sequence. If any pulse sequence would be longer than the others, padding delays are automatically added to the end of the shorter sequences to ensure that all the lengths match.</p>
 </div>
 </li>
-<li><p class="first"><strong>acquisition trigger</strong>: A statement of the form <tt class="docutils literal"><span class="pre">acquire</span></tt> signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.</p>
+<li><p class="first"><strong>Acquisition trigger</strong>: A statement of the form <tt class="docutils literal"><span class="pre">acquire</span></tt> signals that an oscilloscope acquisition trigger must occur on an output at that point. Such triggers are always created on output markers, rather than as part of the output waveform itself.</p>
 </li>
 </ul>
 </dd>
 <dt><strong>Loop</strong></dt>
-<dd><p class="first">A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to non-trigger commands and loops. Loops are of the form:</p>
+<dd><p class="first">A loop is a section of the program which is to be executed several times. The contents of a loop block are constrained to delays, pulse sequences, and loops. Loops are of the form:</p>
 <div class="last highlight-python"><pre>times &lt;integer&gt; {
    &lt;statement&gt;
    ...
@@ -175,11 +175,11 @@ x:f1 ; (x y):f2 ; y:f3</pre>
 </div></blockquote>
 <div class="section" id="comments">
 <h3>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h3>
-<p>Any text after (and including) a <tt class="docutils literal"><span class="pre">#</span></tt> character is entirely ignored. For example:</p>
+<p>Any text after (and including) a <tt class="docutils literal"><span class="pre">#</span></tt> character is ignored. For example:</p>
 <div class="highlight-python"><pre># This is a pulse sequence.
 (p1 d1 p1):f1 # (p2 d2 p2):f2</pre>
 </div>
-<p>is completely identical to:</p>
+<p>is identical to:</p>
 <div class="highlight-python"><pre>(p1 d1 p1):f1</pre>
 </div>
 </div>

@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Interface &mdash; Spanish Acquisition v1.0.0 documentation</title>
+    <title>Interface &mdash; Spanish Acquisition v1.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.0',
+        VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.0 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../index.html" />
     <link rel="up" title="Packages" href="index.html" />
     <link rel="next" title="Iteration" href="iteration.html" />
     <link rel="prev" title="GUI" href="gui.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.0 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
         <h2 class="heading"><span>Interface</span></h2>
       </div>
       <div class="topnav">
@@ -53,7 +53,14 @@
 <p>The interface package contains code for both user-interface and code-interface purposes.</p>
 <div class="section" id="pulse-programs">
 <h2>Pulse programs<a class="headerlink" href="#pulse-programs" title="Permalink to this headline">¶</a></h2>
-<p>The code for dealing with pulse programs is composed of a parser (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.parser.Parser</span></tt>), an AST (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.ASTNode</span></tt>), an environment (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.Environment</span></tt>), and a presentation wrapper (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.program.Program</span></tt>). The details of pulse program handling are hidden behind the <tt class="xref py py-class docutils literal"><span class="pre">Program</span></tt> interface, which handles every step of a pulse program&#8217;s life cycle from parsing to execution.</p>
+<p>The code for dealing with pulse programs is composed of:</p>
+<ul class="simple">
+<li>a parser (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.parser.Parser</span></tt>),</li>
+<li>an AST (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.ASTNode</span></tt>),</li>
+<li>an environment (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.tree.Environment</span></tt>), and</li>
+<li>a presentation wrapper (<tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.pulse.program.Program</span></tt>).</li>
+</ul>
+<p>The details of pulse program handling are hidden behind the <tt class="xref py py-class docutils literal"><span class="pre">Program</span></tt> interface, which handles every step of a pulse program&#8217;s life cycle from parsing to execution.</p>
 <p>When presented with the textual representation of a pulse program, the parser does its best to tranform it into an abstract syntax tree; if it cannot do so, it raises a <tt class="xref py py-exc docutils literal"><span class="pre">spacq.interface.pulse.paser.PulseSyntaxError</span></tt>.</p>
 <p>Once an AST is obtained, an empty <tt class="xref py py-class docutils literal"><span class="pre">Environment</span></tt> is created. The nodes of the AST are then visited with the <tt class="xref py py-class docutils literal"><span class="pre">Environment</span></tt> over several stages. These stages are:</p>
 <ol class="arabic simple">
@@ -78,7 +85,7 @@
 </ol>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The order of the stages must be preserved, since subsequent stages assume that previous ones have been executed.</p>
+<p class="last">The order of the stages must be preserved, since each stage makes the assumption that previous stages have been executed.</p>
 </div>
 </div>
 <div class="section" id="resources">
@@ -100,7 +107,7 @@
 <h2>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="sivalues">
 <h3>SIValues<a class="headerlink" href="#sivalues" title="Permalink to this headline">¶</a></h3>
-<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.SIValues</span></tt> is a container for all SI prefixes (from 10<sup>-24</sup> to 10<sup>24</sup>), all SI base units (with g listed instead of kg), and a selection of SI derived units.</p>
+<p><tt class="xref py py-class docutils literal"><span class="pre">spacq.interface.units.SIValues</span></tt> is a container for all SI prefixes (from 10<sup>-24</sup> to 10<sup>24</sup>), all SI base units, and a selection of SI derived units.</p>
 </div>
 <div class="section" id="quantity">
 <h3>Quantity<a class="headerlink" href="#quantity" title="Permalink to this headline">¶</a></h3>

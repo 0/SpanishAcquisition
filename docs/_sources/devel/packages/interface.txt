@@ -7,7 +7,14 @@ The interface package contains code for both user-interface and code-interface p
 Pulse programs
 **************
 
-The code for dealing with pulse programs is composed of a parser (:class:`spacq.interface.pulse.parser.Parser`), an AST (:class:`spacq.interface.pulse.tree.ASTNode`), an environment (:class:`spacq.interface.pulse.tree.Environment`), and a presentation wrapper (:class:`spacq.interface.pulse.program.Program`). The details of pulse program handling are hidden behind the :class:`~spacq.interface.pulse.program.Program` interface, which handles every step of a pulse program's life cycle from parsing to execution.
+The code for dealing with pulse programs is composed of:
+
+* a parser (:class:`spacq.interface.pulse.parser.Parser`),
+* an AST (:class:`spacq.interface.pulse.tree.ASTNode`),
+* an environment (:class:`spacq.interface.pulse.tree.Environment`), and
+* a presentation wrapper (:class:`spacq.interface.pulse.program.Program`).
+
+The details of pulse program handling are hidden behind the :class:`~spacq.interface.pulse.program.Program` interface, which handles every step of a pulse program's life cycle from parsing to execution.
 
 When presented with the textual representation of a pulse program, the parser does its best to tranform it into an abstract syntax tree; if it cannot do so, it raises a :exc:`spacq.interface.pulse.paser.PulseSyntaxError`.
 
@@ -32,7 +39,7 @@ Once an AST is obtained, an empty :class:`~spacq.interface.pulse.tree.Environmen
    * Based on all the collected information, generate the output waveforms.
 
 .. warning::
-   The order of the stages must be preserved, since subsequent stages assume that previous ones have been executed.
+   The order of the stages must be preserved, since each stage makes the assumption that previous stages have been executed.
 
 Resources
 *********
@@ -61,7 +68,7 @@ Units
 SIValues
 ========
 
-:class:`spacq.interface.units.SIValues` is a container for all SI prefixes (from 10\ :sup:`-24` to 10\ :sup:`24`), all SI base units (with g listed instead of kg), and a selection of SI derived units.
+:class:`spacq.interface.units.SIValues` is a container for all SI prefixes (from 10\ :sup:`-24` to 10\ :sup:`24`), all SI base units, and a selection of SI derived units.
 
 Quantity
 ========

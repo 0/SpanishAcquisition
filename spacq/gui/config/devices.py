@@ -246,7 +246,7 @@ class DeviceConfigFrame(wx.Frame):
 
 		while True:
 			try:
-				self.devices_panel.olv.RefreshObjects()
+				wx.CallAfter(self.devices_panel.olv.RefreshObjects)
 			except wx.PyDeadObjectError:
 				# The panel has left the building.
 				return

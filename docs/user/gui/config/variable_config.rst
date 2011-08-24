@@ -18,7 +18,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
 
    1. The "enabled" checkbox. Variables which do not have this checked (such as **gate 3**) effectively do not exist; this is useful for temporarily disabling variables.
    2. A unique label to identify the variable. This name appears, for example, as a column heading when capturing data.
-   3. The order number of variables is used to group them during the sweep. **gate 1** and **gate 4** have the same order, so would be stepped together in the inner loop [#inner_loop_order]_ ; **magnetic field** has a higher order number, and so will be stepped alone in the outer loop.
+   3. The order number of variables is used to group them during the sweep. **gate 1** and **gate 4** have the same order, so would be stepped together in the inner loop; **magnetic field** has a higher order number, and so will be stepped alone in the outer loop.
    4. The resource label for the resource to which to write the values. All the resources provided must be writable. If a resource is not provided (such as with **gate 4**), the variable is still stepped in the usual fashion, but its values are discarded.
    5. The values over which the variable will be stepped. If there are too many values, some are omitted from the display. The symbols on either side of the values specify whether that side is set smoothly: "(" and ")" if smoothly (as for **gate 1**); "[" and "]" if not (as for the other variables).
 
@@ -32,6 +32,9 @@ The variable configuration panel is used to set up :ref:`output variables <gener
    10. The variable settings can be saved to and loaded from the disk. All the configured variables (both enabled and not) are saved at the same time, and existing variables are overwritten by any loaded variables.
 
 To select a variable, click on its row. To select multiple variables, hold down the "ctrl" key while clicking. When several variables are selected, some actions (such as clicking "Remove" or pressing the space bar) act on all of them.
+
+.. tip::
+   The user interface is organized so that **gate 2** and **gate 3** are still displayed alongside the other variables with order number 1. However, **gate 2** is set to const, and so will be in a separate virtual order, and **gate 3** is disabled, so will not participate at all.
 
 Variable sweep example
 ======================
@@ -93,13 +96,9 @@ Configuration panels
 Linear
 ------
 
-A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are set to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.
+A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are were to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.
 
 Arbitrary
 ---------
 
 Values are provided directly as a sequence of comma-separated numbers (with ignored whitespace). For example, the input "1, 32 , -5,6.543,0,0 , 1" would result in the values: 1, 32, -5, 6.543, 0, 0, 1.
-
-.. rubric:: Footnotes
-
-.. [#inner_loop_order] The user interface is organized so that **gate 2** and **gate 3** are still displayed alongside the other variables with order number 1. However, **gate 2** is set to const, and so will be in a separate virtual order, and **gate 3** is disabled, so will not participate at all.

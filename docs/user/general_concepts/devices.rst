@@ -16,11 +16,13 @@ Devices can offer any number of arbitrary :ref:`resources <general_concepts_reso
 Subdevices
 **********
 
-A device which has several versions of the same :ref:`resources <general_concepts_resources>` can organize these resources into a tree of subdevices.
+A device which has several versions of the same resources will typically have these resources organized into a tree of subdevices.
 
-For example, an oscilloscope may have multiple channels, with each having the same set of settings. These channels may then be viewed as subdevices, each having its own settings.
+For example, an oscilloscope may have multiple input channels, with each having the same set of settings (eg. vertical scaling and offset). These channels may then be viewed as subdevices, and each will have its own values for all its settings.
 
 .. seealso:: :ref:`device_config_resources`
+
+.. _general_concepts_mock_devices:
 
 Mock
 ****

@@ -4,6 +4,9 @@
 Installation
 ############
 
+Installation procedure
+**********************
+
 The `latest version available on PyPI`_ can be installed using either::
 
    sudo pip install SpanishAcquisition
@@ -23,7 +26,7 @@ Dependencies
 
 These are all the dependencies in use by the package.
 
-If only using a subset of the package, it suffices to use what the subset requires. For example, all the GUI-related dependencies are not necessary if only the device-related code is to be used, and vice versa. However, everything is written in (and so requires) Python:
+If only using a subset of the package, it suffices to use what the subset requires. For example, all the GUI-related dependencies are not necessary if only the device-related code is to be used, and vice versa. However, everything is written in (and so requires) Python 2:
 
 * `Python <http://www.python.org/>`_ ``>=2.6 && <3``
 
@@ -31,9 +34,6 @@ Device drivers
 ==============
 
 * `NI-VISA <http://www.ni.com/visa/>`_ for Ethernet (and GPIB on Windows) device support.
-
-  * `PyVISA <http://pyvisa.sourceforge.net/>`_
-
 * `Linux GPIB <http://linux-gpib.sourceforge.net/>`_ (with Python bindings) for GPIB device support.
 
 Python packages
@@ -46,6 +46,7 @@ Python packages
 * `ObjectListView <http://objectlistview.sourceforge.net/python/>`_
 * `pyparsing <http://pyparsing.wikispaces.com/>`_
 * `PyPubSub <http://pubsub.sourceforge.net/>`_ ``>= 3.1``
+* `PyVISA <http://pyvisa.sourceforge.net/>`_
 * `quantities <http://packages.python.org/quantities/>`_
 * `scipy <http://www.scipy.org/>`_
 * `wxPython <http://www.wxpython.org/>`_

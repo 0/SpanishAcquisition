@@ -14,7 +14,7 @@ If a pulse program is loaded (via ``File -> Open...`` or Ctrl+O), the sweep perf
 Resources
 *********
 
-Most parameterizable values of a pulse program may be given :ref:`resource labels <general_concepts_resources>`. These resource labels behave the same way as device resources, and so may be iterated over by a variable.
+Most parameterizable values of a pulse program may be given :ref:`resource labels <general_concepts_resources>`. These resource labels behave the same way as device resources, and so may be iterated over by a variable during a sweep.
 
 Setup
 *****
@@ -24,6 +24,8 @@ Setup
 
 Acquisition
 ===========
+
+Configuration for the acquisition trigger.
 
 .. figure:: pulse_program_config_acquisition.*
    :alt: Pulse program configuration: acquisition.
@@ -35,6 +37,8 @@ Acquisition
 
 Delays, Integers, Pulses
 ========================
+
+Configuration for the pulse program variables.
 
 .. figure:: pulse_program_config_delays.*
    :alt: Pulse program configuration: delays.
@@ -48,6 +52,8 @@ The default value is used when displaying the output waveform in the Outputs tab
 Outputs
 =======
 
+Configuration for the waveform outputs.
+
 .. figure:: pulse_program_config_outputs.*
    :alt: Pulse program configuration: outputs.
 
@@ -58,4 +64,4 @@ Outputs
 .. warning::
    Setting the sampling rate too low will produce waveforms which are not faithful to the pulse program, since there is not enough resolution to create the desired shapes. On the other hand, setting the sampling rate too high will produce waveforms that have very many points, causing severe slowdowns.
 
-   A good rule of thumb is to keep the waveforms to within one million points. This provides a maximum total duration of 1 ms at a resolution of 1 GHz.
+   A good rule of thumb is to keep the waveforms to within one million points. This provides a maximum total duration of 1 ms per waveform at a resolution of 1 GHz.

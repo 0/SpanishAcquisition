@@ -2,7 +2,7 @@
 Devices
 #######
 
-Interfaces for various hardware devices.
+Interfaces for various hardware devices. This package allows the remaining components to talk to devices through a layer of abstraction.
 
 Class hierarchy
 ***************

@@ -4,7 +4,7 @@
 Variables
 #########
 
-Variables are how sweeping acquisition experiments are described.
+Variables are used to describe sweeping acquisition experiments.
 
 .. _general_concepts_output_variables:
 
@@ -73,7 +73,7 @@ Note that since constant variables by definition do not iterate, they are all pu
 Smooth setting
 ==============
 
-During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To get around this, the variables can optionally be "smoothly set" at various times:
+During a sweep, it is sometimes beneficial to avoid abruptly setting variables to values, since this can correspond to large jumps in current or potential difference in configured devices. To reduce the negative effect of changing values, the variables can optionally be "smoothly set" at various times:
 
    Smooth setting **from constant** value
       At the start of a sweep, the variable is set to the constant value, and then (over the desired number of steps) swept towards its inital value at the start of the sweep.

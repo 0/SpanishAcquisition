@@ -2,6 +2,13 @@
 Changes
 #######
 
+* 2011-08-25: **1.0.2**
+
+  Fixes:
+
+  * Removed race condition in GUI
+  * Minor documentation updates
+
 * 2011-08-23: **1.0.1**
 
   Enhancements:

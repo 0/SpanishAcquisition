@@ -9,3 +9,4 @@ Developer's Guide
 
    general_info
    packages/index
+   pulse_program_execution

@@ -5,7 +5,7 @@ Packages
 .. toctree::
    :maxdepth: 2
 
-   devices
+   devices/index
    gui
    interface
    iteration

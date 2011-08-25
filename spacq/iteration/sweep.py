@@ -211,6 +211,7 @@ class SweepController(object):
 				# AWG
 				awg = self.pulse_config.awg
 
+				awg.enabled = False
 				awg.sampling_rate = self.pulse_config.program.frequency
 				awg.run_mode = 'triggered'
 

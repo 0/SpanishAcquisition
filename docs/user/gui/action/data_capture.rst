@@ -83,4 +83,4 @@ For example, an exported file may begin thusly::
    0,1.0,-5.0,"[(0.0, -0.078469520103761514), ...]",-0.0100000004
    0.25141787529,1.0,-4.375,"[(0.0, -0.11684596017395288), ...]",-0.0100000008
 
-Note that the "Pulses" column contains list data and most of it has been omitted here for clarity.
+Note that the "Pulses" column contains list data and most of it has been elided for clarity.

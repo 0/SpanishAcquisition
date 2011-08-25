@@ -1,0 +1,12 @@
+##################
+Tektronix AWG5014B
+##################
+
+The implementation for the Tektronix AWG5014B arbitrary waveform generator is :class:`spacq.devices.tektronix.awg5014b.AWG5014B`.
+
+The following examples assume ``awg = AWG5014B(...)``.
+
+Run modes
+*********
+
+The currently-supported run modes are "continuous" (``awg.run_mode = 'continuous'``) and "triggered" (``awg.run_mode = 'triggered'``). In "continuous" mode, the device will output all the waveforms on the enabled channels until stopped. In "triggered" mode, the device will output all the waveforms on the enabled channels once each time it is triggered (``awg.trigger()``).

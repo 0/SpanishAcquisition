@@ -4,6 +4,8 @@ Interface
 
 The interface package contains code for both user-interface and code-interface purposes.
 
+.. _interface_pulse_programs:
+
 Pulse programs
 **************
 

@@ -13,6 +13,15 @@ All device classes inherit from :class:`spacq.devices.abstract_device.AbstractDe
 
 .. _devices_testing:
 
+Device implementation notes
+***************************
+
+.. toctree::
+   :maxdepth: 1
+
+   awg5014b
+   dpo7104
+
 Testing
 *******
 

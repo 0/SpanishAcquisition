@@ -11,12 +11,12 @@ The following examples assume ``dpo = DPO7104(...)``.
 "FastFrame" mode
 ****************
 
-In order to allow fast triggering for on-board averaging, the device can be placed into "FastFrame" mode (``dpo.fastframe = True``), which enables memory segmentation. The acquisition memory is split up into the requested number of frames (``fastframe_count = 17``); this has the negative side effect of decreasing the maximum allowed resolution, since all frames share the same acquisition memory.
+In order to allow fast triggering for on-board averaging, the device can be placed into "FastFrame" mode (``dpo.fastframe = True``), which enables memory segmentation. The acquisition memory is split up into the requested number of frames (``dpo.fastframe_count = 17``); this has the negative side effect of decreasing the maximum allowed resolution, since all frames share the same acquisition memory.
 
 The final frame must be enabled in either average (``dpo.fastframe_sum = 'average'``) or envelope (``dpo.fastframe_sum = 'envelope'``) mode.
 
 .. note::
-   ``fastframe_count`` includes the final frame.
+   ``dpo.fastframe_count`` includes the final frame.
 
 Waveform acquisition
 ********************

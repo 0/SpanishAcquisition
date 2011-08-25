@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Pulse program configuration &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>Pulse program configuration &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Variable configuration" href="variable_config.html" />
     <link rel="prev" title="Measurement configuration" href="measurement_config.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Pulse program configuration</span></h2>
       </div>
       <div class="topnav">
@@ -58,7 +58,7 @@
 </div>
 <div class="section" id="resources">
 <h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
-<p>Most parameterizable values of a pulse program may be given <a class="reference internal" href="../../general_concepts/resources.html#general-concepts-resources"><em>resource labels</em></a>. These resource labels behave the same way as device resources, and so may be iterated over by a variable.</p>
+<p>Most parameterizable values of a pulse program may be given <a class="reference internal" href="../../general_concepts/resources.html#general-concepts-resources"><em>resource labels</em></a>. These resource labels behave the same way as device resources, and so may be iterated over by a variable during a sweep.</p>
 </div>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
@@ -68,6 +68,7 @@
 </div>
 <div class="section" id="acquisition">
 <h3>Acquisition<a class="headerlink" href="#acquisition" title="Permalink to this headline">¶</a></h3>
+<p>Configuration for the acquisition trigger.</p>
 <div class="figure">
 <img alt="Pulse program configuration: acquisition." src="../../../_images/pulse_program_config_acquisition.png" />
 </div>
@@ -80,6 +81,7 @@
 </div>
 <div class="section" id="delays-integers-pulses">
 <h3>Delays, Integers, Pulses<a class="headerlink" href="#delays-integers-pulses" title="Permalink to this headline">¶</a></h3>
+<p>Configuration for the pulse program variables.</p>
 <div class="figure">
 <img alt="Pulse program configuration: delays." src="../../../_images/pulse_program_config_delays.png" />
 </div>
@@ -89,6 +91,7 @@
 </div>
 <div class="section" id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h3>
+<p>Configuration for the waveform outputs.</p>
 <div class="figure">
 <img alt="Pulse program configuration: outputs." src="../../../_images/pulse_program_config_outputs.png" />
 </div>
@@ -100,7 +103,7 @@
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p>Setting the sampling rate too low will produce waveforms which are not faithful to the pulse program, since there is not enough resolution to create the desired shapes. On the other hand, setting the sampling rate too high will produce waveforms that have very many points, causing severe slowdowns.</p>
-<p class="last">A good rule of thumb is to keep the waveforms to within one million points. This provides a maximum total duration of 1 ms at a resolution of 1 GHz.</p>
+<p class="last">A good rule of thumb is to keep the waveforms to within one million points. This provides a maximum total duration of 1 ms per waveform at a resolution of 1 GHz.</p>
 </div>
 </div>
 </div>

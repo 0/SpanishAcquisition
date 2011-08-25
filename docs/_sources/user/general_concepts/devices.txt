@@ -22,6 +22,8 @@ For example, an oscilloscope may have multiple input channels, with each having 
 
 .. seealso:: :ref:`device_config_resources`
 
+.. _general_concepts_mock_devices:
+
 Mock
 ****
 

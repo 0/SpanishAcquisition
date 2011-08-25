@@ -32,6 +32,8 @@ The device configuration dialog is used to configure an individual :ref:`device 
 Device connection
 =================
 
+Connection and model setup.
+
 .. figure:: device_config_connection.*
    :alt: Device connection configuration.
 
@@ -46,7 +48,7 @@ Device connection
    2. Implementation configuration.
 
       * The manufacturer and model must be selected.
-      * Mock: When selected, a software mock implementation is used instead of connecting to a real device.
+      * When "Mock" is selected, a :ref:`software mock implementation <general_concepts_mock_devices>` is used instead of connecting to a real device.
 
    3. Connection control.
 
@@ -63,6 +65,8 @@ Device connection
 
 Device resources
 ================
+
+Resource labels and values setup.
 
 .. figure:: device_config_resources.*
    :alt: Device resource configuration.

@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Measurement configuration &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>Measurement configuration &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Pulse program configuration" href="pulse_program_config.html" />
     <link rel="prev" title="Device configuration" href="device_config.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Measurement configuration</span></h2>
       </div>
       <div class="topnav">
@@ -53,10 +53,11 @@
 <p>The measurement configuration dialogs are used to set up <a class="reference internal" href="../../general_concepts/variables.html#general-concepts-input-variables"><em>input variables</em></a> for an application.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If the plots cannot be displayed (most likely due to a required plotting library not being installed), the plots and all plot-specific options will be omitted. However, the measurements can still be set up in the same way.</p>
+<p class="last">If the plots cannot be displayed (most likely due to a required plotting library not being installed), the plots and all plot-specific options will be omitted. However, the measurements can still be configured for acquisition.</p>
 </div>
 <div class="section" id="scalar-measurement">
 <span id="measurement-config-scalar"></span><h2>Scalar measurement<a class="headerlink" href="#scalar-measurement" title="Permalink to this headline">¶</a></h2>
+<p>A scalar measurement consists of a single data point for each point in time.</p>
 <div class="figure">
 <img alt="Scalar measurement configuration." src="../../../_images/measurement_config_scalar.png" />
 <div class="legend">
@@ -74,6 +75,7 @@
 </div>
 <div class="section" id="resource-scaling">
 <span id="measurement-config-scalar-resource-scaling"></span><h3>Resource scaling<a class="headerlink" href="#resource-scaling" title="Permalink to this headline">¶</a></h3>
+<p>Resources can be scaled as desired after they come in from a device, but before they are used.</p>
 <div class="figure">
 <img alt="Scalar measurement scaling." src="../../../_images/measurement_config_scaling.png" />
 </div>
@@ -87,6 +89,7 @@
 </div>
 <div class="section" id="plot-settings">
 <span id="measurement-config-scalar-plot-settings"></span><h3>Plot settings<a class="headerlink" href="#plot-settings" title="Permalink to this headline">¶</a></h3>
+<p>The historical plot can be configured, or disabled outright.</p>
 <div class="figure">
 <img alt="Scalar measurement plot settings." src="../../../_images/measurement_config_scalar_settings.png" />
 <div class="legend">
@@ -123,7 +126,7 @@
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">These settings affect only the <em>displayed</em> values.</p>
+<p class="last">These conversion settings affect only the <em>displayed</em> values.</p>
 </div>
 </li>
 </ul>
@@ -137,12 +140,14 @@
 </div>
 <div class="section" id="list-measurement">
 <h2>List measurement<a class="headerlink" href="#list-measurement" title="Permalink to this headline">¶</a></h2>
+<p>A list measurement consists of a list of data point for each point in time.</p>
 <div class="figure">
 <img alt="List measurement configuration." src="../../../_images/measurement_config_list.png" />
 </div>
 <p>The list measurement configuration is identical to <a class="reference internal" href="#measurement-config-scalar"><em>scalar measurement configuration</em></a>, but with fewer options.</p>
 <div class="section" id="id1">
 <h3>Plot settings<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The historical plot can be configured, or disabled outright.</p>
 <div class="figure">
 <img alt="List measurement plot settings." src="../../../_images/measurement_config_list_settings.png" />
 <div class="legend">

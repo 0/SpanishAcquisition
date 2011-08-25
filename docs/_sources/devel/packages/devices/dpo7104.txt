@@ -1,0 +1,26 @@
+#################
+Tektronix DPO7104
+#################
+
+The implementation for the Tektronix DPO7104 oscilloscope is :class:`spacq.devices.tektronix.dpo7104.DPO7104`.
+
+The following examples assume ``dpo = DPO7104(...)``.
+
+.. _device_specific_dpo7104_fastframe:
+
+"FastFrame" mode
+****************
+
+In order to allow fast triggering for on-board averaging, the device can be placed into "FastFrame" mode (``dpo.fastframe = True``), which enables memory segmentation. The acquisition memory is split up into the requested number of frames (``fastframe_count = 17``); this has the negative side effect of decreasing the maximum allowed resolution, since all frames share the same acquisition memory.
+
+The final frame must be enabled in either average (``dpo.fastframe_sum = 'average'``) or envelope (``dpo.fastframe_sum = 'envelope'``) mode.
+
+.. note::
+   ``fastframe_count`` includes the final frame.
+
+Waveform acquisition
+********************
+
+The property :attr:`spacq.devices.tektronix.dpo7104.Channel.waveform` downloads a single frame from the device. If "FastFrame" mode is enabled (regardless of the final frame setting), only the last frame is downloaded.
+
+Extremely large waveforms are downloaded in chunks (the size of which is specified by ``dpo.max_receive_samples``) and are assembled into a single waveform locally.

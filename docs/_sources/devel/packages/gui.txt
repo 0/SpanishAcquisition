@@ -55,26 +55,27 @@ However, the :obj:`OnOk` method cannot contain any logic of its own, since the d
        if self.ok_callback(self):
            self.Destroy()
 
-where the :obj:`ok_callback` attribute is either set by :obj:`__init__` or after by the caller. This structure allows the dialog to know whether to exit (depending on the result of the callback), but does not require it to know what happens when the button is pressed.
+where the :obj:`ok_callback` attribute is either set by :obj:`__init__` or afterwards by the caller. This structure allows the dialog to know whether to exit (depending on the result of the callback), but does not require it to know what happens when the button is pressed.
 
 The event handler logic comes from whoever creates the dialog. For example::
 
-   var = ...
+   def OnAction(self, evt=None):
+       var = ...
 
-   def ok_callback(dlg):
-       try:
-           values = dlg.GetValue()
-       except ValueError as e:
-           MessageDialog(self, str(e), 'Invalid value').Show()
-           return False
+       def ok_callback(dlg):
+           try:
+               values = dlg.GetValue()
+           except ValueError as e:
+               MessageDialog(self, str(e), 'Invalid value').Show()
+               return False
 
-       var.a, var.b = values
+           var.a, var.b = values
 
-       return True
+           return True
 
-   dlg = SomeDialog(self, ok_callback)
-   dlg.SetValue(var.a, var.b)
-   dlg.Show()
+       dlg = SomeDialog(self, ok_callback)
+       dlg.SetValue(var.a, var.b)
+       dlg.Show()
 
 .. tip::
    As in the above example, most callbacks make use of the lexical closures that Python provides for nested functions, reducing the number of arguments that need to be passed between GUI objects.
@@ -82,7 +83,7 @@ The event handler logic comes from whoever creates the dialog. For example::
 Pub-sub
 -------
 
-A publish-subscribe framework is used for events which must be broadcast.
+A publish-subscribe framework is used for events which must be broadcast to multiple listeners.
 
 For example, the :ref:`data_capture` panel and dialog send out ``data_capture.start``, ``data_capture.data``, and ``data_capture.stop`` messages to the global publisher to indicate to anybody who may be listening (there may be zero or more listeners) that certain resources are being acquired. The :ref:`measurement_config` frames listen to whichever resource they are configured, and act accordingly when messages are received.
 
@@ -98,3 +99,14 @@ The handler must therefore have parameters which match the message being sent::
 
    def msg_data_capture_start(self, name):
        ...
+
+Thread safety
+*************
+
+When performing an action which affects the GUI in another thread, it is crucial to use :obj:`wx.CallAfter`. Peforming the action directly, as in::
+
+   self.display_label.SetValue('value')
+
+will cause the GUI event loop to break non-deterministically; depending on the frequency of such calls, the app may freeze or crash within a short time, or may not do so at all. To avoid this, the above example would be rewritten as::
+
+   wx.CallAfter(self.display_label.SetValue, 'value')

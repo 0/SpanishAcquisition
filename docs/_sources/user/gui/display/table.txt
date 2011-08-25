@@ -12,13 +12,13 @@ The tabular display panel is a read-only panel for arbitrary data.
 Column types
 ************
 
-The panel is able to recognize certain data types: scalars, lists, and strings. Scalars are any real numbers; lists are number sequences with a particular syntax; and everything else is considered to be a string.
+The panel is able to recognize certain data types: scalars, lists, and strings. Scalars are any real numbers, lists are number sequences with a particular syntax, and everything else is considered to be a string.
 
 Lists are of the form::
 
    [(number, number), (number, number), ...]
 
-This is the format used by the :ref:`data_capture` panel for export of list data. Therefore, the exported list data is identified as special by the tabular display panel.
+This is the format used by the :ref:`data_capture` panel for export of list data.
 
 .. _tabular_display_data_filters:
 
@@ -34,9 +34,6 @@ Syntax
 ======
 
 Filters are provided as Python-like expressions on a per-column basis. All occurrences of ``x`` are internally replaced with an identifier for the selected column, and the remainder of the expression is left intact. Thus, the user is free to use as much creativity as desired when constructing filters.
-
-.. note::
-   Filters can only be applied to scalar columns.
 
 Valid comparison operators include: ``<`` (less than), ``<=`` (less than or equal to), ``==`` (equal to), ``!=`` (not equal to), ``>=`` (greater than or equal to), ``>`` (greater than). Comparisons may be grouped with: ``and`` (both expressions must be true), ``or`` (at least one expression must be true); and negated with: ``not`` (expression must be false).
 
@@ -100,7 +97,7 @@ Dimensionality reduction
 
 Reduce an entire dimension to a single point.
 
-This allows for plots which would otherwise be impossible. For example, "port in (V)" vs "port out (V)" cannot be plotted since "port out (V)" is not a function of "port in (V)".
+This allows for plots which would otherwise be impossible. For example, "port in (V)" vs "port out (V)" cannot be plotted since "port in (V)" is not a function of "port out (V)".
 
 The filter:
 
@@ -129,6 +126,8 @@ Configuration
 Filter list
 -----------
 
+The filter list displays all existing filters.
+
 .. figure:: table_filter_list.*
    :alt: Data filter list.
 
@@ -136,6 +135,8 @@ Filters can be added with the "Add" button, permanently removed with the "Remove
 
 Filter editor
 -------------
+
+The filter editor allows the user to create new filters and to edit existing filters.
 
 .. figure:: table_filter_editor.*
    :alt: Data filter editor.

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Action &mdash; Spanish Acquisition v1.0.2 documentation</title>
+    <title>Tektronix AWG5014B &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
@@ -25,41 +25,36 @@
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
     <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
-    <link rel="up" title="Graphical user interface" href="../index.html" />
-    <link rel="next" title="Data capture" href="data_capture.html" />
-    <link rel="prev" title="Graphical user interface" href="../index.html" /> 
+    <link rel="up" title="Devices" href="index.html" />
+    <link rel="next" title="Tektronix DPO7104" href="dpo7104.html" />
+    <link rel="prev" title="Devices" href="index.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
           <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
-        <h2 class="heading"><span>Action</span></h2>
+        <h2 class="heading"><span>Tektronix AWG5014B</span></h2>
       </div>
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="../index.html">Graphical user interface</a>
+        «&#160;&#160;<a href="index.html">Devices</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="data_capture.html">Data capture</a>&#160;&#160;»
+        <a href="dpo7104.html">Tektronix DPO7104</a>&#160;&#160;»
         </p>
 
       </div>
       <div class="content">
         
         
-  <div class="section" id="action">
-<h1>Action<a class="headerlink" href="#action" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="data_capture.html">Data capture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data_capture.html#data-capture-panel">Data capture panel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_capture.html#data-capture-dialog">Data capture dialog</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_capture.html#export-format">Export format</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="smooth_reset.html">Smooth reset</a></li>
-</ul>
+  <div class="section" id="tektronix-awg5014b">
+<h1>Tektronix AWG5014B<a class="headerlink" href="#tektronix-awg5014b" title="Permalink to this headline">¶</a></h1>
+<p>The implementation for the Tektronix AWG5014B arbitrary waveform generator is <tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.tektronix.awg5014b.AWG5014B</span></tt>.</p>
+<p>The following examples assume <tt class="docutils literal"><span class="pre">awg</span> <span class="pre">=</span> <span class="pre">AWG5014B(...)</span></tt>.</p>
+<div class="section" id="run-modes">
+<h2>Run modes<a class="headerlink" href="#run-modes" title="Permalink to this headline">¶</a></h2>
+<p>The currently-supported run modes are &#8220;continuous&#8221; (<tt class="docutils literal"><span class="pre">awg.run_mode</span> <span class="pre">=</span> <span class="pre">'continuous'</span></tt>) and &#8220;triggered&#8221; (<tt class="docutils literal"><span class="pre">awg.run_mode</span> <span class="pre">=</span> <span class="pre">'triggered'</span></tt>). In &#8220;continuous&#8221; mode, the device will output all the waveforms on the enabled channels until stopped. In &#8220;triggered&#8221; mode, the device will output all the waveforms on the enabled channels once each time it is triggered (<tt class="docutils literal"><span class="pre">awg.trigger()</span></tt>).</p>
 </div>
 </div>
 
@@ -68,11 +63,11 @@
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="../index.html">Graphical user interface</a>
+        «&#160;&#160;<a href="index.html">Devices</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="data_capture.html">Data capture</a>&#160;&#160;»
+        <a href="dpo7104.html">Tektronix DPO7104</a>&#160;&#160;»
         </p>
 
       </div>

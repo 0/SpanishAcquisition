@@ -4,6 +4,9 @@
 Installation
 ############
 
+Installation procedure
+**********************
+
 The `latest version available on PyPI`_ can be installed using either::
 
    sudo pip install SpanishAcquisition

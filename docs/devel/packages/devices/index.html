@@ -7,41 +7,41 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Devices &mdash; Spanish Acquisition v1.0.1 documentation</title>
-    <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
+    <title>Devices &mdash; Spanish Acquisition v1.0.2 documentation</title>
+    <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.0.1',
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../index.html" />
-    <link rel="up" title="Packages" href="index.html" />
-    <link rel="next" title="GUI" href="gui.html" />
-    <link rel="prev" title="Packages" href="index.html" /> 
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
+    <link rel="up" title="Packages" href="../index.html" />
+    <link rel="next" title="Tektronix AWG5014B" href="awg5014b.html" />
+    <link rel="prev" title="Packages" href="../index.html" /> 
   </head>
   <body>
-      <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+      <div class="header"><h1 class="heading"><a href="../../../index.html">
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Devices</span></h2>
       </div>
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="index.html">Packages</a>
+        «&#160;&#160;<a href="../index.html">Packages</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../index.html">Contents</a>
+        <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="gui.html">GUI</a>&#160;&#160;»
+        <a href="awg5014b.html">Tektronix AWG5014B</a>&#160;&#160;»
         </p>
 
       </div>
@@ -50,14 +50,23 @@
         
   <div class="section" id="devices">
 <h1>Devices<a class="headerlink" href="#devices" title="Permalink to this headline">¶</a></h1>
-<p>Interfaces for various hardware devices.</p>
+<p>Interfaces for various hardware devices. This package allows the remaining components to talk to devices through a layer of abstraction.</p>
 <div class="section" id="class-hierarchy">
 <h2>Class hierarchy<a class="headerlink" href="#class-hierarchy" title="Permalink to this headline">¶</a></h2>
 <p>All device classes inherit from <tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.abstract_device.AbstractDevice</span></tt>, which provides all the functionality necessary to make connections to physical devices. Subdevices inherit from <tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.abstract_device.AbstractSubdevice</span></tt>. Each device class has its own test class, as well as a mock implementation.</p>
 <p><tt class="xref py py-class docutils literal"><span class="pre">spacq.devices.config.DeviceConfig</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">spacq.devices.config.device_tree()</span></tt> provide a way to find existing devices and connect to them.</p>
 </div>
+<div class="section" id="device-implementation-notes">
+<span id="devices-testing"></span><h2>Device implementation notes<a class="headerlink" href="#device-implementation-notes" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="awg5014b.html">Tektronix AWG5014B</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dpo7104.html">Tektronix DPO7104</a></li>
+</ul>
+</div>
+</div>
 <div class="section" id="testing">
-<span id="devices-testing"></span><h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
 <p>All the device interfaces can be tested against real hardware as long as the hardware is present and configured.</p>
 <p>Configuration of external resources should be done by copying and editing the example file:</p>
 <div class="highlight-python"><pre>cp test-config.py ~/.spacq-test-config.py</pre>
@@ -163,11 +172,11 @@ vim spacq/devices/__init__.py # Add "oxford".</pre>
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="index.html">Packages</a>
+        «&#160;&#160;<a href="../index.html">Packages</a>
         &#160;&#160;::&#160;&#160;
-        <a class="uplink" href="../../index.html">Contents</a>
+        <a class="uplink" href="../../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="gui.html">GUI</a>&#160;&#160;»
+        <a href="awg5014b.html">Tektronix AWG5014B</a>&#160;&#160;»
         </p>
 
       </div>

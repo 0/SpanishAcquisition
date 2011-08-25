@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Data capture &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>Data capture &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
     <link rel="up" title="Action" href="index.html" />
     <link rel="next" title="Smooth reset" href="smooth_reset.html" />
     <link rel="prev" title="Action" href="index.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Data capture</span></h2>
       </div>
       <div class="topnav">
@@ -57,11 +57,11 @@
 <img alt="Data capture panel." src="../../../_images/data_capture_panel.png" />
 <div class="legend">
 <ol class="arabic simple">
-<li>Begin the sweep as defined in the rest of the application. If there are any setup errors, pressing this button will generate messages about the errors rather than begging the sweep.</li>
+<li>Begin the sweep as defined in the rest of the application. If there are any setup errors, pressing this button will generate messages about the errors rather than beginning the sweep.</li>
 <li>If the &#8220;Continuous&#8221; checkbox is enabled, the sweep will restart from the beginning as soon as it gets to the end.</li>
 <li>If the &#8220;Export&#8221; checkbox is enabled, the sweep values (of both input and output variables) will be exported; otherwise, they will be discarded.</li>
-<li>The location of the directory to which the values <em>should be</em> exported.</li>
-<li>The location of the file to which the last set of values <em>was</em> exported.</li>
+<li>The location of the directory to which the values should be exported.</li>
+<li>The location of the file to which the last set of values was exported.</li>
 </ol>
 </div>
 </div>
@@ -94,26 +94,26 @@
 </ol>
 </div>
 </div>
-<p>The sweep consists of the following stages (with the displayed message in parentheses):</p>
+<p>The sweep consists of the following stages:</p>
 <blockquote>
 <div><dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">init</span></tt> (Initializing)</dt>
+<dt>Initializing</dt>
 <dd>Internal setup.</dd>
-<dt><tt class="docutils literal"><span class="pre">next</span></tt> (Getting next values)</dt>
+<dt>Getting next values</dt>
 <dd>The next set of values to write to any resources is determined based on the variable configuration.</dd>
-<dt><tt class="docutils literal"><span class="pre">transition</span></tt> (Smooth setting)</dt>
+<dt>Smooth setting</dt>
 <dd>A smooth transition occurs for all resources requiring one.</dd>
-<dt><tt class="docutils literal"><span class="pre">write</span></tt> (Writing to devices)</dt>
+<dt>Writing to devices</dt>
 <dd>All variables with changed values have those values written to their resources.</dd>
-<dt><tt class="docutils literal"><span class="pre">dwell</span></tt> (Waiting for resources to settle)</dt>
+<dt>Waiting for resources to settle</dt>
 <dd>A delay occurs for the variable with the longest wait time.</dd>
-<dt><tt class="docutils literal"><span class="pre">pulse</span></tt> (Running pulse program)</dt>
+<dt>Running pulse program</dt>
 <dd>If one is configured, a pulse program is run.</dd>
-<dt><tt class="docutils literal"><span class="pre">read</span></tt> (Taking measurements)</dt>
+<dt>Taking measurements</dt>
 <dd>All measurements are read from their resources.</dd>
-<dt><tt class="docutils literal"><span class="pre">ramp_down</span></tt> (Smooth setting)</dt>
+<dt>Smooth setting</dt>
 <dd>A smooth transition occurs from the last value to the variables&#8217; constant values, as required.</dd>
-<dt><tt class="docutils literal"><span class="pre">end</span></tt> (Finishing)</dt>
+<dt>Finishing</dt>
 <dd>Internal cleanup.</dd>
 </dl>
 </div></blockquote>
@@ -126,7 +126,7 @@
 0,1.0,-5.0,"[(0.0, -0.078469520103761514), ...]",-0.0100000004
 0.25141787529,1.0,-4.375,"[(0.0, -0.11684596017395288), ...]",-0.0100000008</pre>
 </div>
-<p>Note that the &#8220;Pulses&#8221; column contains list data and most of it has been omitted here for clarity.</p>
+<p>Note that the &#8220;Pulses&#8221; column contains list data and most of it has been elided for clarity.</p>
 </div>
 </div>
 

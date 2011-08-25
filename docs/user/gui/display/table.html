@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tabular display &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>Tabular display &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
     <link rel="up" title="Display" href="index.html" />
     <link rel="next" title="Example applications" href="../../examples/index.html" />
     <link rel="prev" title="Two-dimensional plot" href="plots/two_dimensional.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Tabular display</span></h2>
       </div>
       <div class="topnav">
@@ -56,12 +56,12 @@
 </div>
 <div class="section" id="column-types">
 <h2>Column types<a class="headerlink" href="#column-types" title="Permalink to this headline">¶</a></h2>
-<p>The panel is able to recognize certain data types: scalars, lists, and strings. Scalars are any real numbers; lists are number sequences with a particular syntax; and everything else is considered to be a string.</p>
+<p>The panel is able to recognize certain data types: scalars, lists, and strings. Scalars are any real numbers, lists are number sequences with a particular syntax, and everything else is considered to be a string.</p>
 <p>Lists are of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">),</span> <span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">number</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>This is the format used by the <a class="reference internal" href="../action/data_capture.html#data-capture"><em>Data capture</em></a> panel for export of list data. Therefore, the exported list data is identified as special by the tabular display panel.</p>
+<p>This is the format used by the <a class="reference internal" href="../action/data_capture.html#data-capture"><em>Data capture</em></a> panel for export of list data.</p>
 </div>
 <div class="section" id="data-filters">
 <span id="tabular-display-data-filters"></span><h2>Data filters<a class="headerlink" href="#data-filters" title="Permalink to this headline">¶</a></h2>
@@ -73,10 +73,6 @@
 <div class="section" id="syntax">
 <h3>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h3>
 <p>Filters are provided as Python-like expressions on a per-column basis. All occurrences of <tt class="docutils literal"><span class="pre">x</span></tt> are internally replaced with an identifier for the selected column, and the remainder of the expression is left intact. Thus, the user is free to use as much creativity as desired when constructing filters.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Filters can only be applied to scalar columns.</p>
-</div>
 <p>Valid comparison operators include: <tt class="docutils literal"><span class="pre">&lt;</span></tt> (less than), <tt class="docutils literal"><span class="pre">&lt;=</span></tt> (less than or equal to), <tt class="docutils literal"><span class="pre">==</span></tt> (equal to), <tt class="docutils literal"><span class="pre">!=</span></tt> (not equal to), <tt class="docutils literal"><span class="pre">&gt;=</span></tt> (greater than or equal to), <tt class="docutils literal"><span class="pre">&gt;</span></tt> (greater than). Comparisons may be grouped with: <tt class="docutils literal"><span class="pre">and</span></tt> (both expressions must be true), <tt class="docutils literal"><span class="pre">or</span></tt> (at least one expression must be true); and negated with: <tt class="docutils literal"><span class="pre">not</span></tt> (expression must be false).</p>
 <div class="admonition tip">
 <p class="first admonition-title">Tip</p>
@@ -258,7 +254,7 @@
 <div class="section" id="dimensionality-reduction">
 <h4>Dimensionality reduction<a class="headerlink" href="#dimensionality-reduction" title="Permalink to this headline">¶</a></h4>
 <p>Reduce an entire dimension to a single point.</p>
-<p>This allows for plots which would otherwise be impossible. For example, &#8220;port in (V)&#8221; vs &#8220;port out (V)&#8221; cannot be plotted since &#8220;port out (V)&#8221; is not a function of &#8220;port in (V)&#8221;.</p>
+<p>This allows for plots which would otherwise be impossible. For example, &#8220;port in (V)&#8221; vs &#8220;port out (V)&#8221; cannot be plotted since &#8220;port in (V)&#8221; is not a function of &#8220;port out (V)&#8221;.</p>
 <p>The filter:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -324,6 +320,7 @@
 <h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="filter-list">
 <h4>Filter list<a class="headerlink" href="#filter-list" title="Permalink to this headline">¶</a></h4>
+<p>The filter list displays all existing filters.</p>
 <div class="figure">
 <img alt="Data filter list." src="../../../_images/table_filter_list.png" />
 </div>
@@ -331,6 +328,7 @@
 </div>
 <div class="section" id="filter-editor">
 <h4>Filter editor<a class="headerlink" href="#filter-editor" title="Permalink to this headline">¶</a></h4>
+<p>The filter editor allows the user to create new filters and to edit existing filters.</p>
 <div class="figure">
 <img alt="Data filter editor." src="../../../_images/table_filter_editor.png" />
 </div>

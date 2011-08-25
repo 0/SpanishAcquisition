@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>GUI &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>GUI &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,20 +24,20 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../index.html" />
     <link rel="up" title="Packages" href="index.html" />
     <link rel="next" title="Interface" href="interface.html" />
-    <link rel="prev" title="Devices" href="devices.html" /> 
+    <link rel="prev" title="Tektronix DPO7104" href="devices/dpo7104.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>GUI</span></h2>
       </div>
       <div class="topnav">
       
         <p>
-        «&#160;&#160;<a href="devices.html">Devices</a>
+        «&#160;&#160;<a href="devices/dpo7104.html">Tektronix DPO7104</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
@@ -88,24 +88,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Destroy</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>where the <tt class="xref py py-obj docutils literal"><span class="pre">ok_callback</span></tt> attribute is either set by <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> or after by the caller. This structure allows the dialog to know whether to exit (depending on the result of the callback), but does not require it to know what happens when the button is pressed.</p>
+<p>where the <tt class="xref py py-obj docutils literal"><span class="pre">ok_callback</span></tt> attribute is either set by <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> or afterwards by the caller. This structure allows the dialog to know whether to exit (depending on the result of the callback), but does not require it to know what happens when the button is pressed.</p>
 <p>The event handler logic comes from whoever creates the dialog. For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">var</span> <span class="o">=</span> <span class="o">...</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">OnAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="o">...</span>
 
-<span class="k">def</span> <span class="nf">ok_callback</span><span class="p">(</span><span class="n">dlg</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">dlg</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">MessageDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s">&#39;Invalid value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">def</span> <span class="nf">ok_callback</span><span class="p">(</span><span class="n">dlg</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">dlg</span><span class="o">.</span><span class="n">GetValue</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">MessageDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s">&#39;Invalid value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">False</span>
 
-    <span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">values</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">values</span>
 
-    <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">True</span>
 
-<span class="n">dlg</span> <span class="o">=</span> <span class="n">SomeDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok_callback</span><span class="p">)</span>
-<span class="n">dlg</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
-<span class="n">dlg</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
+    <span class="n">dlg</span> <span class="o">=</span> <span class="n">SomeDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok_callback</span><span class="p">)</span>
+    <span class="n">dlg</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">dlg</span><span class="o">.</span><span class="n">Show</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="admonition tip">
@@ -115,7 +116,7 @@
 </div>
 <div class="section" id="pub-sub">
 <h4>Pub-sub<a class="headerlink" href="#pub-sub" title="Permalink to this headline">¶</a></h4>
-<p>A publish-subscribe framework is used for events which must be broadcast.</p>
+<p>A publish-subscribe framework is used for events which must be broadcast to multiple listeners.</p>
 <p>For example, the <a class="reference internal" href="../../user/gui/action/data_capture.html#data-capture"><em>Data capture</em></a> panel and dialog send out <tt class="docutils literal"><span class="pre">data_capture.start</span></tt>, <tt class="docutils literal"><span class="pre">data_capture.data</span></tt>, and <tt class="docutils literal"><span class="pre">data_capture.stop</span></tt> messages to the global publisher to indicate to anybody who may be listening (there may be zero or more listeners) that certain resources are being acquired. The <a class="reference internal" href="../../user/gui/config/measurement_config.html#measurement-config"><em>Measurement configuration</em></a> frames listen to whichever resource they are configured, and act accordingly when messages are received.</p>
 <p>Subscriptions are made with a call to <tt class="xref py py-obj docutils literal"><span class="pre">subscribe</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg_data_capture_start</span><span class="p">,</span> <span class="s">&#39;data_capture.start&#39;</span><span class="p">)</span>
@@ -133,6 +134,17 @@
 </div>
 </div>
 </div>
+<div class="section" id="thread-safety">
+<h2>Thread safety<a class="headerlink" href="#thread-safety" title="Permalink to this headline">¶</a></h2>
+<p>When performing an action which affects the GUI in another thread, it is crucial to use <tt class="xref py py-obj docutils literal"><span class="pre">wx.CallAfter</span></tt>. Peforming the action directly, as in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">display_label</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will cause the GUI event loop to break non-deterministically; depending on the frequency of such calls, the app may freeze or crash within a short time, or may not do so at all. To avoid this, the above example would be rewritten as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wx</span><span class="o">.</span><span class="n">CallAfter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_label</span><span class="o">.</span><span class="n">SetValue</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
@@ -140,7 +152,7 @@
       <div class="bottomnav">
       
         <p>
-        «&#160;&#160;<a href="devices.html">Devices</a>
+        «&#160;&#160;<a href="devices/dpo7104.html">Tektronix DPO7104</a>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;

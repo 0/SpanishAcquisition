@@ -2,7 +2,7 @@
 Devices
 #######
 
-Interfaces for various hardware devices.
+Interfaces for various hardware devices. This package allows the remaining components to talk to devices through a layer of abstraction.
 
 Class hierarchy
 ***************
@@ -12,6 +12,15 @@ All device classes inherit from :class:`spacq.devices.abstract_device.AbstractDe
 :class:`spacq.devices.config.DeviceConfig` and :func:`spacq.devices.config.device_tree` provide a way to find existing devices and connect to them.
 
 .. _devices_testing:
+
+Device implementation notes
+***************************
+
+.. toctree::
+   :maxdepth: 1
+
+   awg5014b
+   dpo7104
 
 Testing
 *******

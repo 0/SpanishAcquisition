@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Variable configuration &mdash; Spanish Acquisition v1.0.1 documentation</title>
+    <title>Variable configuration &mdash; Spanish Acquisition v1.0.2 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.1',
+        VERSION:     '1.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.1 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
     <link rel="up" title="Configuration" href="index.html" />
     <link rel="next" title="Display" href="../display/index.html" />
     <link rel="prev" title="Pulse program configuration" href="pulse_program_config.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.1 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
         <h2 class="heading"><span>Variable configuration</span></h2>
       </div>
       <div class="topnav">
@@ -61,7 +61,7 @@
 </li>
 <li><p class="first">A unique label to identify the variable. This name appears, for example, as a column heading when capturing data.</p>
 </li>
-<li><p class="first">The order number of variables is used to group them during the sweep. <strong>gate 1</strong> and <strong>gate 4</strong> have the same order, so would be stepped together in the inner loop <a class="footnote-reference" href="#inner-loop-order" id="id1">[1]</a> ; <strong>magnetic field</strong> has a higher order number, and so will be stepped alone in the outer loop.</p>
+<li><p class="first">The order number of variables is used to group them during the sweep. <strong>gate 1</strong> and <strong>gate 4</strong> have the same order, so would be stepped together in the inner loop; <strong>magnetic field</strong> has a higher order number, and so will be stepped alone in the outer loop.</p>
 </li>
 <li><p class="first">The resource label for the resource to which to write the values. All the resources provided must be writable. If a resource is not provided (such as with <strong>gate 4</strong>), the variable is still stepped in the usual fashion, but its values are discarded.</p>
 </li>
@@ -83,6 +83,10 @@
 </div>
 </div>
 <p>To select a variable, click on its row. To select multiple variables, hold down the &#8220;ctrl&#8221; key while clicking. When several variables are selected, some actions (such as clicking &#8220;Remove&#8221; or pressing the space bar) act on all of them.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The user interface is organized so that <strong>gate 2</strong> and <strong>gate 3</strong> are still displayed alongside the other variables with order number 1. However, <strong>gate 2</strong> is set to const, and so will be in a separate virtual order, and <strong>gate 3</strong> is disabled, so will not participate at all.</p>
+</div>
 <div class="section" id="variable-sweep-example">
 <h3>Variable sweep example<a class="headerlink" href="#variable-sweep-example" title="Permalink to this headline">¶</a></h3>
 <p>The configuration shown <a class="reference internal" href="#variable-config-figure"><em>above</em></a> would result in the following actions during a sweep:</p>
@@ -378,18 +382,11 @@
 <h3>Configuration panels<a class="headerlink" href="#configuration-panels" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="linear">
 <h4>Linear<a class="headerlink" href="#linear" title="Permalink to this headline">¶</a></h4>
-<p>A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are set to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.</p>
+<p>A linear space is described between the initial and final bounds (inclusive), consisting of the specified number of values. For example, if initial, final, and steps are were to 1, 5, and 9, respectively, the resulting values would be: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.</p>
 </div>
 <div class="section" id="arbitrary">
 <h4>Arbitrary<a class="headerlink" href="#arbitrary" title="Permalink to this headline">¶</a></h4>
 <p>Values are provided directly as a sequence of comma-separated numbers (with ignored whitespace). For example, the input &#8220;1, 32 , -5,6.543,0,0 , 1&#8221; would result in the values: 1, 32, -5, 6.543, 0, 0, 1.</p>
-<p class="rubric">Footnotes</p>
-<table class="docutils footnote" frame="void" id="inner-loop-order" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>The user interface is organized so that <strong>gate 2</strong> and <strong>gate 3</strong> are still displayed alongside the other variables with order number 1. However, <strong>gate 2</strong> is set to const, and so will be in a separate virtual order, and <strong>gate 3</strong> is disabled, so will not participate at all.</td></tr>
-</tbody>
-</table>
 </div>
 </div>
 </div>

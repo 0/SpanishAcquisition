@@ -2,6 +2,8 @@
 General information
 ###################
 
+The developer is assumed to have read through the :ref:`users_guide` before proceeding.
+
 Testing
 *******
 
@@ -10,15 +12,15 @@ All the non-GUI modules in this package have associated tests, found in the ``te
 .. note::
    Test failures can signify a missing :ref:`dependency <installation>`. While users can get by with only a subset, it is recommended that developers install *all* dependencies.
 
-Unit
-====
+Unit tests
+==========
 
 The unit tests can all be run with::
 
    ./runtests
 
-Server
-======
+Server tests
+============
 
 Currently, only device tests exist in the form of server tests. Before running these, the devices should be connected to the computer and :ref:`configured <devices_testing>`.
 
@@ -69,7 +71,7 @@ This places the result at ``docs/_build/html/index.html``.
 Updating
 ========
 
-It is crucial that all modifications which cause any changes to the user interface (whether they are changes in the GUI or changes in behaviour) are documented in the :ref:`users_guide` as they occur. All changes (especially internal ones not mentioned in the :ref:`users_guide`) should be documented in the :ref:`developers_guide`.
+It is crucial that all modifications which cause any changes to the user interface, whether they are changes in the GUI or changes in behaviour, are documented in the :ref:`users_guide` as they occur. All changes (especially internal ones not mentioned in the :ref:`users_guide`) should be documented in the :ref:`developers_guide`.
 
 Example applications
 ********************

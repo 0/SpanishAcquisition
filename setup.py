@@ -9,7 +9,7 @@ def included_package(p):
 
 setup(
 	name='SpanishAcquisition',
-	version='1.0.2',
+	version='1.0.3',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
 	description='Package for interfacing with devices and building user '

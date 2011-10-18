@@ -2,6 +2,13 @@
 Changes
 #######
 
+* 2011-10-18: **1.0.3**
+
+  Fixes:
+
+  * Prevented pubsub messages from being parsed in the wrong thread
+  * Sped up interface when using variables with units
+
 * 2011-08-25: **1.0.2**
 
   Fixes:

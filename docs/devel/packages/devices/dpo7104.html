@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tektronix DPO7104 &mdash; Spanish Acquisition v1.0.2 documentation</title>
+    <title>Tektronix DPO7104 &mdash; Spanish Acquisition v1.0.3 documentation</title>
     <link rel="stylesheet" href="../../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.3 documentation" href="../../../index.html" />
     <link rel="up" title="Devices" href="index.html" />
     <link rel="next" title="GUI" href="../gui.html" />
     <link rel="prev" title="Tektronix AWG5014B" href="awg5014b.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../../index.html">
-          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.3 documentation</span></a></h1>
         <h2 class="heading"><span>Tektronix DPO7104</span></h2>
       </div>
       <div class="topnav">
@@ -54,11 +54,11 @@
 <p>The following examples assume <tt class="docutils literal"><span class="pre">dpo</span> <span class="pre">=</span> <span class="pre">DPO7104(...)</span></tt>.</p>
 <div class="section" id="fastframe-mode">
 <span id="device-specific-dpo7104-fastframe"></span><h2>&#8220;FastFrame&#8221; mode<a class="headerlink" href="#fastframe-mode" title="Permalink to this headline">¶</a></h2>
-<p>In order to allow fast triggering for on-board averaging, the device can be placed into &#8220;FastFrame&#8221; mode (<tt class="docutils literal"><span class="pre">dpo.fastframe</span> <span class="pre">=</span> <span class="pre">True</span></tt>), which enables memory segmentation. The acquisition memory is split up into the requested number of frames (<tt class="docutils literal"><span class="pre">fastframe_count</span> <span class="pre">=</span> <span class="pre">17</span></tt>); this has the negative side effect of decreasing the maximum allowed resolution, since all frames share the same acquisition memory.</p>
+<p>In order to allow fast triggering for on-board averaging, the device can be placed into &#8220;FastFrame&#8221; mode (<tt class="docutils literal"><span class="pre">dpo.fastframe</span> <span class="pre">=</span> <span class="pre">True</span></tt>), which enables memory segmentation. The acquisition memory is split up into the requested number of frames (<tt class="docutils literal"><span class="pre">dpo.fastframe_count</span> <span class="pre">=</span> <span class="pre">17</span></tt>); this has the negative side effect of decreasing the maximum allowed resolution, since all frames share the same acquisition memory.</p>
 <p>The final frame must be enabled in either average (<tt class="docutils literal"><span class="pre">dpo.fastframe_sum</span> <span class="pre">=</span> <span class="pre">'average'</span></tt>) or envelope (<tt class="docutils literal"><span class="pre">dpo.fastframe_sum</span> <span class="pre">=</span> <span class="pre">'envelope'</span></tt>) mode.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><tt class="docutils literal"><span class="pre">fastframe_count</span></tt> includes the final frame.</p>
+<p class="last"><tt class="docutils literal"><span class="pre">dpo.fastframe_count</span></tt> includes the final frame.</p>
 </div>
 </div>
 <div class="section" id="waveform-acquisition">
@@ -84,7 +84,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Dmitri Iouchtchenko.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

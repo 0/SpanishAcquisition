@@ -7,14 +7,14 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>GUI &mdash; Spanish Acquisition v1.0.2 documentation</title>
+    <title>GUI &mdash; Spanish Acquisition v1.0.3 documentation</title>
     <link rel="stylesheet" href="../../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/print.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,14 +24,14 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="../../_static/theme_extras.js"></script>
-    <link rel="top" title="Spanish Acquisition v1.0.2 documentation" href="../../index.html" />
+    <link rel="top" title="Spanish Acquisition v1.0.3 documentation" href="../../index.html" />
     <link rel="up" title="Packages" href="index.html" />
     <link rel="next" title="Interface" href="interface.html" />
     <link rel="prev" title="Tektronix DPO7104" href="devices/dpo7104.html" /> 
   </head>
   <body>
       <div class="header"><h1 class="heading"><a href="../../index.html">
-          <span>Spanish Acquisition v1.0.2 documentation</span></a></h1>
+          <span>Spanish Acquisition v1.0.3 documentation</span></a></h1>
         <h2 class="heading"><span>GUI</span></h2>
       </div>
       <div class="topnav">
@@ -126,6 +126,10 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pub</span><span class="o">.</span><span class="n">sendMessage</span><span class="p">(</span><span class="s">&#39;data_capture.start&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Since the methods associated with the subsciptions for the given topic are run in the same thread as the call to <tt class="xref py py-obj docutils literal"><span class="pre">sendMessage</span></tt>, it is necessary to ensure <a class="reference internal" href="#devel-gui-threads"><em>thread safety</em></a> when the subscriber may perform GUI actions.</p>
+</div>
 <p>The handler must therefore have parameters which match the message being sent:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">msg_data_capture_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="o">...</span>
@@ -135,7 +139,7 @@
 </div>
 </div>
 <div class="section" id="thread-safety">
-<h2>Thread safety<a class="headerlink" href="#thread-safety" title="Permalink to this headline">¶</a></h2>
+<span id="devel-gui-threads"></span><h2>Thread safety<a class="headerlink" href="#thread-safety" title="Permalink to this headline">¶</a></h2>
 <p>When performing an action which affects the GUI in another thread, it is crucial to use <tt class="xref py py-obj docutils literal"><span class="pre">wx.CallAfter</span></tt>. Peforming the action directly, as in:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">display_label</span><span class="o">.</span><span class="n">SetValue</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
 </pre></div>
@@ -163,7 +167,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Dmitri Iouchtchenko.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

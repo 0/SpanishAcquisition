@@ -124,13 +124,15 @@ class OutputVariable(Variable):
 		else:
 			raise ValueError('Invalid variable setup; type: {0}, units: {1}'.format(self.type, self.units))
 
-	def __iter__(self):
+	@property
+	def raw_iter(self):
 		if self.use_const:
-			iterable = [self.const]
+			return [self.const]
 		else:
-			iterable = self.config
+			return iter(self.config)
 
-		return (self.with_type(x) for x in iterable)
+	def __iter__(self):
+		return (self.with_type(x) for x in self.raw_iter)
 
 	def __len__(self):
 		if self.use_const:
@@ -139,10 +141,12 @@ class OutputVariable(Variable):
 			return len(self.config)
 
 	def __str__(self):
-		found_values = list(islice(iter(self), 0, self.search_values + 1))
+		found_values = islice(self.raw_iter, 0, self.search_values + 1)
 
-		if isinstance(found_values[0], Quantity):
-			found_values = [x.original_value for x in found_values]
+		if self.type == 'integer':
+			found_values = [int(x) for x in found_values]
+		else:
+			found_values = list(found_values)
 
 		shown_values = ', '.join('{0:g}'.format(x) for x in found_values[:self.display_values])
 

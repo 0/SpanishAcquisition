@@ -1,5 +1,7 @@
+from functools import partial
 from threading import RLock
 from pubsub import pub
+import wx
 
 from spacq.tool.box import PubDict
 
@@ -16,8 +18,10 @@ class GlobalStore(object):
 	def __init__(self):
 		self.lock = RLock()
 
-		self.devices = PubDict(self.lock, pub, 'device')
-		self.resources = PubDict(self.lock, pub, 'resource')
-		self.variables = PubDict(self.lock, pub, 'variable')
+		send = partial(wx.CallAfter, pub.sendMessage)
+
+		self.devices = PubDict(self.lock, send, 'device')
+		self.resources = PubDict(self.lock, send, 'resource')
+		self.variables = PubDict(self.lock, send, 'variable')
 
 		self.pulse_program = None

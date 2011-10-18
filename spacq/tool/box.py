@@ -72,17 +72,17 @@ class PubDict(dict):
 	A locking, publishing dictionary.
 	"""
 
-	def __init__(self, lock, pub, topic, *args, **kwargs):
+	def __init__(self, lock, send, topic, *args, **kwargs):
 		"""
 		lock: A re-entrant lock which supports context management.
-		pub: A PubSub publisher.
+		send: Message-sending method of a PubSub publisher.
 		topic: The topic on which to send messages.
 		"""
 
 		dict.__init__(self, *args, **kwargs)
 
 		self.lock = lock
-		self.pub = pub
+		self.send = send
 		self.topic = topic
 
 	def __setitem__(self, k, v):
@@ -99,13 +99,13 @@ class PubDict(dict):
 
 			dict.__setitem__(self, k, v)
 
-			self.pub.sendMessage('{0}.added'.format(self.topic), name=k, value=v)
+			self.send('{0}.added'.format(self.topic), name=k, value=v)
 
 	def __delitem__(self, k):
 		with self.lock:
 			dict.__delitem__(self, k)
 
-			self.pub.sendMessage('{0}.removed'.format(self.topic), name=k)
+			self.send('{0}.removed'.format(self.topic), name=k)
 
 
 class Synchronized(object):

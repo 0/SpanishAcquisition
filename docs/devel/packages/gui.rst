@@ -95,10 +95,15 @@ Messages are sent with a call to :obj:`sendMessage`::
 
    pub.sendMessage('data_capture.start', name=name)
 
+.. warning::
+   Since the methods associated with the subsciptions for the given topic are run in the same thread as the call to :obj:`sendMessage`, it is necessary to ensure :ref:`thread safety <devel_gui_threads>` when the subscriber may perform GUI actions.
+
 The handler must therefore have parameters which match the message being sent::
 
    def msg_data_capture_start(self, name):
        ...
+
+.. _devel_gui_threads:
 
 Thread safety
 *************

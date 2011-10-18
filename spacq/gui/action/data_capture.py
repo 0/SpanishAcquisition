@@ -511,7 +511,7 @@ class DataCapturePanel(wx.Panel):
 		dlg.SetMinSize((500, -1))
 
 		for name in measurement_resource_names:
-			pub.sendMessage('data_capture.start', name=name)
+			wx.CallAfter(pub.sendMessage, 'data_capture.start', name=name)
 
 		# Export buffer.
 		max_buf_size = 10
@@ -527,7 +527,7 @@ class DataCapturePanel(wx.Panel):
 
 		def data_callback(cur_time, values, measurement_values):
 			for name, value in zip(measurement_resource_names, measurement_values):
-				pub.sendMessage('data_capture.data', name=name, value=value)
+				wx.CallAfter(pub.sendMessage, 'data_capture.data', name=name, value=value)
 
 			# Extract values out of quantities, since the units have already been taken care of in the header.
 			values = [x.original_value if hasattr(x, 'original_value') else x for x in values]
@@ -549,7 +549,7 @@ class DataCapturePanel(wx.Panel):
 					export_file.close()
 
 			for name in measurement_resource_names:
-				pub.sendMessage('data_capture.stop', name=name)
+				wx.CallAfter(pub.sendMessage, 'data_capture.stop', name=name)
 
 		dlg.data_callback = data_callback
 		dlg.close_callback = close_callback

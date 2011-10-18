@@ -188,7 +188,7 @@ class PubDictTest(TestCase):
 		p.subscribe(msg_added, 'test.added')
 		p.subscribe(msg_removed, 'test.removed')
 
-		pd = box.PubDict(RLock(), p, 'test')
+		pd = box.PubDict(RLock(), p.sendMessage, 'test')
 		pd['a'] = 'abc'
 		pd['b'] = 'def'
 		pd['c'] = 'ghi'
@@ -207,7 +207,7 @@ class PubDictTest(TestCase):
 		Attempt a compound operation.
 		"""
 
-		pd = box.PubDict(RLock(), pub.Publisher(), 'test')
+		pd = box.PubDict(RLock(), pub.Publisher().sendMessage, 'test')
 
 		pd['a'] = 'abc'
 
@@ -224,7 +224,7 @@ class PubDictTest(TestCase):
 		Try some bad scenarios.
 		"""
 
-		pd = box.PubDict(RLock(), pub.Publisher(), 'test')
+		pd = box.PubDict(RLock(), pub.Publisher().sendMessage, 'test')
 
 		# Setting None.
 		try:
